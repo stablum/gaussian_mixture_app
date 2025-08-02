@@ -21,8 +21,10 @@ export default function MathFormulasPanel({ componentCount }: MathFormulasPanelP
     <div className="space-y-4">
       <div>
         <h4 className="text-sm font-semibold text-gray-800 mb-2">Gaussian Mixture Model</h4>
-        <div className="bg-gray-50 p-3 rounded border">
-          <BlockMath math="p(x) = \sum_{k=1}^{K} \pi_k \mathcal{N}(x | \mu_k, \sigma_k^2)" />
+        <div className="bg-gray-50 p-3 rounded border overflow-x-auto">
+          <div className="min-w-max">
+            <BlockMath math="p(x) = \sum_{k=1}^{K} \pi_k \mathcal{N}(x | \mu_k, \sigma_k^2)" />
+          </div>
         </div>
         <p className="text-xs text-gray-600 mt-1">
           Where <InlineMath math="\pi_k" /> are mixture weights, <InlineMath math="\mu_k" /> are means, and <InlineMath math="\sigma_k^2" /> are variances.
@@ -31,16 +33,20 @@ export default function MathFormulasPanel({ componentCount }: MathFormulasPanelP
 
       <div>
         <h4 className="text-sm font-semibold text-gray-800 mb-2">Gaussian Component</h4>
-        <div className="bg-gray-50 p-3 rounded border">
-          <BlockMath math="\mathcal{N}(x | \mu, \sigma^2) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(x-\mu)^2}{2\sigma^2}\right)" />
+        <div className="bg-gray-50 p-3 rounded border overflow-x-auto">
+          <div className="min-w-max">
+            <BlockMath math="\mathcal{N}(x | \mu, \sigma^2) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(x-\mu)^2}{2\sigma^2}\right)" />
+          </div>
         </div>
       </div>
 
       <div>
         <h4 className="text-sm font-semibold text-gray-800 mb-2">Constraints</h4>
-        <div className="bg-gray-50 p-3 rounded border space-y-2">
-          <BlockMath math="\sum_{k=1}^{K} \pi_k = 1" />
-          <BlockMath math="\pi_k \geq 0 \quad \forall k" />
+        <div className="bg-gray-50 p-3 rounded border overflow-x-auto">
+          <div className="min-w-max space-y-2">
+            <BlockMath math="\sum_{k=1}^{K} \pi_k = 1" />
+            <BlockMath math="\pi_k \geq 0 \quad \forall k" />
+          </div>
         </div>
       </div>
     </div>
@@ -50,15 +56,19 @@ export default function MathFormulasPanel({ componentCount }: MathFormulasPanelP
     <div className="space-y-4">
       <div>
         <h4 className="text-sm font-semibold text-gray-800 mb-2">Log-Likelihood</h4>
-        <div className="bg-gray-50 p-3 rounded border">
-          <BlockMath math="\mathcal{L}(\theta) = \sum_{i=1}^{N} \log p(x_i | \theta)" />
+        <div className="bg-gray-50 p-3 rounded border overflow-x-auto">
+          <div className="min-w-max">
+            <BlockMath math="\mathcal{L}(\theta) = \sum_{i=1}^{N} \log p(x_i | \theta)" />
+          </div>
         </div>
       </div>
 
       <div>
         <h4 className="text-sm font-semibold text-blue-600 mb-2">🔵 E-Step: Expectation</h4>
-        <div className="bg-blue-50 p-3 rounded border">
-          <BlockMath math="\gamma_{ik} = \frac{\pi_k \mathcal{N}(x_i | \mu_k, \sigma_k^2)}{\sum_{j=1}^{K} \pi_j \mathcal{N}(x_i | \mu_j, \sigma_j^2)}" />
+        <div className="bg-blue-50 p-3 rounded border overflow-x-auto">
+          <div className="min-w-max">
+            <BlockMath math="\gamma_{ik} = \frac{\pi_k \mathcal{N}(x_i | \mu_k, \sigma_k^2)}{\sum_{j=1}^{K} \pi_j \mathcal{N}(x_i | \mu_j, \sigma_j^2)}" />
+          </div>
         </div>
         <p className="text-xs text-gray-600 mt-1">
           <InlineMath math="\gamma_{ik}" /> = responsibility of component <InlineMath math="k" /> for data point <InlineMath math="x_i" />
@@ -70,22 +80,38 @@ export default function MathFormulasPanel({ componentCount }: MathFormulasPanelP
         <div className="bg-green-50 p-3 rounded border space-y-3">
           <div>
             <p className="text-xs font-medium mb-1">Effective sample size:</p>
-            <BlockMath math="N_k = \sum_{i=1}^{N} \gamma_{ik}" />
+            <div className="overflow-x-auto">
+              <div className="min-w-max">
+                <BlockMath math="N_k = \sum_{i=1}^{N} \gamma_{ik}" />
+              </div>
+            </div>
           </div>
           
           <div>
             <p className="text-xs font-medium mb-1">Update mixture weights:</p>
-            <BlockMath math="\pi_k^{new} = \frac{N_k}{N}" />
+            <div className="overflow-x-auto">
+              <div className="min-w-max">
+                <BlockMath math="\pi_k^{new} = \frac{N_k}{N}" />
+              </div>
+            </div>
           </div>
           
           <div>
             <p className="text-xs font-medium mb-1">Update means:</p>
-            <BlockMath math="\mu_k^{new} = \frac{1}{N_k} \sum_{i=1}^{N} \gamma_{ik} x_i" />
+            <div className="overflow-x-auto">
+              <div className="min-w-max">
+                <BlockMath math="\mu_k^{new} = \frac{1}{N_k} \sum_{i=1}^{N} \gamma_{ik} x_i" />
+              </div>
+            </div>
           </div>
           
           <div>
             <p className="text-xs font-medium mb-1">Update variances:</p>
-            <BlockMath math="\sigma_k^{2,new} = \frac{1}{N_k} \sum_{i=1}^{N} \gamma_{ik} (x_i - \mu_k^{new})^2" />
+            <div className="overflow-x-auto">
+              <div className="min-w-max">
+                <BlockMath math="\sigma_k^{2,new} = \frac{1}{N_k} \sum_{i=1}^{N} \gamma_{ik} (x_i - \mu_k^{new})^2" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -96,8 +122,10 @@ export default function MathFormulasPanel({ componentCount }: MathFormulasPanelP
     <div className="space-y-4">
       <div>
         <h4 className="text-sm font-semibold text-gray-800 mb-2">Posterior Probability</h4>
-        <div className="bg-gray-50 p-3 rounded border">
-          <BlockMath math="P(k | x) = \frac{P(x | k) P(k)}{P(x)} = \frac{\pi_k \mathcal{N}(x | \mu_k, \sigma_k^2)}{\sum_{j=1}^{K} \pi_j \mathcal{N}(x | \mu_j, \sigma_j^2)}" />
+        <div className="bg-gray-50 p-3 rounded border overflow-x-auto">
+          <div className="min-w-max">
+            <BlockMath math="P(k | x) = \frac{P(x | k) P(k)}{P(x)} = \frac{\pi_k \mathcal{N}(x | \mu_k, \sigma_k^2)}{\sum_{j=1}^{K} \pi_j \mathcal{N}(x | \mu_j, \sigma_j^2)}" />
+          </div>
         </div>
         <p className="text-xs text-gray-600 mt-1">
           Probability that data point <InlineMath math="x" /> belongs to component <InlineMath math="k" />
@@ -107,28 +135,42 @@ export default function MathFormulasPanel({ componentCount }: MathFormulasPanelP
       <div>
         <h4 className="text-sm font-semibold text-gray-800 mb-2">Bayes' Theorem Components</h4>
         <div className="bg-gray-50 p-3 rounded border space-y-2">
-          <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
               <p className="font-medium">Prior:</p>
-              <InlineMath math="P(k) = \pi_k" />
+              <div className="overflow-x-auto">
+                <div className="min-w-max">
+                  <InlineMath math="P(k) = \pi_k" />
+                </div>
+              </div>
             </div>
             <div>
               <p className="font-medium">Likelihood:</p>
-              <InlineMath math="P(x | k) = \mathcal{N}(x | \mu_k, \sigma_k^2)" />
+              <div className="overflow-x-auto">
+                <div className="min-w-max">
+                  <InlineMath math="P(x | k) = \mathcal{N}(x | \mu_k, \sigma_k^2)" />
+                </div>
+              </div>
             </div>
           </div>
           <div>
             <p className="font-medium">Evidence:</p>
-            <InlineMath math="P(x) = \sum_{j=1}^{K} \pi_j \mathcal{N}(x | \mu_j, \sigma_j^2)" />
+            <div className="overflow-x-auto">
+              <div className="min-w-max">
+                <InlineMath math="P(x) = \sum_{j=1}^{K} \pi_j \mathcal{N}(x | \mu_j, \sigma_j^2)" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <div>
         <h4 className="text-sm font-semibold text-gray-800 mb-2">Properties</h4>
-        <div className="bg-gray-50 p-3 rounded border space-y-2">
-          <BlockMath math="\sum_{k=1}^{K} P(k | x) = 1" />
-          <BlockMath math="0 \leq P(k | x) \leq 1 \quad \forall k" />
+        <div className="bg-gray-50 p-3 rounded border overflow-x-auto">
+          <div className="min-w-max space-y-2">
+            <BlockMath math="\sum_{k=1}^{K} P(k | x) = 1" />
+            <BlockMath math="0 \leq P(k | x) \leq 1 \quad \forall k" />
+          </div>
         </div>
       </div>
     </div>
