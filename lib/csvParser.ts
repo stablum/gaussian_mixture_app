@@ -46,6 +46,19 @@ export interface SampleDataConfig {
   preset?: 'bimodal' | 'trimodal' | 'overlapping' | 'separated' | 'uniform' | 'custom';
 }
 
+export interface GeneratedDataInfo {
+  data: number[];
+  actualConfig: SampleDataConfig;
+  statistics: {
+    count: number;
+    mean: number;
+    stdDev: number;
+    min: number;
+    max: number;
+    componentCounts: number[];
+  };
+}
+
 export function generateSampleData(config?: Partial<SampleDataConfig>): number[] {
   // Default bimodal configuration
   const defaultConfig: SampleDataConfig = {
@@ -121,6 +134,105 @@ export function generateSampleData(config?: Partial<SampleDataConfig>): number[]
   }
   
   return data.sort((a, b) => a - b);
+}
+
+export function generateSampleDataWithInfo(config?: Partial<SampleDataConfig>): GeneratedDataInfo {
+  // Default bimodal configuration
+  const defaultConfig: SampleDataConfig = {
+    totalPoints: 100,
+    components: [
+      { mean: 3, stdDev: 1, weight: 0.6 },
+      { mean: 8, stdDev: 1.2, weight: 0.4 }
+    ]
+  };
+  
+  const finalConfig = { ...defaultConfig, ...config };
+  
+  // Apply preset configurations
+  if (finalConfig.preset) {
+    switch (finalConfig.preset) {
+      case 'bimodal':
+        finalConfig.components = [
+          { mean: 3, stdDev: 1, weight: 0.6 },
+          { mean: 8, stdDev: 1.2, weight: 0.4 }
+        ];
+        break;
+      case 'trimodal':
+        finalConfig.components = [
+          { mean: 2, stdDev: 0.8, weight: 0.3 },
+          { mean: 6, stdDev: 1, weight: 0.4 },
+          { mean: 10, stdDev: 1.2, weight: 0.3 }
+        ];
+        break;
+      case 'overlapping':
+        finalConfig.components = [
+          { mean: 4, stdDev: 1.5, weight: 0.5 },
+          { mean: 6, stdDev: 1.5, weight: 0.5 }
+        ];
+        break;
+      case 'separated':
+        finalConfig.components = [
+          { mean: 1, stdDev: 0.5, weight: 0.4 },
+          { mean: 9, stdDev: 0.5, weight: 0.6 }
+        ];
+        break;
+      case 'uniform':
+        finalConfig.components = [
+          { mean: 5, stdDev: 2.5, weight: 1.0 }
+        ];
+        break;
+    }
+  }
+  
+  // Normalize weights
+  const totalWeight = finalConfig.components.reduce((sum, comp) => sum + comp.weight, 0);
+  finalConfig.components = finalConfig.components.map(comp => ({
+    ...comp,
+    weight: comp.weight / totalWeight
+  }));
+  
+  const data: number[] = [];
+  const componentCounts: number[] = new Array(finalConfig.components.length).fill(0);
+  
+  // Generate data points for each component
+  finalConfig.components.forEach((component, componentIndex) => {
+    const numPoints = Math.round(finalConfig.totalPoints * component.weight);
+    componentCounts[componentIndex] = numPoints;
+    
+    for (let i = 0; i < numPoints; i++) {
+      const point = normalRandom(component.mean, component.stdDev);
+      data.push(point);
+    }
+  });
+  
+  // Fill remaining points if needed due to rounding
+  while (data.length < finalConfig.totalPoints) {
+    const randomComponentIndex = Math.floor(Math.random() * finalConfig.components.length);
+    const randomComponent = finalConfig.components[randomComponentIndex];
+    const point = normalRandom(randomComponent.mean, randomComponent.stdDev);
+    data.push(point);
+    componentCounts[randomComponentIndex]++;
+  }
+  
+  const sortedData = data.sort((a, b) => a - b);
+  
+  // Calculate statistics
+  const mean = sortedData.reduce((sum, x) => sum + x, 0) / sortedData.length;
+  const variance = sortedData.reduce((sum, x) => sum + Math.pow(x - mean, 2), 0) / (sortedData.length - 1);
+  const stdDev = Math.sqrt(variance);
+  
+  return {
+    data: sortedData,
+    actualConfig: finalConfig,
+    statistics: {
+      count: sortedData.length,
+      mean: mean,
+      stdDev: stdDev,
+      min: sortedData[0],
+      max: sortedData[sortedData.length - 1],
+      componentCounts: componentCounts
+    }
+  };
 }
 
 // Backward compatibility

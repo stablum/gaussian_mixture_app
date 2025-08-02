@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { parseCSV, generateSampleData, SampleDataConfig } from '@/lib/csvParser';
+import { parseCSV, generateSampleData, generateSampleDataWithInfo, SampleDataConfig, GeneratedDataInfo } from '@/lib/csvParser';
 
 interface FileUploadProps {
   onDataLoad: (data: number[]) => void;
@@ -10,6 +10,7 @@ interface FileUploadProps {
 export default function FileUpload({ onDataLoad }: FileUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [generatedInfo, setGeneratedInfo] = useState<GeneratedDataInfo | null>(null);
   const [sampleConfig, setSampleConfig] = useState<Partial<SampleDataConfig>>({
     totalPoints: 100,
     preset: 'bimodal'
@@ -32,6 +33,7 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
           alert('No valid numerical data found in the file');
           return;
         }
+        setGeneratedInfo(null); // Clear any previous generation info
         onDataLoad(data);
       } catch (error) {
         alert('Error parsing CSV file: ' + (error as Error).message);
@@ -45,8 +47,9 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
     if (sampleConfig.preset === 'custom') {
       config.components = customComponents;
     }
-    const sampleData = generateSampleData(config);
-    onDataLoad(sampleData);
+    const dataInfo = generateSampleDataWithInfo(config);
+    setGeneratedInfo(dataInfo);
+    onDataLoad(dataInfo.data);
   };
 
   const presetDescriptions = {
@@ -215,6 +218,73 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
           <div className="text-sm text-gray-600">
             <strong>Selected:</strong> {presetDescriptions[sampleConfig.preset as keyof typeof presetDescriptions]} 
             ({sampleConfig.totalPoints} points)
+          </div>
+        </div>
+      )}
+
+      {generatedInfo && (
+        <div className="mt-4 pt-4 border-t bg-blue-50 -mx-4 -mb-4 px-4 pb-4 rounded-b-lg">
+          <h4 className="text-sm font-semibold text-blue-900 mb-3">Generated Distribution Details</h4>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div className="bg-white p-3 rounded border">
+              <h5 className="text-xs font-medium text-gray-700 mb-2">Data Statistics</h5>
+              <div className="space-y-1 text-xs">
+                <div className="flex justify-between">
+                  <span>Count:</span>
+                  <span className="font-mono">{generatedInfo.statistics.count}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Mean:</span>
+                  <span className="font-mono">{generatedInfo.statistics.mean.toFixed(3)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Std Dev:</span>
+                  <span className="font-mono">{generatedInfo.statistics.stdDev.toFixed(3)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Range:</span>
+                  <span className="font-mono">{generatedInfo.statistics.min.toFixed(2)} - {generatedInfo.statistics.max.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white p-3 rounded border">
+              <h5 className="text-xs font-medium text-gray-700 mb-2">Distribution Configuration</h5>
+              <div className="space-y-1 text-xs">
+                <div className="flex justify-between">
+                  <span>Preset:</span>
+                  <span className="font-mono">{generatedInfo.actualConfig.preset || 'custom'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Components:</span>
+                  <span className="font-mono">{generatedInfo.actualConfig.components.length}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-3 rounded border">
+            <h5 className="text-xs font-medium text-gray-700 mb-2">Component Details</h5>
+            <div className="space-y-2">
+              {generatedInfo.actualConfig.components.map((comp, index) => (
+                <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded text-xs">
+                  <div className="flex gap-4">
+                    <span><strong>Component {index + 1}:</strong></span>
+                    <span>μ = {comp.mean.toFixed(2)}</span>
+                    <span>σ = {comp.stdDev.toFixed(2)}</span>
+                    <span>π = {comp.weight.toFixed(3)}</span>
+                  </div>
+                  <div className="text-blue-600 font-medium">
+                    {generatedInfo.statistics.componentCounts[index]} points
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="text-xs text-gray-600 mt-2">
+            <strong>Note:</strong> These are the exact parameters used to generate your data. The EM algorithm will attempt to recover these values.
           </div>
         </div>
       )}
