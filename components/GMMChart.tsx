@@ -26,7 +26,7 @@ export default function GMMChart({
   const [isDragging, setIsDragging] = useState<number | null>(null);
   const [hoverLine, setHoverLine] = useState<number | null>(null);
 
-  const margin = { top: 20, right: 20, bottom: 40, left: 50 };
+  const margin = { top: 20, right: 220, bottom: 40, left: 60 };
   const chartWidth = width - margin.left - margin.right;
   const chartHeight = height - margin.top - margin.bottom;
 
@@ -60,20 +60,26 @@ export default function GMMChart({
       }))
     );
 
-    // Calculate posterior probabilities for each component
+    // Calculate initial maxY from mixture and components
+    const initialMaxY = Math.max(
+      d3.max(mixtureValues, d => d.y) || 0,
+      ...componentCurves.map(curve => d3.max(curve, d => d.y) || 0)
+    );
+
+    // Calculate posterior probabilities for each component (scaled for visibility)
     const posteriorCurves = components.map((comp, i) => 
       xValues.map(x => {
         const probabilities = gmm.evaluateMixture(x, components);
+        // Scale posterior by initial max height for visibility
         return {
           x,
-          y: probabilities.posteriors[i] * probabilities.total // Scale by total probability
+          y: probabilities.posteriors[i] * initialMaxY * 0.8 // Scale to 80% of max height
         };
       })
     );
 
     const maxY = Math.max(
-      d3.max(mixtureValues, d => d.y) || 0,
-      ...componentCurves.map(curve => d3.max(curve, d => d.y) || 0),
+      initialMaxY,
       ...posteriorCurves.map(curve => d3.max(curve, d => d.y) || 0)
     );
 
@@ -83,6 +89,16 @@ export default function GMMChart({
 
     const g = svg.append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    // Add clipping path to prevent overflow
+    svg.append('defs').append('clipPath')
+      .attr('id', 'chart-clip')
+      .append('rect')
+      .attr('width', chartWidth)
+      .attr('height', chartHeight);
+
+    const chartArea = g.append('g')
+      .attr('clip-path', 'url(#chart-clip)');
 
     g.append('g')
       .attr('transform', `translate(0,${chartHeight})`)
@@ -104,27 +120,28 @@ export default function GMMChart({
       .style('text-anchor', 'middle')
       .text('Value');
 
-    // Add legend
+    // Add legend (positioned in the right margin)
     const legend = g.append('g')
       .attr('class', 'legend')
-      .attr('transform', `translate(${chartWidth - 200}, 20)`);
+      .attr('transform', `translate(${chartWidth + 20}, 20)`);
 
     // Legend background
     legend.append('rect')
       .attr('x', -10)
       .attr('y', -5)
-      .attr('width', 210)
+      .attr('width', 190)
       .attr('height', 75)
       .attr('fill', 'white')
       .attr('stroke', 'gray')
       .attr('stroke-width', 1)
-      .attr('opacity', 0.9);
+      .attr('opacity', 0.9)
+      .attr('rx', 4);
 
     // Legend items
     const legendData = [
       { label: 'Mixture Distribution', stroke: 'black', strokeWidth: 3, dashArray: 'none' },
       { label: 'Component Densities', stroke: getComponentColor(0), strokeWidth: 1.5, dashArray: '5,5' },
-      { label: 'Posterior Probabilities', stroke: getComponentColor(0), strokeWidth: 2, dashArray: '2,3' }
+      { label: 'Posteriors (scaled)', stroke: getComponentColor(0), strokeWidth: 2, dashArray: '2,3' }
     ];
 
     const legendItems = legend.selectAll('.legend-item')
@@ -156,7 +173,7 @@ export default function GMMChart({
 
     // Draw component probability curves (dashed lines)
     componentCurves.forEach((curve, i) => {
-      g.append('path')
+      chartArea.append('path')
         .datum(curve)
         .attr('fill', 'none')
         .attr('stroke', getComponentColor(i))
@@ -167,7 +184,7 @@ export default function GMMChart({
 
     // Draw posterior probability curves (dotted lines)
     posteriorCurves.forEach((curve, i) => {
-      g.append('path')
+      chartArea.append('path')
         .datum(curve)
         .attr('fill', 'none')
         .attr('stroke', getComponentColor(i))
@@ -177,14 +194,14 @@ export default function GMMChart({
         .attr('d', line);
     });
 
-    g.append('path')
+    chartArea.append('path')
       .datum(mixtureValues)
       .attr('fill', 'none')
       .attr('stroke', 'black')
       .attr('stroke-width', 3)
       .attr('d', line);
 
-    const dataPoints = g.selectAll('.data-point')
+    const dataPoints = chartArea.selectAll('.data-point')
       .data(data)
       .enter().append('circle')
       .attr('class', 'data-point')
@@ -194,7 +211,7 @@ export default function GMMChart({
       .attr('fill', 'steelblue')
       .attr('opacity', 0.6);
 
-    const muLines = g.selectAll('.mu-line')
+    const muLines = chartArea.selectAll('.mu-line')
       .data(components)
       .enter().append('g')
       .attr('class', 'mu-line');

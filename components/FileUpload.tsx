@@ -78,8 +78,8 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
   };
 
   return (
-    <div className="bg-white border rounded-lg p-4 mb-4">
-      <h3 className="text-lg font-semibold mb-3">Data Input</h3>
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4 mb-4 transition-colors">
+      <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Data Input</h3>
       
       <div className="flex gap-4 items-center mb-4">
         <div>
@@ -92,24 +92,24 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
           />
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+            className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors"
           >
             Upload CSV File
           </button>
         </div>
         
-        <span className="text-gray-500">or</span>
+        <span className="text-gray-500 dark:text-gray-400">or</span>
         
         <div className="flex gap-2">
           <button
             onClick={handleGenerateSample}
-            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+            className="px-4 py-2 bg-green-500 dark:bg-green-600 text-white rounded hover:bg-green-600 dark:hover:bg-green-700 transition-colors"
           >
             Generate Sample Data
           </button>
           <button
             onClick={() => setShowAdvanced(!showAdvanced)}
-            className="px-3 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors text-sm"
+            className="px-3 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors text-sm"
           >
             {showAdvanced ? '▲' : '▼'} Options
           </button>

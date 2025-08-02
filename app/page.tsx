@@ -8,6 +8,7 @@ import FileUpload from '@/components/FileUpload';
 import EMControls from '@/components/EMControls';
 import ParameterPanel from '@/components/ParameterPanel';
 import MathFormulasPanel from '@/components/MathFormulasPanel';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function Home() {
   const [data, setData] = useState<number[]>([]);
@@ -187,17 +188,22 @@ export default function Home() {
   
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6 transition-colors">
       <div className="max-w-7xl mx-auto">
         <header className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Gaussian Mixture Model Explorer
-          </h1>
-          <p className="text-gray-600">
-            Interactive tool for exploring 1D Gaussian mixture models and the EM algorithm
-          </p>
-          <div className="text-xs text-gray-400 mt-1">
-            v2.0.1 - Automated Deployment Active
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                Gaussian Mixture Model Explorer
+              </h1>
+              <p className="text-gray-600 dark:text-gray-300">
+                Interactive tool for exploring 1D Gaussian mixture models and the EM algorithm
+              </p>
+              <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                v2.0.1 - Automated Deployment Active
+              </div>
+            </div>
+            <ThemeToggle />
           </div>
         </header>
 
