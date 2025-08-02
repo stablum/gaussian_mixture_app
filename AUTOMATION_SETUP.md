@@ -3,7 +3,8 @@
 ## Current Status
 ✅ **Vercel Integration**: Your app auto-deploys on every push to main branch  
 ✅ **Production URL**: https://gaussian-mixture-app.vercel.app/  
-❌ **GitHub Actions**: Ready but blocked by token permissions
+✅ **GitHub Actions**: Active and running (2 workflows deployed)
+✅ **Token Permissions**: Updated with workflow scope
 
 ## Completed Automation
 Since your app is already connected to Vercel, **automated deployment is already working**:
