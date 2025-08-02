@@ -195,6 +195,9 @@ export default function Home() {
           <p className="text-gray-600">
             Interactive tool for exploring 1D Gaussian mixture models and the EM algorithm
           </p>
+          <div className="text-xs text-gray-400 mt-1">
+            v2.0.1 - Automated Deployment Active
+          </div>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
