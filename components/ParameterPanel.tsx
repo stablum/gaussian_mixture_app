@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { GaussianComponent } from '@/lib/gmm';
+import { getComponentColor } from '@/lib/colors';
 
 interface ParameterPanelProps {
   components: GaussianComponent[];
@@ -21,7 +22,6 @@ export default function ParameterPanel({
   hoverInfo, 
   onComponentCountChange 
 }: ParameterPanelProps) {
-  const colors = ['#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2'];
 
   return (
     <div className="bg-white border rounded-lg p-4">
@@ -47,9 +47,9 @@ export default function ParameterPanel({
           <div 
             key={index}
             className="border rounded p-3"
-            style={{ borderLeftColor: colors[index], borderLeftWidth: '4px' }}
+            style={{ borderLeftColor: getComponentColor(index), borderLeftWidth: '4px' }}
           >
-            <h4 className="font-medium mb-2" style={{ color: colors[index] }}>
+            <h4 className="font-medium mb-2" style={{ color: getComponentColor(index) }}>
               Component {index + 1}
             </h4>
             
@@ -88,7 +88,7 @@ export default function ParameterPanel({
               <div className="mt-1 space-y-1">
                 {hoverInfo.probabilities.componentProbs.map((prob, index) => (
                   <div key={index} className="flex justify-between">
-                    <span style={{ color: colors[index] }}>Component {index + 1}:</span>
+                    <span style={{ color: getComponentColor(index) }}>Component {index + 1}:</span>
                     <span className="font-mono">{prob.toFixed(4)}</span>
                   </div>
                 ))}
@@ -100,7 +100,7 @@ export default function ParameterPanel({
               <div className="mt-1 space-y-1">
                 {hoverInfo.probabilities.posteriors.map((posterior, index) => (
                   <div key={index} className="flex justify-between">
-                    <span style={{ color: colors[index] }}>P(Component {index + 1} | x):</span>
+                    <span style={{ color: getComponentColor(index) }}>P(Component {index + 1} | x):</span>
                     <span className="font-mono">{posterior.toFixed(4)}</span>
                   </div>
                 ))}

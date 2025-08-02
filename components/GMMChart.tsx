@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { GaussianComponent, GaussianMixtureModel } from '@/lib/gmm';
+import { getComponentColor } from '@/lib/colors';
 
 interface GMMChartProps {
   data: number[];
@@ -59,9 +60,21 @@ export default function GMMChart({
       }))
     );
 
+    // Calculate posterior probabilities for each component
+    const posteriorCurves = components.map((comp, i) => 
+      xValues.map(x => {
+        const probabilities = gmm.evaluateMixture(x, components);
+        return {
+          x,
+          y: probabilities.posteriors[i] * probabilities.total // Scale by total probability
+        };
+      })
+    );
+
     const maxY = Math.max(
       d3.max(mixtureValues, d => d.y) || 0,
-      ...componentCurves.map(curve => d3.max(curve, d => d.y) || 0)
+      ...componentCurves.map(curve => d3.max(curve, d => d.y) || 0),
+      ...posteriorCurves.map(curve => d3.max(curve, d => d.y) || 0)
     );
 
     const yScale = d3.scaleLinear()
@@ -91,20 +104,76 @@ export default function GMMChart({
       .style('text-anchor', 'middle')
       .text('Value');
 
+    // Add legend
+    const legend = g.append('g')
+      .attr('class', 'legend')
+      .attr('transform', `translate(${chartWidth - 200}, 20)`);
+
+    // Legend background
+    legend.append('rect')
+      .attr('x', -10)
+      .attr('y', -5)
+      .attr('width', 210)
+      .attr('height', 75)
+      .attr('fill', 'white')
+      .attr('stroke', 'gray')
+      .attr('stroke-width', 1)
+      .attr('opacity', 0.9);
+
+    // Legend items
+    const legendData = [
+      { label: 'Mixture Distribution', stroke: 'black', strokeWidth: 3, dashArray: 'none' },
+      { label: 'Component Densities', stroke: getComponentColor(0), strokeWidth: 1.5, dashArray: '5,5' },
+      { label: 'Posterior Probabilities', stroke: getComponentColor(0), strokeWidth: 2, dashArray: '2,3' }
+    ];
+
+    const legendItems = legend.selectAll('.legend-item')
+      .data(legendData)
+      .enter().append('g')
+      .attr('class', 'legend-item')
+      .attr('transform', (d, i) => `translate(0, ${i * 20})`);
+
+    legendItems.append('line')
+      .attr('x1', 0)
+      .attr('x2', 20)
+      .attr('y1', 0)
+      .attr('y2', 0)
+      .attr('stroke', d => d.stroke)
+      .attr('stroke-width', d => d.strokeWidth)
+      .attr('stroke-dasharray', d => d.dashArray === 'none' ? null : d.dashArray);
+
+    legendItems.append('text')
+      .attr('x', 25)
+      .attr('y', 0)
+      .attr('dy', '0.35em')
+      .style('font-size', '12px')
+      .text(d => d.label);
+
     const line = d3.line<{x: number, y: number}>()
       .x(d => xScale(d.x))
       .y(d => yScale(d.y))
       .curve(d3.curveCardinal);
 
-    const colors = d3.schemeCategory10;
-
+    // Draw component probability curves (dashed lines)
     componentCurves.forEach((curve, i) => {
       g.append('path')
         .datum(curve)
         .attr('fill', 'none')
-        .attr('stroke', colors[i])
+        .attr('stroke', getComponentColor(i))
         .attr('stroke-width', 1.5)
         .attr('stroke-dasharray', '5,5')
+        .attr('d', line);
+    });
+
+    // Draw posterior probability curves (dotted lines)
+    posteriorCurves.forEach((curve, i) => {
+      g.append('path')
+        .datum(curve)
+        .attr('fill', 'none')
+        .attr('stroke', getComponentColor(i))
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '2,3')
+        .attr('opacity', 0.8)
         .attr('d', line);
     });
 
@@ -135,7 +204,7 @@ export default function GMMChart({
       .attr('x2', d => xScale(d.mu))
       .attr('y1', 0)
       .attr('y2', chartHeight)
-      .attr('stroke', (d, i) => colors[i])
+      .attr('stroke', (d, i) => getComponentColor(i))
       .attr('stroke-width', 2)
       .attr('opacity', 0.7);
 
@@ -143,7 +212,7 @@ export default function GMMChart({
       .attr('cx', d => xScale(d.mu))
       .attr('cy', d => yScale(d.pi * maxY))
       .attr('r', 8)
-      .attr('fill', (d, i) => colors[i])
+      .attr('fill', (d, i) => getComponentColor(i))
       .attr('stroke', 'white')
       .attr('stroke-width', 2)
       .style('cursor', 'move');
