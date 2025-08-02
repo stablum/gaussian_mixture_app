@@ -1,0 +1,15 @@
+I need an app to explore a 1D gaussian mixture, visualized as a probability chart.
+The x in the chart is the domain of the values and the y in the chart is probability.
+It should be able to take a dataset from a file.
+Also, it should be able to run a maximization-expectation algorithm.
+Should be able to traverse the various E and M iterations with buttons to go forward and backwards.
+Should display all parameters all the time, also while they are being progressively refined.
+Should show the mus as vertical lines.
+Should plot the gaussian components.
+Should show the gaussian mixture.
+The main aim is for the student that is using this tool to see the interplay between parameter values and centers.
+The user should be able to drag the center of a gaussian component around.
+Also, the user should be able to drag a component down or up to reduce or increase its pi parameter.
+There should be a mode that by hovering the chart a vertical line is displayed seamlessly, that line represent a query to the mixture. During this interaction the value of the probability of the mixture should be displayed, as well as the probability within the individual component; also, the posterior probability of the query point being of each of the components (so sum of those probabilities should obviously be 1).
+The interface should be web, also deployable online on a service free of charge.
+Also make a docker thing to run it locally.
