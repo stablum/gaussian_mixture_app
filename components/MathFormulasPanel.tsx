@@ -27,7 +27,7 @@ export default function MathFormulasPanel({ componentCount }: MathFormulasPanelP
           </div>
         </div>
         <p className="text-xs text-gray-600 mt-1">
-          Where <InlineMath math="\pi_k" /> are mixture weights, <InlineMath math="\mu_k" /> are means, and <InlineMath math="\sigma_k^2" /> are variances.
+          Where <InlineMath math="\pi_k" /> are mixing coefficients, <InlineMath math="\mu_k" /> are component means, and <InlineMath math="\sigma_k^2" /> are component variances for component <InlineMath math="k" />.
         </p>
       </div>
 
@@ -35,9 +35,12 @@ export default function MathFormulasPanel({ componentCount }: MathFormulasPanelP
         <h4 className="text-sm font-semibold text-gray-800 mb-2">Gaussian Component</h4>
         <div className="bg-gray-50 p-3 rounded border overflow-x-auto">
           <div className="min-w-max">
-            <BlockMath math="\mathcal{N}(x | \mu, \sigma^2) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(x-\mu)^2}{2\sigma^2}\right)" />
+            <BlockMath math="\mathcal{N}(x | \mu_k, \sigma_k^2) = \frac{1}{\sqrt{2\pi\sigma_k^2}} \exp\left(-\frac{(x-\mu_k)^2}{2\sigma_k^2}\right)" />
           </div>
         </div>
+        <p className="text-xs text-gray-600 mt-1">
+          Individual Gaussian component <InlineMath math="k" /> with parameters <InlineMath math="\mu_k" /> and <InlineMath math="\sigma_k^2" />
+        </p>
       </div>
 
       <div>
@@ -45,9 +48,12 @@ export default function MathFormulasPanel({ componentCount }: MathFormulasPanelP
         <div className="bg-gray-50 p-3 rounded border overflow-x-auto">
           <div className="min-w-max space-y-2">
             <BlockMath math="\sum_{k=1}^{K} \pi_k = 1" />
-            <BlockMath math="\pi_k \geq 0 \quad \forall k" />
+            <BlockMath math="\pi_k \geq 0 \quad \forall k \in \{1, 2, \ldots, K\}" />
           </div>
         </div>
+        <p className="text-xs text-gray-600 mt-1">
+          Mixing coefficients must be non-negative and sum to unity
+        </p>
       </div>
     </div>
   );
@@ -67,11 +73,11 @@ export default function MathFormulasPanel({ componentCount }: MathFormulasPanelP
         <h4 className="text-sm font-semibold text-blue-600 mb-2">🔵 E-Step: Expectation</h4>
         <div className="bg-blue-50 p-3 rounded border overflow-x-auto">
           <div className="min-w-max">
-            <BlockMath math="\gamma_{ik} = \frac{\pi_k \mathcal{N}(x_i | \mu_k, \sigma_k^2)}{\sum_{j=1}^{K} \pi_j \mathcal{N}(x_i | \mu_j, \sigma_j^2)}" />
+            <BlockMath math="\gamma(z_{nk}) = \frac{\pi_k \mathcal{N}(x_n | \mu_k, \sigma_k^2)}{\sum_{j=1}^{K} \pi_j \mathcal{N}(x_n | \mu_j, \sigma_j^2)}" />
           </div>
         </div>
         <p className="text-xs text-gray-600 mt-1">
-          <InlineMath math="\gamma_{ik}" /> = responsibility of component <InlineMath math="k" /> for data point <InlineMath math="x_i" />
+          Responsibility that component <InlineMath math="k" /> takes for explaining observation <InlineMath math="x_n" /> (Bishop's notation)
         </p>
       </div>
 
@@ -82,13 +88,13 @@ export default function MathFormulasPanel({ componentCount }: MathFormulasPanelP
             <p className="text-xs font-medium mb-1">Effective sample size:</p>
             <div className="overflow-x-auto">
               <div className="min-w-max">
-                <BlockMath math="N_k = \sum_{i=1}^{N} \gamma_{ik}" />
+                <BlockMath math="N_k = \sum_{n=1}^{N} \gamma(z_{nk})" />
               </div>
             </div>
           </div>
           
           <div>
-            <p className="text-xs font-medium mb-1">Update mixture weights:</p>
+            <p className="text-xs font-medium mb-1">Update mixing coefficients:</p>
             <div className="overflow-x-auto">
               <div className="min-w-max">
                 <BlockMath math="\pi_k^{new} = \frac{N_k}{N}" />
@@ -100,7 +106,7 @@ export default function MathFormulasPanel({ componentCount }: MathFormulasPanelP
             <p className="text-xs font-medium mb-1">Update means:</p>
             <div className="overflow-x-auto">
               <div className="min-w-max">
-                <BlockMath math="\mu_k^{new} = \frac{1}{N_k} \sum_{i=1}^{N} \gamma_{ik} x_i" />
+                <BlockMath math="\mu_k^{new} = \frac{1}{N_k} \sum_{n=1}^{N} \gamma(z_{nk}) x_n" />
               </div>
             </div>
           </div>
@@ -109,7 +115,7 @@ export default function MathFormulasPanel({ componentCount }: MathFormulasPanelP
             <p className="text-xs font-medium mb-1">Update variances:</p>
             <div className="overflow-x-auto">
               <div className="min-w-max">
-                <BlockMath math="\sigma_k^{2,new} = \frac{1}{N_k} \sum_{i=1}^{N} \gamma_{ik} (x_i - \mu_k^{new})^2" />
+                <BlockMath math="\sigma_k^{2,new} = \frac{1}{N_k} \sum_{n=1}^{N} \gamma(z_{nk}) (x_n - \mu_k^{new})^2" />
               </div>
             </div>
           </div>
@@ -124,11 +130,11 @@ export default function MathFormulasPanel({ componentCount }: MathFormulasPanelP
         <h4 className="text-sm font-semibold text-gray-800 mb-2">Posterior Probability</h4>
         <div className="bg-gray-50 p-3 rounded border overflow-x-auto">
           <div className="min-w-max">
-            <BlockMath math="P(k | x) = \frac{P(x | k) P(k)}{P(x)} = \frac{\pi_k \mathcal{N}(x | \mu_k, \sigma_k^2)}{\sum_{j=1}^{K} \pi_j \mathcal{N}(x | \mu_j, \sigma_j^2)}" />
+            <BlockMath math="p(z_k = 1 | x) = \frac{p(x | z_k = 1) p(z_k = 1)}{p(x)} = \frac{\pi_k \mathcal{N}(x | \mu_k, \sigma_k^2)}{\sum_{j=1}^{K} \pi_j \mathcal{N}(x | \mu_j, \sigma_j^2)}" />
           </div>
         </div>
         <p className="text-xs text-gray-600 mt-1">
-          Probability that data point <InlineMath math="x" /> belongs to component <InlineMath math="k" />
+          Posterior probability that latent variable <InlineMath math="z_k = 1" /> (i.e., component <InlineMath math="k" /> generated observation <InlineMath math="x" />)
         </p>
       </div>
 
@@ -140,7 +146,7 @@ export default function MathFormulasPanel({ componentCount }: MathFormulasPanelP
               <p className="font-medium">Prior:</p>
               <div className="overflow-x-auto">
                 <div className="min-w-max">
-                  <InlineMath math="P(k) = \pi_k" />
+                  <InlineMath math="p(z_k = 1) = \pi_k" />
                 </div>
               </div>
             </div>
@@ -148,7 +154,7 @@ export default function MathFormulasPanel({ componentCount }: MathFormulasPanelP
               <p className="font-medium">Likelihood:</p>
               <div className="overflow-x-auto">
                 <div className="min-w-max">
-                  <InlineMath math="P(x | k) = \mathcal{N}(x | \mu_k, \sigma_k^2)" />
+                  <InlineMath math="p(x | z_k = 1) = \mathcal{N}(x | \mu_k, \sigma_k^2)" />
                 </div>
               </div>
             </div>
@@ -157,7 +163,7 @@ export default function MathFormulasPanel({ componentCount }: MathFormulasPanelP
             <p className="font-medium">Evidence:</p>
             <div className="overflow-x-auto">
               <div className="min-w-max">
-                <InlineMath math="P(x) = \sum_{j=1}^{K} \pi_j \mathcal{N}(x | \mu_j, \sigma_j^2)" />
+                <InlineMath math="p(x) = \sum_{j=1}^{K} \pi_j \mathcal{N}(x | \mu_j, \sigma_j^2)" />
               </div>
             </div>
           </div>
@@ -168,8 +174,8 @@ export default function MathFormulasPanel({ componentCount }: MathFormulasPanelP
         <h4 className="text-sm font-semibold text-gray-800 mb-2">Properties</h4>
         <div className="bg-gray-50 p-3 rounded border overflow-x-auto">
           <div className="min-w-max space-y-2">
-            <BlockMath math="\sum_{k=1}^{K} P(k | x) = 1" />
-            <BlockMath math="0 \leq P(k | x) \leq 1 \quad \forall k" />
+            <BlockMath math="\sum_{k=1}^{K} p(z_k = 1 | x) = 1" />
+            <BlockMath math="0 \leq p(z_k = 1 | x) \leq 1 \quad \forall k \in \{1, 2, \ldots, K\}" />
           </div>
         </div>
       </div>
@@ -177,24 +183,24 @@ export default function MathFormulasPanel({ componentCount }: MathFormulasPanelP
   );
 
   return (
-    <div className="bg-white border rounded-lg p-4">
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4 transition-colors">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold">Mathematical Formulation</h3>
-        <div className="text-xs text-gray-500">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Mathematical Formulation</h3>
+        <div className="text-xs text-gray-500 dark:text-gray-400">
           K = {componentCount} components
         </div>
       </div>
 
       {/* Section tabs */}
-      <div className="flex space-x-1 mb-4 bg-gray-100 p-1 rounded">
+      <div className="flex space-x-1 mb-4 bg-gray-100 dark:bg-gray-700 p-1 rounded transition-colors">
         {sections.map((section) => (
           <button
             key={section.id}
             onClick={() => setActiveSection(section.id)}
             className={`flex-1 px-3 py-2 text-sm font-medium rounded transition-colors ${
               activeSection === section.id
-                ? 'bg-white text-blue-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-800'
+                ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
+                : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100'
             }`}
           >
             <span className="mr-1">{section.icon}</span>
@@ -210,7 +216,7 @@ export default function MathFormulasPanel({ componentCount }: MathFormulasPanelP
         {activeSection === 'posteriors' && renderPosteriorsFormulas()}
       </div>
 
-      <div className="mt-4 pt-4 border-t text-xs text-gray-600">
+      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600 text-xs text-gray-600 dark:text-gray-400 transition-colors">
         <p><strong>Interactive:</strong> Hover over the chart to see posterior probabilities in action!</p>
       </div>
     </div>

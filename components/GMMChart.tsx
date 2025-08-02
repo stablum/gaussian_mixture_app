@@ -36,6 +36,9 @@ export default function GMMChart({
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();
 
+    // Check if dark mode is active
+    const isDarkMode = document.documentElement.classList.contains('dark');
+
     const dataExtent = d3.extent(data) as [number, number];
     const dataRange = dataExtent[1] - dataExtent[0];
     const xMin = dataExtent[0] - dataRange * 0.1;
@@ -100,12 +103,26 @@ export default function GMMChart({
     const chartArea = g.append('g')
       .attr('clip-path', 'url(#chart-clip)');
 
-    g.append('g')
-      .attr('transform', `translate(0,${chartHeight})`)
-      .call(d3.axisBottom(xScale));
+    // Axis colors based on theme
+    const axisColor = isDarkMode ? '#d1d5db' : '#374151';
+    const textColor = isDarkMode ? '#f3f4f6' : '#111827';
 
     g.append('g')
-      .call(d3.axisLeft(yScale));
+      .attr('transform', `translate(0,${chartHeight})`)
+      .call(d3.axisBottom(xScale))
+      .selectAll('text')
+      .style('fill', textColor);
+
+    g.selectAll('.domain, .tick line')
+      .style('stroke', axisColor);
+
+    g.append('g')
+      .call(d3.axisLeft(yScale))
+      .selectAll('text')
+      .style('fill', textColor);
+
+    g.selectAll('.domain, .tick line')
+      .style('stroke', axisColor);
 
     g.append('text')
       .attr('transform', 'rotate(-90)')
@@ -113,11 +130,13 @@ export default function GMMChart({
       .attr('x', 0 - (chartHeight / 2))
       .attr('dy', '1em')
       .style('text-anchor', 'middle')
+      .style('fill', textColor)
       .text('Probability Density');
 
     g.append('text')
       .attr('transform', `translate(${chartWidth / 2}, ${chartHeight + margin.bottom})`)
       .style('text-anchor', 'middle')
+      .style('fill', textColor)
       .text('Value');
 
     // Add legend (positioned in the right margin)
@@ -125,21 +144,25 @@ export default function GMMChart({
       .attr('class', 'legend')
       .attr('transform', `translate(${chartWidth + 20}, 20)`);
 
-    // Legend background
+    // Legend background with theme support
+    const legendBgColor = isDarkMode ? '#374151' : 'white';
+    const legendBorderColor = isDarkMode ? '#6b7280' : 'gray';
+    
     legend.append('rect')
       .attr('x', -10)
       .attr('y', -5)
       .attr('width', 190)
       .attr('height', 75)
-      .attr('fill', 'white')
-      .attr('stroke', 'gray')
+      .attr('fill', legendBgColor)
+      .attr('stroke', legendBorderColor)
       .attr('stroke-width', 1)
       .attr('opacity', 0.9)
       .attr('rx', 4);
 
-    // Legend items
+    // Legend items with theme-aware colors
+    const mixtureCurveColor = isDarkMode ? '#f3f4f6' : 'black';
     const legendData = [
-      { label: 'Mixture Distribution', stroke: 'black', strokeWidth: 3, dashArray: 'none' },
+      { label: 'Mixture Distribution', stroke: mixtureCurveColor, strokeWidth: 3, dashArray: 'none' },
       { label: 'Component Densities', stroke: getComponentColor(0), strokeWidth: 1.5, dashArray: '5,5' },
       { label: 'Posteriors (scaled)', stroke: getComponentColor(0), strokeWidth: 2, dashArray: '2,3' }
     ];
@@ -164,6 +187,7 @@ export default function GMMChart({
       .attr('y', 0)
       .attr('dy', '0.35em')
       .style('font-size', '12px')
+      .style('fill', textColor)
       .text(d => d.label);
 
     const line = d3.line<{x: number, y: number}>()
@@ -197,7 +221,7 @@ export default function GMMChart({
     chartArea.append('path')
       .datum(mixtureValues)
       .attr('fill', 'none')
-      .attr('stroke', 'black')
+      .attr('stroke', mixtureCurveColor)
       .attr('stroke-width', 3)
       .attr('d', line);
 
@@ -306,7 +330,7 @@ export default function GMMChart({
   }, [data, components, onComponentDrag, onHover, width, height, isDragging]);
 
   return (
-    <div className="bg-white border rounded-lg p-4">
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4 transition-colors">
       <svg
         ref={svgRef}
         width={width}

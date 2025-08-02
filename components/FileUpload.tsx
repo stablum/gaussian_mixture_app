@@ -117,10 +117,10 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
       </div>
 
       {showAdvanced && (
-        <div className="border-t pt-4 space-y-4 bg-gray-50 -mx-4 -mb-4 px-4 pb-4 rounded-b-lg">
+        <div className="border-t dark:border-gray-600 pt-4 space-y-4 bg-gray-50 dark:bg-gray-700 -mx-4 -mb-4 px-4 pb-4 rounded-b-lg transition-colors">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Number of Data Points
               </label>
               <input
@@ -129,18 +129,18 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
                 max="1000"
                 value={sampleConfig.totalPoints}
                 onChange={(e) => setSampleConfig({...sampleConfig, totalPoints: parseInt(e.target.value)})}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-colors"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Distribution Preset
               </label>
               <select
                 value={sampleConfig.preset}
                 onChange={(e) => setSampleConfig({...sampleConfig, preset: e.target.value as any})}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-colors"
               >
                 {Object.entries(presetDescriptions).map(([key, desc]) => (
                   <option key={key} value={key}>{key} - {desc}</option>
@@ -152,12 +152,12 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
           {sampleConfig.preset === 'custom' && (
             <div>
               <div className="flex justify-between items-center mb-2">
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Custom Components
                 </label>
                 <button
                   onClick={addCustomComponent}
-                  className="px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600"
+                  className="px-2 py-1 bg-blue-500 dark:bg-blue-600 text-white text-xs rounded hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors"
                 >
                   + Add Component
                 </button>
@@ -165,43 +165,43 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
               
               <div className="space-y-2">
                 {customComponents.map((comp, index) => (
-                  <div key={index} className="flex gap-2 items-center p-2 bg-white rounded border">
+                  <div key={index} className="flex gap-2 items-center p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 transition-colors">
                     <div className="flex-1">
-                      <label className="text-xs text-gray-600">Mean</label>
+                      <label className="text-xs text-gray-600 dark:text-gray-400">Mean</label>
                       <input
                         type="number"
                         step="0.1"
                         value={comp.mean}
                         onChange={(e) => updateCustomComponent(index, 'mean', parseFloat(e.target.value))}
-                        className="w-full px-2 py-1 text-sm border rounded"
+                        className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
                       />
                     </div>
                     <div className="flex-1">
-                      <label className="text-xs text-gray-600">Std Dev</label>
+                      <label className="text-xs text-gray-600 dark:text-gray-400">Std Dev</label>
                       <input
                         type="number"
                         step="0.1"
                         min="0.1"
                         value={comp.stdDev}
                         onChange={(e) => updateCustomComponent(index, 'stdDev', parseFloat(e.target.value))}
-                        className="w-full px-2 py-1 text-sm border rounded"
+                        className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
                       />
                     </div>
                     <div className="flex-1">
-                      <label className="text-xs text-gray-600">Weight</label>
+                      <label className="text-xs text-gray-600 dark:text-gray-400">Weight</label>
                       <input
                         type="number"
                         step="0.1"
                         min="0.1"
                         value={comp.weight}
                         onChange={(e) => updateCustomComponent(index, 'weight', parseFloat(e.target.value))}
-                        className="w-full px-2 py-1 text-sm border rounded"
+                        className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
                       />
                     </div>
                     {customComponents.length > 1 && (
                       <button
                         onClick={() => removeCustomComponent(index)}
-                        className="px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600"
+                        className="px-2 py-1 bg-red-500 dark:bg-red-600 text-white text-xs rounded hover:bg-red-600 dark:hover:bg-red-700 transition-colors"
                       >
                         ×
                       </button>
@@ -209,13 +209,13 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
                   </div>
                 ))}
               </div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Weights will be automatically normalized. Mean and standard deviation control the position and spread of each component.
               </p>
             </div>
           )}
 
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 dark:text-gray-400">
             <strong>Selected:</strong> {presetDescriptions[sampleConfig.preset as keyof typeof presetDescriptions]} 
             ({sampleConfig.totalPoints} points)
           </div>
@@ -223,13 +223,13 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
       )}
 
       {generatedInfo && (
-        <div className="mt-4 pt-4 border-t bg-blue-50 -mx-4 -mb-4 px-4 pb-4 rounded-b-lg">
-          <h4 className="text-sm font-semibold text-blue-900 mb-3">Generated Distribution Details</h4>
+        <div className="mt-4 pt-4 border-t dark:border-gray-600 bg-blue-50 dark:bg-blue-900/20 -mx-4 -mb-4 px-4 pb-4 rounded-b-lg transition-colors">
+          <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-300 mb-3">Generated Distribution Details</h4>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div className="bg-white p-3 rounded border">
-              <h5 className="text-xs font-medium text-gray-700 mb-2">Data Statistics</h5>
-              <div className="space-y-1 text-xs">
+            <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 transition-colors">
+              <h5 className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Data Statistics</h5>
+              <div className="space-y-1 text-xs text-gray-900 dark:text-gray-100">
                 <div className="flex justify-between">
                   <span>Count:</span>
                   <span className="font-mono">{generatedInfo.statistics.count}</span>
@@ -249,9 +249,9 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
               </div>
             </div>
 
-            <div className="bg-white p-3 rounded border">
-              <h5 className="text-xs font-medium text-gray-700 mb-2">Distribution Configuration</h5>
-              <div className="space-y-1 text-xs">
+            <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 transition-colors">
+              <h5 className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Distribution Configuration</h5>
+              <div className="space-y-1 text-xs text-gray-900 dark:text-gray-100">
                 <div className="flex justify-between">
                   <span>Preset:</span>
                   <span className="font-mono">{generatedInfo.actualConfig.preset || 'custom'}</span>
@@ -264,18 +264,18 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
             </div>
           </div>
 
-          <div className="bg-white p-3 rounded border">
-            <h5 className="text-xs font-medium text-gray-700 mb-2">Component Details</h5>
+          <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 transition-colors">
+            <h5 className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Component Details</h5>
             <div className="space-y-2">
               {generatedInfo.actualConfig.components.map((comp, index) => (
-                <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded text-xs">
-                  <div className="flex gap-4">
+                <div key={index} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700 rounded text-xs transition-colors">
+                  <div className="flex gap-4 text-gray-900 dark:text-gray-100">
                     <span><strong>Component {index + 1}:</strong></span>
                     <span>μ = {comp.mean.toFixed(2)}</span>
                     <span>σ = {comp.stdDev.toFixed(2)}</span>
                     <span>π = {comp.weight.toFixed(3)}</span>
                   </div>
-                  <div className="text-blue-600 font-medium">
+                  <div className="text-blue-600 dark:text-blue-400 font-medium">
                     {generatedInfo.statistics.componentCounts[index]} points
                   </div>
                 </div>
@@ -283,13 +283,13 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
             </div>
           </div>
 
-          <div className="text-xs text-gray-600 mt-2">
+          <div className="text-xs text-gray-600 dark:text-gray-400 mt-2">
             <strong>Note:</strong> These are the exact parameters used to generate your data. The EM algorithm will attempt to recover these values.
           </div>
         </div>
       )}
       
-      <p className="text-sm text-gray-600 mt-2">
+      <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
         Upload a CSV file with numerical data or generate mathematically precise sample data with configurable distributions.
       </p>
     </div>
