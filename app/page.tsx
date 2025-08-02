@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { GaussianComponent, GaussianMixtureModel, GMMState, GMMHistoryStep } from '@/lib/gmm';
-import { generateSampleData } from '@/lib/csvParser';
+import { generateSimpleSampleData } from '@/lib/csvParser';
 import GMMChart from '@/components/GMMChart';
 import FileUpload from '@/components/FileUpload';
 import EMControls from '@/components/EMControls';
@@ -43,7 +43,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const sampleData = generateSampleData(100);
+    const sampleData = generateSimpleSampleData(100);
     setData(sampleData);
     initializeGMM(sampleData, 2);
   }, [initializeGMM]);
