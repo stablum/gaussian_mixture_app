@@ -7,6 +7,7 @@ import GMMChart from '@/components/GMMChart';
 import FileUpload from '@/components/FileUpload';
 import EMControls from '@/components/EMControls';
 import ParameterPanel from '@/components/ParameterPanel';
+import MathFormulasPanel from '@/components/MathFormulasPanel';
 
 export default function Home() {
   const [data, setData] = useState<number[]>([]);
@@ -200,8 +201,8 @@ export default function Home() {
           </div>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+          <div className="lg:col-span-2 xl:col-span-2 space-y-6">
             <FileUpload onDataLoad={handleDataLoad} />
             
             <EMControls
@@ -229,13 +230,19 @@ export default function Home() {
             )}
           </div>
           
-          <div>
+          <div className="space-y-6">
             {components.length > 0 && (
               <ParameterPanel
                 components={components}
                 hoverInfo={hoverInfo}
                 onComponentCountChange={handleComponentCountChange}
               />
+            )}
+          </div>
+
+          <div className="space-y-6">
+            {components.length > 0 && (
+              <MathFormulasPanel componentCount={components.length} />
             )}
           </div>
         </div>
