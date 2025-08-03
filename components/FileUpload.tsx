@@ -10,6 +10,7 @@ interface FileUploadProps {
 export default function FileUpload({ onDataLoad }: FileUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [generatedInfo, setGeneratedInfo] = useState<GeneratedDataInfo | null>(null);
   const [sampleConfig, setSampleConfig] = useState<Partial<SampleDataConfig>>({
     totalPoints: 100,
@@ -79,9 +80,29 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
 
   return (
     <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4 mb-4 transition-colors">
-      <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Data Input</h3>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Data Input</h3>
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+          title={isCollapsed ? "Expand panel" : "Collapse panel"}
+        >
+          <svg
+            className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform ${
+              isCollapsed ? 'rotate-180' : ''
+            }`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      </div>
       
-      <div className="flex gap-4 items-center mb-4">
+      {!isCollapsed && (
+        <>
+          <div className="flex gap-4 items-center mb-4">
         <div>
           <input
             ref={fileInputRef}
@@ -289,9 +310,11 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
         </div>
       )}
       
-      <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-        Upload a CSV file with numerical data or generate mathematically precise sample data with configurable distributions.
-      </p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+            Upload a CSV file with numerical data or generate mathematically precise sample data with configurable distributions.
+          </p>
+        </>
+      )}
     </div>
   );
 }
