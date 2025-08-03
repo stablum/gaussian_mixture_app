@@ -393,10 +393,6 @@ export default function GMMChart({
 
     // Drag behavior for mean handles (horizontal only - μ changes)
     const meanDragBehavior = d3.drag<SVGRectElement, GaussianComponent>()
-      .subject(function(event, d) {
-        // Set the drag subject to the current mu position
-        return { x: xScale(d.mu), y: 0 };
-      })
       .on('start', function(event, d) {
         const index = components.indexOf(d);
         setIsDragging(index);
@@ -409,27 +405,31 @@ export default function GMMChart({
       })
       .on('drag', function(event, d) {
         const index = components.indexOf(d);
-        // event.x now represents the proper drag position
-        const newMu = xScale.invert(event.x);
+        
+        // Get the current position of the handle being dragged
+        const currentX = xScale(d.mu);
+        // Calculate the new position based on drag delta
+        const newX = currentX + event.dx;
+        const newMu = xScale.invert(newX);
         
         // Update mean handle position
         d3.select(this)
-          .attr('x', event.x - 12);
+          .attr('x', newX - 12);
         
         // Update mean line position
         meanLines.filter((lineData, lineIndex) => lineIndex === index)
-          .attr('x1', event.x)
-          .attr('x2', event.x);
+          .attr('x1', newX)
+          .attr('x2', newX);
         
         // Update mean label position
         d3.select(this.parentNode as Element)
           .selectAll('text')
-          .attr('x', event.x);
+          .attr('x', newX);
         
         // Update pi circle position (x only)
         d3.select(this.parentNode as Element)
           .select('circle')
-          .attr('cx', event.x);
+          .attr('cx', newX);
         
         // Call the drag handler with only μ change (keep π unchanged)
         onComponentDrag(index, newMu, d.pi);
@@ -445,10 +445,6 @@ export default function GMMChart({
 
     // Drag behavior for pi circles (both μ and π changes)
     const piDragBehavior = d3.drag<SVGCircleElement, GaussianComponent>()
-      .subject(function(event, d) {
-        // Set the drag subject to the current position
-        return { x: xScale(d.mu), y: yScale(d.pi * maxY) };
-      })
       .on('start', function(event, d) {
         const index = components.indexOf(d);
         setIsDragging(index);
@@ -456,28 +452,34 @@ export default function GMMChart({
       })
       .on('drag', function(event, d) {
         const index = components.indexOf(d);
-        // event.x and event.y now represent proper drag positions
-        const newMu = xScale.invert(event.x);
-        const newPi = Math.max(0.01, Math.min(0.99, (yScale.invert(event.y)) / maxY));
+        
+        // Get current positions and calculate new positions based on drag delta
+        const currentX = xScale(d.mu);
+        const currentY = yScale(d.pi * maxY);
+        const newX = currentX + event.dx;
+        const newY = currentY + event.dy;
+        
+        const newMu = xScale.invert(newX);
+        const newPi = Math.max(0.01, Math.min(0.99, (yScale.invert(newY)) / maxY));
         
         d3.select(this)
-          .attr('cx', event.x)
-          .attr('cy', event.y);
+          .attr('cx', newX)
+          .attr('cy', newY);
         
         // Update mean line position
         meanLines.filter((lineData, lineIndex) => lineIndex === index)
-          .attr('x1', event.x)
-          .attr('x2', event.x);
+          .attr('x1', newX)
+          .attr('x2', newX);
         
         // Update all text labels
         d3.select(this.parentNode as Element)
           .selectAll('text')
-          .attr('x', event.x);
+          .attr('x', newX);
           
         // Update mean handle position
         d3.select(this.parentNode as Element)
           .select('rect')
-          .attr('x', event.x - 12);
+          .attr('x', newX - 12);
         
         onComponentDrag(index, newMu, newPi);
       })
