@@ -1,4 +1,4 @@
-# Claude Code Instructions for Gaussian Mixture Model Explorer
+# Claude Code Instructions for ML Explorer
 
 ## 🔄 **MANDATORY CHECKLIST - Execute EVERY time a feature is completed:**
 
@@ -33,20 +33,21 @@
 
 ### **Application Details**
 - **Tech Stack**: Next.js 14, TypeScript, Tailwind CSS, D3.js, KaTeX
-- **Purpose**: Educational tool for Gaussian Mixture Models and EM Algorithm
+- **Purpose**: Educational tool for Machine Learning Algorithms (GMM + K-means)
 - **Deployment**: Vercel (auto-deploys from main branch)
 - **User Focus**: Educational use, teaching sessions, mathematical accuracy
 
 ### **Current Features**
-- Interactive GMM visualization with draggable parameters
-- Dark mode support throughout
+- **Dual Algorithm Support**: GMM and K-means with seamless mode switching
+- Interactive visualizations with draggable parameters for both algorithms
+- Dark mode support throughout all components
 - Collapsible panels for focused teaching
-- Editable parameters in ParameterPanel  
-- Curve visibility toggles (mixture, components, posteriors, data points)
-- Dual y-axis system for proper scaling
-- Mathematical formulas with KaTeX (Bishop's notation)
-- Mean (μ) dragging with dedicated handles
+- Editable parameters in ParameterPanel (GMM components + K-means centroids)
+- Algorithm-specific controls (EM steps for GMM, K-means iterations)
+- Mathematical formulas with KaTeX for both algorithms
+- Curve visibility toggles and cluster visualization
 - CSV data upload and sample data generation
+- Real-time hover information for probability values and cluster distances
 
 ### **Common Issues to Watch For**
 - **Deployment delays**: Vercel sometimes takes time to deploy
@@ -63,10 +64,13 @@
 
 ### **Key File Locations**
 - Main page: `app/page.tsx`
-- Chart component: `components/GMMChart.tsx`
-- Parameter panel: `components/ParameterPanel.tsx`
-- Theme context: `contexts/ThemeContext.tsx`
-- Math formulas: `components/MathFormulasPanel.tsx`
+- Dual-mode chart: `components/GMMChart.tsx`
+- Parameter panels: `components/ParameterPanel.tsx`
+- Algorithm switching: `components/AlgorithmModeSwitch.tsx`
+- Controls: `components/EMControls.tsx`, `components/KMeansControls.tsx`
+- Math formulas: `components/MathFormulasPanel.tsx`, `components/KMeansFormulasPanel.tsx`
+- Algorithms: `lib/gmm.ts`, `lib/kmeans.ts`
+- Types: `lib/algorithmTypes.ts`
 
 ## 🚨 **CRITICAL REMINDERS**
 1. **ALWAYS run the full checklist above after completing ANY feature**

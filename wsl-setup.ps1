@@ -1,4 +1,4 @@
-# WSL Network Setup & Diagnostic Tool for Gaussian Mixture App
+# WSL Network Setup & Diagnostic Tool for ML Explorer
 # Run this in PowerShell as Administrator - handles everything in one script
 
 param(
@@ -7,7 +7,7 @@ param(
     [int]$Port = 3100
 )
 
-Write-Host "=== WSL Network Tool for Gaussian Mixture App ===" -ForegroundColor Cyan
+Write-Host "=== WSL Network Tool for ML Explorer ===" -ForegroundColor Cyan
 Write-Host "Usage: .\wsl-setup.ps1 [-Setup] [-Diagnose] [-Port 3100]" -ForegroundColor Gray
 
 if (-not $Setup -and -not $Diagnose) {
