@@ -366,7 +366,8 @@ export default function GMMChart({
       .attr('rx', 4)
       .attr('opacity', 0.9)
       .style('cursor', 'ew-resize')
-      .style('pointer-events', 'all'); // Ensure pointer events work
+      .style('pointer-events', 'all')
+      .style('z-index', '10'); // Ensure handles are on top
 
     // Add mean handle labels (larger and more visible)
     muLines.append('text')
@@ -395,24 +396,25 @@ export default function GMMChart({
       .on('start', function(event, d) {
         const index = components.indexOf(d);
         setIsDragging(index);
-        // Highlight the mean line during drag
-        d3.select(this.parentNode as Element)
-          .select('.mean-line')
+        event.sourceEvent.stopPropagation(); // Prevent hover interference
+        
+        // Highlight the corresponding mean line
+        meanLines.filter((lineData, lineIndex) => lineIndex === index)
           .attr('stroke-width', 4)
           .attr('opacity', 1);
       })
       .on('drag', function(event, d) {
         const index = components.indexOf(d);
-        const mouseX = event.x;
+        // Get mouse position relative to the chart area
+        const [mouseX] = d3.pointer(event, g.node());
         const newMu = xScale.invert(mouseX);
         
         // Update mean handle position
         d3.select(this)
           .attr('x', mouseX - 12);
         
-        // Update mean line position in clipped area
-        chartArea.selectAll('.mean-line')
-          .filter((lineData: any, lineIndex) => lineIndex === index)
+        // Update mean line position
+        meanLines.filter((lineData, lineIndex) => lineIndex === index)
           .attr('x1', mouseX)
           .attr('x2', mouseX);
         
@@ -429,11 +431,12 @@ export default function GMMChart({
         // Call the drag handler with only μ change (keep π unchanged)
         onComponentDrag(index, newMu, d.pi);
       })
-      .on('end', function() {
+      .on('end', function(event) {
         setIsDragging(null);
+        event.sourceEvent.stopPropagation(); // Prevent hover interference
+        
         // Restore normal mean line appearance
-        chartArea.selectAll('.mean-line')
-          .attr('stroke-width', 2)
+        meanLines.attr('stroke-width', 2)
           .attr('opacity', 0.7);
       });
 
@@ -442,44 +445,53 @@ export default function GMMChart({
       .on('start', function(event, d) {
         const index = components.indexOf(d);
         setIsDragging(index);
+        event.sourceEvent.stopPropagation(); // Prevent hover interference
       })
       .on('drag', function(event, d) {
         const index = components.indexOf(d);
-        const newMu = xScale.invert(event.x);
-        const newPi = Math.max(0.01, Math.min(0.99, (yScale.invert(event.y)) / maxY));
+        // Get mouse position relative to the chart area
+        const [mouseX, mouseY] = d3.pointer(event, g.node());
+        const newMu = xScale.invert(mouseX);
+        const newPi = Math.max(0.01, Math.min(0.99, (yScale.invert(mouseY)) / maxY));
         
         d3.select(this)
-          .attr('cx', event.x)
-          .attr('cy', event.y);
+          .attr('cx', mouseX)
+          .attr('cy', mouseY);
         
-        // Update all related elements
-        const parentGroup = d3.select(this.parentNode as Element);
-        parentGroup.select('line')
-          .attr('x1', event.x)
-          .attr('x2', event.x);
+        // Update mean line position
+        meanLines.filter((lineData, lineIndex) => lineIndex === index)
+          .attr('x1', mouseX)
+          .attr('x2', mouseX);
         
-        parentGroup.selectAll('text')
-          .attr('x', event.x);
+        // Update all text labels
+        d3.select(this.parentNode as Element)
+          .selectAll('text')
+          .attr('x', mouseX);
           
-        parentGroup.select('rect')
-          .attr('x', event.x - 8);
+        // Update mean handle position
+        d3.select(this.parentNode as Element)
+          .select('rect')
+          .attr('x', mouseX - 12);
         
         onComponentDrag(index, newMu, newPi);
       })
-      .on('end', function() {
+      .on('end', function(event) {
         setIsDragging(null);
+        event.sourceEvent.stopPropagation(); // Prevent hover interference
       });
 
+    // Apply drag behaviors
     meanHandles.call(meanDragBehavior);
     piCircles.call(piDragBehavior);
 
+    // Add hover functionality first (so it's behind interactive elements)
     if (onHover) {
-      const hoverRect = g.append('rect')
+      const hoverRect = g.insert('rect', ':first-child') // Insert as first child to be behind everything
         .attr('width', chartWidth)
         .attr('height', chartHeight)
         .attr('fill', 'none')
         .attr('pointer-events', 'all')
-        .style('cursor', 'crosshair');
+        .style('cursor', 'crosshair')
 
       const hoverLineElement = g.append('line')
         .attr('stroke', 'red')
@@ -512,6 +524,13 @@ export default function GMMChart({
           setHoverLine(null);
           hoverLineElement.attr('opacity', 0);
           onHover(0, null);
+        })
+        .on('mousedown', function(event) {
+          // Don't interfere with drag events on interactive elements
+          const target = event.target as Element;
+          if (target.tagName === 'rect' || target.tagName === 'circle') {
+            event.stopPropagation();
+          }
         });
     }
 
