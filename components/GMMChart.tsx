@@ -393,6 +393,7 @@ export default function GMMChart({
 
     // Drag behavior for mean handles (horizontal only - μ changes)
     const meanDragBehavior = d3.drag<SVGRectElement, GaussianComponent>()
+      .container(g.node()!) // Set container to chart group
       .on('start', function(event, d) {
         const index = components.indexOf(d);
         setIsDragging(index);
@@ -406,28 +407,27 @@ export default function GMMChart({
       .on('drag', function(event, d) {
         const index = components.indexOf(d);
         
-        // Get mouse position relative to the chart group (not the individual element)
-        const [mouseX] = d3.pointer(event.sourceEvent, g.node());
-        const newMu = xScale.invert(mouseX);
+        // event.x is now properly relative to the container (chart group)
+        const newMu = xScale.invert(event.x);
         
         // Update mean handle position
         d3.select(this)
-          .attr('x', mouseX - 12);
+          .attr('x', event.x - 12);
         
         // Update mean line position
         meanLines.filter((lineData, lineIndex) => lineIndex === index)
-          .attr('x1', mouseX)
-          .attr('x2', mouseX);
+          .attr('x1', event.x)
+          .attr('x2', event.x);
         
         // Update mean label position
         d3.select(this.parentNode as Element)
           .selectAll('text')
-          .attr('x', mouseX);
+          .attr('x', event.x);
         
         // Update pi circle position (x only)
         d3.select(this.parentNode as Element)
           .select('circle')
-          .attr('cx', mouseX);
+          .attr('cx', event.x);
         
         // Call the drag handler with only μ change (keep π unchanged)
         onComponentDrag(index, newMu, d.pi);
@@ -443,6 +443,7 @@ export default function GMMChart({
 
     // Drag behavior for pi circles (both μ and π changes)
     const piDragBehavior = d3.drag<SVGCircleElement, GaussianComponent>()
+      .container(g.node()!) // Set container to chart group
       .on('start', function(event, d) {
         const index = components.indexOf(d);
         setIsDragging(index);
@@ -451,30 +452,28 @@ export default function GMMChart({
       .on('drag', function(event, d) {
         const index = components.indexOf(d);
         
-        // Get mouse position relative to the chart group
-        const [mouseX, mouseY] = d3.pointer(event.sourceEvent, g.node());
-        
-        const newMu = xScale.invert(mouseX);
-        const newPi = Math.max(0.01, Math.min(0.99, (yScale.invert(mouseY)) / maxY));
+        // event.x and event.y are now properly relative to the container
+        const newMu = xScale.invert(event.x);
+        const newPi = Math.max(0.01, Math.min(0.99, (yScale.invert(event.y)) / maxY));
         
         d3.select(this)
-          .attr('cx', mouseX)
-          .attr('cy', mouseY);
+          .attr('cx', event.x)
+          .attr('cy', event.y);
         
         // Update mean line position
         meanLines.filter((lineData, lineIndex) => lineIndex === index)
-          .attr('x1', mouseX)
-          .attr('x2', mouseX);
+          .attr('x1', event.x)
+          .attr('x2', event.x);
         
         // Update all text labels
         d3.select(this.parentNode as Element)
           .selectAll('text')
-          .attr('x', mouseX);
+          .attr('x', event.x);
           
         // Update mean handle position
         d3.select(this.parentNode as Element)
           .select('rect')
-          .attr('x', mouseX - 12);
+          .attr('x', event.x - 12);
         
         onComponentDrag(index, newMu, newPi);
       })

@@ -242,7 +242,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models and the EM algorithm
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v2.0.7 - Mouse Position Drag Fix
+                v2.0.8 - Container-Based Drag Fix
               </div>
             </div>
             <ThemeToggle />
