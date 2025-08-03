@@ -242,7 +242,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models and the EM algorithm
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v2.0.3 - Enhanced Instructions Added
+                v2.0.4 - FORCE Deployment Now
               </div>
             </div>
             <ThemeToggle />
