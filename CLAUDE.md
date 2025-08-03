@@ -73,3 +73,5 @@
 2. **ALWAYS verify deployment completed before marking tasks done**
 3. **If user reports issue persists, assume deployment failed and force redeploy**
 4. **Keep educational use case in mind - UI should support teaching**
+5. **Post-commit hook installed**: After each commit, git will display reminder checklist
+6. **Never ignore deployment verification** - it's the most common failure point
