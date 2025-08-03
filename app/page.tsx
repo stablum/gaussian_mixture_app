@@ -2,30 +2,49 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { GaussianComponent, GaussianMixtureModel, GMMState, GMMHistoryStep } from '@/lib/gmm';
+import { KMeansAlgorithm, KMeansHistoryStep, KMeansCluster } from '@/lib/kmeans';
+import { AlgorithmMode } from '@/lib/algorithmTypes';
 import { generateSimpleSampleData } from '@/lib/csvParser';
 import GMMChart from '@/components/GMMChart';
 import FileUpload from '@/components/FileUpload';
 import EMControls from '@/components/EMControls';
+import KMeansControls from '@/components/KMeansControls';
 import ParameterPanel from '@/components/ParameterPanel';
 import MathFormulasPanel from '@/components/MathFormulasPanel';
 import CurveVisibilityControls from '@/components/CurveVisibilityControls';
+import AlgorithmModeSwitch from '@/components/AlgorithmModeSwitch';
 import ThemeToggle from '@/components/ThemeToggle';
 
 export default function Home() {
+  // Algorithm mode state
+  const [algorithmMode, setAlgorithmMode] = useState<AlgorithmMode>(AlgorithmMode.GMM);
+  
+  // Common state
   const [data, setData] = useState<number[]>([]);
-  const [components, setComponents] = useState<GaussianComponent[]>([]);
-  const [gmmHistory, setGmmHistory] = useState<GMMHistoryStep[]>([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [converged, setConverged] = useState(false);
+  
+  // GMM specific state
+  const [components, setComponents] = useState<GaussianComponent[]>([]);
+  const [gmmHistory, setGmmHistory] = useState<GMMHistoryStep[]>([]);
+  
+  // K-means specific state
+  const [clusters, setClusters] = useState<KMeansCluster[]>([]);
+  const [kmeansHistory, setKmeansHistory] = useState<KMeansHistoryStep[]>([]);
+  
+  // Hover info state (unified for both modes)
   const [hoverInfo, setHoverInfo] = useState<{
     x: number;
-    probabilities: {
+    probabilities?: {
       total: number;
       componentProbs: number[];
       posteriors: number[];
     };
+    clusterDistances?: number[];
+    nearestCluster?: number;
   } | null>(null);
+  
   const [curveVisibility, setCurveVisibility] = useState({
     mixture: true,
     components: true,
@@ -50,6 +69,35 @@ export default function Home() {
     setConverged(false);
     setIsRunning(false);
   }, []);
+
+  const initializeKMeans = useCallback((newData: number[], k: number = 2) => {
+    if (newData.length === 0) return;
+    
+    const kmeans = new KMeansAlgorithm(newData, k);
+    const initialCentroids = kmeans.initializeCentroidsSimple();
+    const initialResult = kmeans.singleIteration(initialCentroids);
+    initialResult.iteration = 0;
+    
+    setClusters(initialResult.clusters);
+    setKmeansHistory([initialResult]);
+    setCurrentStep(0);
+    setConverged(false);
+    setIsRunning(false);
+  }, []);
+
+  const handleModeChange = useCallback((newMode: AlgorithmMode) => {
+    setAlgorithmMode(newMode);
+    setCurrentStep(0);
+    setConverged(false);
+    setIsRunning(false);
+    setHoverInfo(null);
+    
+    if (newMode === AlgorithmMode.KMEANS) {
+      initializeKMeans(data, components.length || 2);
+    } else {
+      initializeGMM(data, clusters.length || 2);
+    }
+  }, [data, components.length, clusters.length, initializeGMM, initializeKMeans]);
 
   useEffect(() => {
     const sampleData = generateSimpleSampleData(100);
@@ -242,7 +290,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models and the EM algorithm
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v2.0.9 - Manual Offset Drag Fix
+                v3.0.0 - Dual Algorithm Mode (WIP)
               </div>
             </div>
             <ThemeToggle />
@@ -251,25 +299,45 @@ export default function Home() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="space-y-6">
-            <FileUpload onDataLoad={handleDataLoad} />
-            
-            <EMControls
-              currentStep={currentStep}
-              totalSteps={gmmHistory.length}
-              isRunning={isRunning}
-              converged={converged}
-              onStepForward={handleStepForward}
-              onStepBackward={handleStepBackward}
-              onReset={handleReset}
-              onRunToConvergence={handleRunToConvergence}
-              onStop={handleStop}
-              logLikelihood={currentLogLikelihood}
+            <AlgorithmModeSwitch 
+              currentMode={algorithmMode}
+              onModeChange={handleModeChange}
             />
             
-            {data.length > 0 && components.length > 0 && (
+            <FileUpload onDataLoad={handleDataLoad} />
+            
+            {algorithmMode === AlgorithmMode.GMM ? (
+              <EMControls
+                currentStep={currentStep}
+                totalSteps={gmmHistory.length}
+                isRunning={isRunning}
+                converged={converged}
+                onStepForward={handleStepForward}
+                onStepBackward={handleStepBackward}
+                onReset={handleReset}
+                onRunToConvergence={handleRunToConvergence}
+                onStop={handleStop}
+                logLikelihood={currentLogLikelihood}
+              />
+            ) : (
+              <KMeansControls
+                currentStep={currentStep}
+                totalSteps={kmeansHistory.length}
+                isRunning={isRunning}
+                converged={converged}
+                onStepForward={() => {}} // TODO: Implement
+                onStepBackward={() => {}} // TODO: Implement
+                onReset={() => {}} // TODO: Implement
+                onRunToConvergence={() => {}} // TODO: Implement
+                onStop={() => {}} // TODO: Implement
+                inertia={kmeansHistory[currentStep]?.inertia || 0}
+              />
+            )}
+            
+            {data.length > 0 && (algorithmMode === AlgorithmMode.GMM ? components.length > 0 : clusters.length > 0) && (
               <GMMChart
                 data={data}
-                components={components}
+                components={algorithmMode === AlgorithmMode.GMM ? components : []}
                 onComponentDrag={handleComponentDrag}
                 onHover={handleHover}
                 width={800}
@@ -284,16 +352,24 @@ export default function Home() {
               visibility={curveVisibility}
               onVisibilityChange={handleVisibilityChange}
             />
-            {components.length > 0 && (
+            
+            {(algorithmMode === AlgorithmMode.GMM ? components.length > 0 : clusters.length > 0) && (
               <ParameterPanel
-                components={components}
+                mode={algorithmMode}
+                components={algorithmMode === AlgorithmMode.GMM ? components : undefined}
+                clusters={algorithmMode === AlgorithmMode.KMEANS ? clusters : undefined}
                 hoverInfo={hoverInfo}
                 onComponentCountChange={handleComponentCountChange}
                 onParameterChange={handleParameterChange}
+                onCentroidChange={() => {}} // TODO: Implement
               />
             )}
-            {components.length > 0 && (
-              <MathFormulasPanel componentCount={components.length} />
+            
+            {(algorithmMode === AlgorithmMode.GMM ? components.length > 0 : clusters.length > 0) && (
+              <MathFormulasPanel 
+                componentCount={algorithmMode === AlgorithmMode.GMM ? components.length : clusters.length} 
+                mode={algorithmMode}
+              />
             )}
           </div>
         </div>

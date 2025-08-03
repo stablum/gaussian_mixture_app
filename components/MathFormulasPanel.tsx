@@ -3,12 +3,19 @@
 import React, { useState } from 'react';
 import 'katex/dist/katex.min.css';
 import { InlineMath, BlockMath } from 'react-katex';
+import { AlgorithmMode } from '@/lib/algorithmTypes';
+import KMeansFormulasPanel from './KMeansFormulasPanel';
 
 interface MathFormulasPanelProps {
   componentCount: number;
+  mode?: AlgorithmMode;
 }
 
-export default function MathFormulasPanel({ componentCount }: MathFormulasPanelProps) {
+export default function MathFormulasPanel({ componentCount, mode = AlgorithmMode.GMM }: MathFormulasPanelProps) {
+  // If K-means mode, render the K-means formulas panel instead
+  if (mode === AlgorithmMode.KMEANS) {
+    return <KMeansFormulasPanel clusterCount={componentCount} />;
+  }
   const [activeSection, setActiveSection] = useState<'mixture' | 'em' | 'posteriors'>('mixture');
   const [isCollapsed, setIsCollapsed] = useState(false);
 
