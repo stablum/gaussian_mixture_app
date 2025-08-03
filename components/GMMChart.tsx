@@ -37,6 +37,7 @@ export default function GMMChart({
   const svgRef = useRef<SVGSVGElement>(null);
   const [isDragging, setIsDragging] = useState<number | null>(null);
   const [hoverLine, setHoverLine] = useState<number | null>(null);
+  const [dragStart, setDragStart] = useState<{x: number, initialMu: number} | null>(null);
 
   const margin = { top: 20, right: 220, bottom: 40, left: 60 };
   const chartWidth = width - margin.left - margin.right;
@@ -393,11 +394,14 @@ export default function GMMChart({
 
     // Drag behavior for mean handles (horizontal only - μ changes)
     const meanDragBehavior = d3.drag<SVGRectElement, GaussianComponent>()
-      .container(g.node()!) // Set container to chart group
       .on('start', function(event, d) {
         const index = components.indexOf(d);
         setIsDragging(index);
         event.sourceEvent.stopPropagation(); // Prevent hover interference
+        
+        // Store initial drag position and mu value
+        const [startX] = d3.pointer(event.sourceEvent, g.node());
+        setDragStart({ x: startX, initialMu: d.mu });
         
         // Highlight the corresponding mean line
         meanLines.filter((lineData, lineIndex) => lineIndex === index)
@@ -407,33 +411,44 @@ export default function GMMChart({
       .on('drag', function(event, d) {
         const index = components.indexOf(d);
         
-        // event.x is now properly relative to the container (chart group)
-        const newMu = xScale.invert(event.x);
+        if (!dragStart) return;
+        
+        // Get current mouse position
+        const [currentX] = d3.pointer(event.sourceEvent, g.node());
+        
+        // Calculate the change from initial position
+        const deltaX = currentX - dragStart.x;
+        const deltaXInScale = xScale.invert(dragStart.x + deltaX) - xScale.invert(dragStart.x);
+        
+        // Calculate new mu based on initial mu + change
+        const newMu = dragStart.initialMu + deltaXInScale;
+        const newX = xScale(newMu);
         
         // Update mean handle position
         d3.select(this)
-          .attr('x', event.x - 12);
+          .attr('x', newX - 12);
         
         // Update mean line position
         meanLines.filter((lineData, lineIndex) => lineIndex === index)
-          .attr('x1', event.x)
-          .attr('x2', event.x);
+          .attr('x1', newX)
+          .attr('x2', newX);
         
         // Update mean label position
         d3.select(this.parentNode as Element)
           .selectAll('text')
-          .attr('x', event.x);
+          .attr('x', newX);
         
         // Update pi circle position (x only)
         d3.select(this.parentNode as Element)
           .select('circle')
-          .attr('cx', event.x);
+          .attr('cx', newX);
         
         // Call the drag handler with only μ change (keep π unchanged)
         onComponentDrag(index, newMu, d.pi);
       })
       .on('end', function(event) {
         setIsDragging(null);
+        setDragStart(null);
         event.sourceEvent.stopPropagation(); // Prevent hover interference
         
         // Restore normal mean line appearance
@@ -536,7 +551,7 @@ export default function GMMChart({
         });
     }
 
-  }, [data, components, onComponentDrag, onHover, width, height, isDragging, curveVisibility]);
+  }, [data, components, onComponentDrag, onHover, width, height, isDragging, curveVisibility, dragStart]);
 
   return (
     <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4 transition-colors">
