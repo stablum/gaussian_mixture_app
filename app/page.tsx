@@ -111,7 +111,11 @@ export default function Home() {
   };
 
   const handleComponentCountChange = (newCount: number) => {
-    initializeGMM(data, newCount);
+    if (algorithmMode === AlgorithmMode.GMM) {
+      initializeGMM(data, newCount);
+    } else {
+      initializeKMeans(data, newCount);
+    }
   };
 
   const handleComponentDrag = (index: number, newMu: number, newPi: number) => {
@@ -231,6 +235,97 @@ export default function Home() {
     setIsRunning(false);
   };
 
+  // K-means specific handlers
+  const handleKMeansStepForward = () => {
+    if (currentStep >= kmeansHistory.length - 1 && !converged) {
+      const kmeans = new KMeansAlgorithm(data, clusters.length);
+      const currentCentroids = clusters.map(cluster => cluster.centroid);
+      const result = kmeans.singleIteration(currentCentroids);
+      result.iteration = currentStep + 1;
+      
+      const newHistory = [...kmeansHistory, result];
+      setKmeansHistory(newHistory);
+      setClusters(result.clusters);
+      setCurrentStep(currentStep + 1);
+      
+      // Check for convergence (centroids don't change)
+      if (kmeansHistory.length > 0) {
+        const prevCentroids = kmeansHistory[kmeansHistory.length - 1].clusters.map(c => c.centroid);
+        const newCentroids = result.clusters.map(c => c.centroid);
+        const hasConverged = prevCentroids.every((centroid, i) => 
+          Math.abs(centroid - newCentroids[i]) < 1e-6
+        );
+        if (hasConverged) {
+          setConverged(true);
+        }
+      }
+    } else if (currentStep < kmeansHistory.length - 1) {
+      const nextStep = currentStep + 1;
+      setCurrentStep(nextStep);
+      setClusters(JSON.parse(JSON.stringify(kmeansHistory[nextStep].clusters)));
+    }
+  };
+
+  const handleKMeansStepBackward = () => {
+    if (currentStep > 0) {
+      const prevStep = currentStep - 1;
+      setCurrentStep(prevStep);
+      setClusters(JSON.parse(JSON.stringify(kmeansHistory[prevStep].clusters)));
+    }
+  };
+
+  const handleKMeansReset = () => {
+    initializeKMeans(data, clusters.length);
+  };
+
+  const handleKMeansRunToConvergence = async () => {
+    setIsRunning(true);
+    setConverged(false);
+    
+    const kmeans = new KMeansAlgorithm(data, clusters.length);
+    let currentCentroids = clusters.map(cluster => cluster.centroid);
+    let iteration = currentStep;
+    
+    const runStep = () => {
+      if (iteration >= 200) {
+        setIsRunning(false);
+        setConverged(true);
+        return;
+      }
+      
+      const result = kmeans.singleIteration(currentCentroids);
+      result.iteration = iteration + 1;
+      currentCentroids = result.clusters.map(cluster => cluster.centroid);
+      iteration++;
+      
+      setKmeansHistory(prev => [...prev, result]);
+      setClusters(result.clusters);
+      setCurrentStep(iteration);
+      
+      // Check for convergence
+      if (kmeansHistory.length > 0) {
+        const prevCentroids = kmeansHistory[kmeansHistory.length - 1].clusters.map(c => c.centroid);
+        const hasConverged = prevCentroids.every((centroid, i) => 
+          Math.abs(centroid - currentCentroids[i]) < 1e-6
+        );
+        
+        if (hasConverged) {
+          setIsRunning(false);
+          setConverged(true);
+          return;
+        }
+      }
+      
+      setTimeout(runStep, 200);
+    };
+    
+    setTimeout(runStep, 200);
+  };
+
+  const handleKMeansStop = () => {
+    setIsRunning(false);
+  };
+
   const handleHover = (x: number, probabilities: any) => {
     if (probabilities) {
       setHoverInfo({ x, probabilities });
@@ -274,6 +369,26 @@ export default function Home() {
     }
   };
 
+  const handleCentroidChange = (index: number, value: number) => {
+    const newClusters = [...clusters];
+    newClusters[index] = {
+      ...newClusters[index],
+      centroid: value
+    };
+    
+    setClusters(newClusters);
+    
+    // Update current step in history if it exists
+    if (kmeansHistory.length > 0) {
+      const newHistory = [...kmeansHistory];
+      newHistory[currentStep] = {
+        ...newHistory[currentStep],
+        clusters: JSON.parse(JSON.stringify(newClusters))
+      };
+      setKmeansHistory(newHistory);
+    }
+  };
+
   const currentLogLikelihood = gmmHistory[currentStep]?.logLikelihood ?? -Infinity;
   
 
@@ -284,13 +399,13 @@ export default function Home() {
           <div className="flex justify-between items-start mb-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                Gaussian Mixture Model Explorer
+                Machine Learning Algorithm Explorer
               </h1>
               <p className="text-gray-600 dark:text-gray-300">
-                Interactive tool for exploring 1D Gaussian mixture models and the EM algorithm
+                Interactive tool for exploring 1D Gaussian mixture models and K-means clustering algorithms
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.0.0 - Dual Algorithm Mode (WIP)
+                v3.1.0 - Dual Algorithm Mode (GMM + K-means)
               </div>
             </div>
             <ThemeToggle />
@@ -325,11 +440,11 @@ export default function Home() {
                 totalSteps={kmeansHistory.length}
                 isRunning={isRunning}
                 converged={converged}
-                onStepForward={() => {}} // TODO: Implement
-                onStepBackward={() => {}} // TODO: Implement
-                onReset={() => {}} // TODO: Implement
-                onRunToConvergence={() => {}} // TODO: Implement
-                onStop={() => {}} // TODO: Implement
+                onStepForward={handleKMeansStepForward}
+                onStepBackward={handleKMeansStepBackward}
+                onReset={handleKMeansReset}
+                onRunToConvergence={handleKMeansRunToConvergence}
+                onStop={handleKMeansStop}
                 inertia={kmeansHistory[currentStep]?.inertia || 0}
               />
             )}
@@ -338,7 +453,10 @@ export default function Home() {
               <GMMChart
                 data={data}
                 components={algorithmMode === AlgorithmMode.GMM ? components : []}
+                clusters={algorithmMode === AlgorithmMode.KMEANS ? clusters : []}
+                mode={algorithmMode}
                 onComponentDrag={handleComponentDrag}
+                onCentroidDrag={handleCentroidChange}
                 onHover={handleHover}
                 width={800}
                 height={500}
@@ -361,7 +479,7 @@ export default function Home() {
                 hoverInfo={hoverInfo}
                 onComponentCountChange={handleComponentCountChange}
                 onParameterChange={handleParameterChange}
-                onCentroidChange={() => {}} // TODO: Implement
+                onCentroidChange={handleCentroidChange}
               />
             )}
             
