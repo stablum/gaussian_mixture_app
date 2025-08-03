@@ -81,25 +81,26 @@ export default function GMMChart({
       ...componentCurves.map(curve => d3.max(curve, d => d.y) || 0)
     );
 
-    // Calculate posterior probabilities for each component (scaled for visibility)
+    // Calculate posterior probabilities for each component (original 0-1 scale)
     const posteriorCurves = components.map((comp, i) => 
       xValues.map(x => {
         const probabilities = gmm.evaluateMixture(x, components);
-        // Scale posterior by initial max height for visibility
         return {
           x,
-          y: probabilities.posteriors[i] * initialMaxY * 0.8 // Scale to 80% of max height
+          y: probabilities.posteriors[i] // Keep original 0-1 scale
         };
       })
     );
 
-    const maxY = Math.max(
-      initialMaxY,
-      ...posteriorCurves.map(curve => d3.max(curve, d => d.y) || 0)
-    );
-
+    // Primary y-axis for densities (left side)
+    const maxY = initialMaxY;
     const yScale = d3.scaleLinear()
       .domain([0, maxY * 1.1])
+      .range([chartHeight, 0]);
+
+    // Secondary y-axis for posteriors (right side, 0-1 scale)
+    const yScalePosterior = d3.scaleLinear()
+      .domain([0, 1])
       .range([chartHeight, 0]);
 
     const g = svg.append('g')
@@ -128,6 +129,7 @@ export default function GMMChart({
     g.selectAll('.domain, .tick line')
       .style('stroke', axisColor);
 
+    // Left y-axis for densities
     g.append('g')
       .call(d3.axisLeft(yScale))
       .selectAll('text')
@@ -144,6 +146,27 @@ export default function GMMChart({
       .style('text-anchor', 'middle')
       .style('fill', textColor)
       .text('Probability Density');
+
+    // Right y-axis for posteriors (only if posteriors are visible)
+    if (curveVisibility.posteriors) {
+      g.append('g')
+        .attr('transform', `translate(${chartWidth}, 0)`)
+        .call(d3.axisRight(yScalePosterior))
+        .selectAll('text')
+        .style('fill', textColor);
+
+      g.selectAll('.domain, .tick line')
+        .style('stroke', axisColor);
+
+      g.append('text')
+        .attr('transform', 'rotate(90)')
+        .attr('y', 0 - chartWidth - margin.right + 15)
+        .attr('x', chartHeight / 2)
+        .attr('dy', '1em')
+        .style('text-anchor', 'middle')
+        .style('fill', textColor)
+        .text('Posterior Probability');
+    }
 
     g.append('text')
       .attr('transform', `translate(${chartWidth / 2}, ${chartHeight + margin.bottom})`)
@@ -191,7 +214,7 @@ export default function GMMChart({
         key: 'components' as keyof typeof curveVisibility
       },
       { 
-        label: 'Posteriors (scaled)', 
+        label: 'Posteriors (right axis)', 
         stroke: getComponentColor(0), 
         strokeWidth: 2, 
         dashArray: '2,3',
@@ -247,6 +270,11 @@ export default function GMMChart({
       .y(d => yScale(d.y))
       .curve(d3.curveCardinal);
 
+    const linePosterior = d3.line<{x: number, y: number}>()
+      .x(d => xScale(d.x))
+      .y(d => yScalePosterior(d.y))
+      .curve(d3.curveCardinal);
+
     // Draw component probability curves (dashed lines) - only if visible
     if (curveVisibility.components) {
       componentCurves.forEach((curve, i) => {
@@ -270,7 +298,7 @@ export default function GMMChart({
           .attr('stroke-width', 2)
           .attr('stroke-dasharray', '2,3')
           .attr('opacity', 0.8)
-          .attr('d', line);
+          .attr('d', linePosterior); // Use posterior y-scale
       });
     }
 
@@ -389,7 +417,7 @@ export default function GMMChart({
         });
     }
 
-  }, [data, components, onComponentDrag, onHover, width, height, isDragging]);
+  }, [data, components, onComponentDrag, onHover, width, height, isDragging, curveVisibility]);
 
   return (
     <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4 transition-colors">
