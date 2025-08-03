@@ -406,30 +406,28 @@ export default function GMMChart({
       .on('drag', function(event, d) {
         const index = components.indexOf(d);
         
-        // Get the current position of the handle being dragged
-        const currentX = xScale(d.mu);
-        // Calculate the new position based on drag delta
-        const newX = currentX + event.dx;
-        const newMu = xScale.invert(newX);
+        // Get mouse position relative to the chart group (not the individual element)
+        const [mouseX] = d3.pointer(event.sourceEvent, g.node());
+        const newMu = xScale.invert(mouseX);
         
         // Update mean handle position
         d3.select(this)
-          .attr('x', newX - 12);
+          .attr('x', mouseX - 12);
         
         // Update mean line position
         meanLines.filter((lineData, lineIndex) => lineIndex === index)
-          .attr('x1', newX)
-          .attr('x2', newX);
+          .attr('x1', mouseX)
+          .attr('x2', mouseX);
         
         // Update mean label position
         d3.select(this.parentNode as Element)
           .selectAll('text')
-          .attr('x', newX);
+          .attr('x', mouseX);
         
         // Update pi circle position (x only)
         d3.select(this.parentNode as Element)
           .select('circle')
-          .attr('cx', newX);
+          .attr('cx', mouseX);
         
         // Call the drag handler with only μ change (keep π unchanged)
         onComponentDrag(index, newMu, d.pi);
@@ -453,33 +451,30 @@ export default function GMMChart({
       .on('drag', function(event, d) {
         const index = components.indexOf(d);
         
-        // Get current positions and calculate new positions based on drag delta
-        const currentX = xScale(d.mu);
-        const currentY = yScale(d.pi * maxY);
-        const newX = currentX + event.dx;
-        const newY = currentY + event.dy;
+        // Get mouse position relative to the chart group
+        const [mouseX, mouseY] = d3.pointer(event.sourceEvent, g.node());
         
-        const newMu = xScale.invert(newX);
-        const newPi = Math.max(0.01, Math.min(0.99, (yScale.invert(newY)) / maxY));
+        const newMu = xScale.invert(mouseX);
+        const newPi = Math.max(0.01, Math.min(0.99, (yScale.invert(mouseY)) / maxY));
         
         d3.select(this)
-          .attr('cx', newX)
-          .attr('cy', newY);
+          .attr('cx', mouseX)
+          .attr('cy', mouseY);
         
         // Update mean line position
         meanLines.filter((lineData, lineIndex) => lineIndex === index)
-          .attr('x1', newX)
-          .attr('x2', newX);
+          .attr('x1', mouseX)
+          .attr('x2', mouseX);
         
         // Update all text labels
         d3.select(this.parentNode as Element)
           .selectAll('text')
-          .attr('x', newX);
+          .attr('x', mouseX);
           
         // Update mean handle position
         d3.select(this.parentNode as Element)
           .select('rect')
-          .attr('x', newX - 12);
+          .attr('x', mouseX - 12);
         
         onComponentDrag(index, newMu, newPi);
       })
