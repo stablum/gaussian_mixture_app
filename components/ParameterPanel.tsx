@@ -136,7 +136,9 @@ export default function ParameterPanel({
           )}
           
           <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600 text-xs text-gray-600 dark:text-gray-400">
-            <p><strong>Tip:</strong> Drag the colored circles to adjust μ (horizontally) and π (vertically)</p>
+            <p><strong>Interactive Tips:</strong></p>
+            <p>• Drag the rectangular handles (μ) to adjust means horizontally</p>
+            <p>• Drag the colored circles to adjust both μ and π parameters</p>
           </div>
         </>
       )}

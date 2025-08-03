@@ -330,7 +330,8 @@ export default function GMMChart({
       .enter().append('g')
       .attr('class', 'mu-line');
 
-    muLines.append('line')
+    // Mean lines with enhanced visibility during drag
+    const meanLines = muLines.append('line')
       .attr('x1', d => xScale(d.mu))
       .attr('x2', d => xScale(d.mu))
       .attr('y1', 0)
@@ -339,6 +340,40 @@ export default function GMMChart({
       .attr('stroke-width', 2)
       .attr('opacity', 0.7);
 
+    // Mean labels for better identification
+    muLines.append('text')
+      .attr('x', d => xScale(d.mu))
+      .attr('y', -5)
+      .attr('text-anchor', 'middle')
+      .style('font-size', '10px')
+      .style('font-weight', 'bold')
+      .style('fill', (d, i) => getComponentColor(i))
+      .text((d, i) => `μ${i + 1}`);
+
+    // Draggable handles for means (horizontal dragging only)
+    const meanHandles = muLines.append('rect')
+      .attr('x', d => xScale(d.mu) - 8)
+      .attr('y', chartHeight / 2 - 15)
+      .attr('width', 16)
+      .attr('height', 30)
+      .attr('fill', (d, i) => getComponentColor(i))
+      .attr('stroke', 'white')
+      .attr('stroke-width', 2)
+      .attr('rx', 3)
+      .attr('opacity', 0.8)
+      .style('cursor', 'ew-resize');
+
+    // Add mean handle labels
+    muLines.append('text')
+      .attr('x', d => xScale(d.mu))
+      .attr('y', chartHeight / 2 + 3)
+      .attr('text-anchor', 'middle')
+      .style('font-size', '8px')
+      .style('font-weight', 'bold')
+      .style('fill', 'white')
+      .text('μ');
+
+    // Original pi circles (for weight adjustment)
     const piCircles = muLines.append('circle')
       .attr('cx', d => xScale(d.mu))
       .attr('cy', d => yScale(d.pi * maxY))
@@ -348,7 +383,55 @@ export default function GMMChart({
       .attr('stroke-width', 2)
       .style('cursor', 'move');
 
-    let dragBehavior = d3.drag<SVGCircleElement, GaussianComponent>()
+    // Drag behavior for mean handles (horizontal only - μ changes)
+    const meanDragBehavior = d3.drag<SVGRectElement, GaussianComponent>()
+      .on('start', function(event, d) {
+        const index = components.indexOf(d);
+        setIsDragging(index);
+        // Highlight the mean line during drag
+        d3.select(this.parentNode as Element)
+          .select('line')
+          .attr('stroke-width', 4)
+          .attr('opacity', 1);
+      })
+      .on('drag', function(event, d) {
+        const index = components.indexOf(d);
+        const newMu = xScale.invert(event.x);
+        
+        // Update mean handle position
+        d3.select(this)
+          .attr('x', event.x - 8);
+        
+        // Update mean line position
+        d3.select(this.parentNode as Element)
+          .select('line')
+          .attr('x1', event.x)
+          .attr('x2', event.x);
+        
+        // Update mean label position
+        d3.select(this.parentNode as Element)
+          .selectAll('text')
+          .attr('x', event.x);
+        
+        // Update pi circle position (x only)
+        d3.select(this.parentNode as Element)
+          .select('circle')
+          .attr('cx', event.x);
+        
+        // Call the drag handler with only μ change (keep π unchanged)
+        onComponentDrag(index, newMu, d.pi);
+      })
+      .on('end', function() {
+        setIsDragging(null);
+        // Restore normal mean line appearance
+        d3.select(this.parentNode as Element)
+          .select('line')
+          .attr('stroke-width', 2)
+          .attr('opacity', 0.7);
+      });
+
+    // Drag behavior for pi circles (both μ and π changes)
+    const piDragBehavior = d3.drag<SVGCircleElement, GaussianComponent>()
       .on('start', function(event, d) {
         const index = components.indexOf(d);
         setIsDragging(index);
@@ -362,10 +445,17 @@ export default function GMMChart({
           .attr('cx', event.x)
           .attr('cy', event.y);
         
-        d3.select(this.parentNode as Element)
-          .select('line')
+        // Update all related elements
+        const parentGroup = d3.select(this.parentNode as Element);
+        parentGroup.select('line')
           .attr('x1', event.x)
           .attr('x2', event.x);
+        
+        parentGroup.selectAll('text')
+          .attr('x', event.x);
+          
+        parentGroup.select('rect')
+          .attr('x', event.x - 8);
         
         onComponentDrag(index, newMu, newPi);
       })
@@ -373,7 +463,8 @@ export default function GMMChart({
         setIsDragging(null);
       });
 
-    piCircles.call(dragBehavior);
+    meanHandles.call(meanDragBehavior);
+    piCircles.call(piDragBehavior);
 
     if (onHover) {
       const hoverRect = g.append('rect')
