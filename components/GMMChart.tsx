@@ -393,6 +393,10 @@ export default function GMMChart({
 
     // Drag behavior for mean handles (horizontal only - μ changes)
     const meanDragBehavior = d3.drag<SVGRectElement, GaussianComponent>()
+      .subject(function(event, d) {
+        // Set the drag subject to the current mu position
+        return { x: xScale(d.mu), y: 0 };
+      })
       .on('start', function(event, d) {
         const index = components.indexOf(d);
         setIsDragging(index);
@@ -405,7 +409,7 @@ export default function GMMChart({
       })
       .on('drag', function(event, d) {
         const index = components.indexOf(d);
-        // Use event.x which is relative to the element being dragged
+        // event.x now represents the proper drag position
         const newMu = xScale.invert(event.x);
         
         // Update mean handle position
@@ -441,6 +445,10 @@ export default function GMMChart({
 
     // Drag behavior for pi circles (both μ and π changes)
     const piDragBehavior = d3.drag<SVGCircleElement, GaussianComponent>()
+      .subject(function(event, d) {
+        // Set the drag subject to the current position
+        return { x: xScale(d.mu), y: yScale(d.pi * maxY) };
+      })
       .on('start', function(event, d) {
         const index = components.indexOf(d);
         setIsDragging(index);
@@ -448,7 +456,7 @@ export default function GMMChart({
       })
       .on('drag', function(event, d) {
         const index = components.indexOf(d);
-        // Use event.x and event.y which are relative to the dragged element
+        // event.x and event.y now represent proper drag positions
         const newMu = xScale.invert(event.x);
         const newPi = Math.max(0.01, Math.min(0.99, (yScale.invert(event.y)) / maxY));
         
