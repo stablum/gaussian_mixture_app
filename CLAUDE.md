@@ -7,7 +7,8 @@
 - [ ] Run `npm run test` if tests exist
 - [ ] Check TypeScript compilation is successful
 
-### 2. **Git Operations**
+### 2. **Version & Git Operations**
+- [ ] **MANDATORY**: Bump version number in `app/page.tsx` (update the version string in the UI)
 - [ ] Run `git status` to see all changes
 - [ ] Run `git add .` to stage changes
 - [ ] Commit with descriptive message including:
