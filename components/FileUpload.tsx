@@ -79,8 +79,8 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4 mb-4 transition-colors">
-      <div className="flex justify-between items-center mb-4">
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg mb-4 transition-colors" style={{ padding: isCollapsed ? '8px 16px' : '16px' }}>
+      <div className={`flex justify-between items-center ${isCollapsed ? 'mb-0' : 'mb-4'}`}>
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Data Input</h3>
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}

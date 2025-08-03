@@ -198,6 +198,34 @@ export default function Home() {
     }));
   };
 
+  const handleParameterChange = (index: number, parameter: 'mu' | 'sigma' | 'pi', value: number) => {
+    const newComponents = [...components];
+    newComponents[index] = {
+      ...newComponents[index],
+      [parameter]: value
+    };
+    
+    // If π (pi) was changed, normalize all weights to sum to 1
+    if (parameter === 'pi') {
+      const totalPi = newComponents.reduce((sum, comp) => sum + comp.pi, 0);
+      if (totalPi > 0) {
+        newComponents.forEach(comp => comp.pi /= totalPi);
+      }
+    }
+    
+    setComponents(newComponents);
+    
+    // Update current step in history if it exists
+    if (gmmHistory.length > 0) {
+      const newHistory = [...gmmHistory];
+      newHistory[currentStep] = {
+        ...newHistory[currentStep],
+        components: JSON.parse(JSON.stringify(newComponents))
+      };
+      setGmmHistory(newHistory);
+    }
+  };
+
   const currentLogLikelihood = gmmHistory[currentStep]?.logLikelihood ?? -Infinity;
   
 
@@ -261,6 +289,7 @@ export default function Home() {
                 components={components}
                 hoverInfo={hoverInfo}
                 onComponentCountChange={handleComponentCountChange}
+                onParameterChange={handleParameterChange}
               />
             )}
             {components.length > 0 && (

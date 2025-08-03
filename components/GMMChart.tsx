@@ -325,13 +325,17 @@ export default function GMMChart({
         .attr('opacity', 0.6);
     }
 
-    const muLines = chartArea.selectAll('.mu-line')
+    // Create interactive elements in main group (not clipped)
+    const muLines = g.selectAll('.mu-line')
       .data(components)
       .enter().append('g')
       .attr('class', 'mu-line');
 
-    // Mean lines with enhanced visibility during drag
-    const meanLines = muLines.append('line')
+    // Mean lines (in clipped area for proper visual boundaries)
+    const meanLines = chartArea.selectAll('.mean-line')
+      .data(components)
+      .enter().append('line')
+      .attr('class', 'mean-line')
       .attr('x1', d => xScale(d.mu))
       .attr('x2', d => xScale(d.mu))
       .attr('y1', 0)
@@ -340,48 +344,51 @@ export default function GMMChart({
       .attr('stroke-width', 2)
       .attr('opacity', 0.7);
 
-    // Mean labels for better identification
+    // Mean labels (above chart, not clipped)
     muLines.append('text')
       .attr('x', d => xScale(d.mu))
       .attr('y', -5)
       .attr('text-anchor', 'middle')
-      .style('font-size', '10px')
+      .style('font-size', '12px')
       .style('font-weight', 'bold')
       .style('fill', (d, i) => getComponentColor(i))
       .text((d, i) => `μ${i + 1}`);
 
-    // Draggable handles for means (horizontal dragging only)
+    // Larger, more visible draggable handles for means (not clipped)
     const meanHandles = muLines.append('rect')
-      .attr('x', d => xScale(d.mu) - 8)
-      .attr('y', chartHeight / 2 - 15)
-      .attr('width', 16)
-      .attr('height', 30)
+      .attr('x', d => xScale(d.mu) - 12)
+      .attr('y', chartHeight / 2 - 20)
+      .attr('width', 24)
+      .attr('height', 40)
       .attr('fill', (d, i) => getComponentColor(i))
       .attr('stroke', 'white')
-      .attr('stroke-width', 2)
-      .attr('rx', 3)
-      .attr('opacity', 0.8)
-      .style('cursor', 'ew-resize');
+      .attr('stroke-width', 3)
+      .attr('rx', 4)
+      .attr('opacity', 0.9)
+      .style('cursor', 'ew-resize')
+      .style('pointer-events', 'all'); // Ensure pointer events work
 
-    // Add mean handle labels
+    // Add mean handle labels (larger and more visible)
     muLines.append('text')
       .attr('x', d => xScale(d.mu))
-      .attr('y', chartHeight / 2 + 3)
+      .attr('y', chartHeight / 2 + 5)
       .attr('text-anchor', 'middle')
-      .style('font-size', '8px')
+      .style('font-size', '12px')
       .style('font-weight', 'bold')
       .style('fill', 'white')
+      .style('pointer-events', 'none') // Prevent text from interfering with drag
       .text('μ');
 
-    // Original pi circles (for weight adjustment)
+    // Pi circles (not clipped for better interaction)
     const piCircles = muLines.append('circle')
       .attr('cx', d => xScale(d.mu))
       .attr('cy', d => yScale(d.pi * maxY))
-      .attr('r', 8)
+      .attr('r', 10)
       .attr('fill', (d, i) => getComponentColor(i))
       .attr('stroke', 'white')
-      .attr('stroke-width', 2)
-      .style('cursor', 'move');
+      .attr('stroke-width', 3)
+      .style('cursor', 'move')
+      .style('pointer-events', 'all');
 
     // Drag behavior for mean handles (horizontal only - μ changes)
     const meanDragBehavior = d3.drag<SVGRectElement, GaussianComponent>()
@@ -390,33 +397,34 @@ export default function GMMChart({
         setIsDragging(index);
         // Highlight the mean line during drag
         d3.select(this.parentNode as Element)
-          .select('line')
+          .select('.mean-line')
           .attr('stroke-width', 4)
           .attr('opacity', 1);
       })
       .on('drag', function(event, d) {
         const index = components.indexOf(d);
-        const newMu = xScale.invert(event.x);
+        const mouseX = event.x;
+        const newMu = xScale.invert(mouseX);
         
         // Update mean handle position
         d3.select(this)
-          .attr('x', event.x - 8);
+          .attr('x', mouseX - 12);
         
-        // Update mean line position
-        d3.select(this.parentNode as Element)
-          .select('line')
-          .attr('x1', event.x)
-          .attr('x2', event.x);
+        // Update mean line position in clipped area
+        chartArea.selectAll('.mean-line')
+          .filter((lineData: any, lineIndex) => lineIndex === index)
+          .attr('x1', mouseX)
+          .attr('x2', mouseX);
         
         // Update mean label position
         d3.select(this.parentNode as Element)
           .selectAll('text')
-          .attr('x', event.x);
+          .attr('x', mouseX);
         
         // Update pi circle position (x only)
         d3.select(this.parentNode as Element)
           .select('circle')
-          .attr('cx', event.x);
+          .attr('cx', mouseX);
         
         // Call the drag handler with only μ change (keep π unchanged)
         onComponentDrag(index, newMu, d.pi);
@@ -424,8 +432,7 @@ export default function GMMChart({
       .on('end', function() {
         setIsDragging(null);
         // Restore normal mean line appearance
-        d3.select(this.parentNode as Element)
-          .select('line')
+        chartArea.selectAll('.mean-line')
           .attr('stroke-width', 2)
           .attr('opacity', 0.7);
       });

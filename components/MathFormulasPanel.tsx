@@ -184,8 +184,8 @@ export default function MathFormulasPanel({ componentCount }: MathFormulasPanelP
   );
 
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4 transition-colors">
-      <div className="flex justify-between items-center mb-4">
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors" style={{ padding: isCollapsed ? '8px 16px' : '16px' }}>
+      <div className={`flex justify-between items-center ${isCollapsed ? 'mb-0' : 'mb-4'}`}>
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Mathematical Formulation</h3>
         <div className="flex items-center gap-3">
           <div className="text-xs text-gray-500 dark:text-gray-400">

@@ -15,18 +15,20 @@ interface ParameterPanelProps {
     };
   } | null;
   onComponentCountChange: (newCount: number) => void;
+  onParameterChange: (index: number, parameter: 'mu' | 'sigma' | 'pi', value: number) => void;
 }
 
 export default function ParameterPanel({ 
   components, 
   hoverInfo, 
-  onComponentCountChange 
+  onComponentCountChange,
+  onParameterChange
 }: ParameterPanelProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4 transition-colors">
-      <div className="flex justify-between items-center mb-4">
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors" style={{ padding: isCollapsed ? '8px 16px' : '16px' }}>
+      <div className={`flex justify-between items-center ${isCollapsed ? 'mb-0' : 'mb-4'}`}>
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Parameters</h3>
         
         <div className="flex items-center gap-3">
@@ -76,18 +78,39 @@ export default function ParameterPanel({
                 
                 <div className="grid grid-cols-3 gap-3 text-sm text-gray-900 dark:text-gray-100">
                   <div>
-                    <span className="font-medium">μ (Mean):</span>
-                    <div className="font-mono">{component.mu.toFixed(3)}</div>
+                    <label className="font-medium block mb-1">μ (Mean):</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={component.mu.toFixed(3)}
+                      onChange={(e) => onParameterChange(index, 'mu', parseFloat(e.target.value) || 0)}
+                      className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                    />
                   </div>
                   
                   <div>
-                    <span className="font-medium">σ (Std):</span>
-                    <div className="font-mono">{component.sigma.toFixed(3)}</div>
+                    <label className="font-medium block mb-1">σ (Std):</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0.01"
+                      value={component.sigma.toFixed(3)}
+                      onChange={(e) => onParameterChange(index, 'sigma', Math.max(0.01, parseFloat(e.target.value) || 0.01))}
+                      className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                    />
                   </div>
                   
                   <div>
-                    <span className="font-medium">π (Weight):</span>
-                    <div className="font-mono">{component.pi.toFixed(3)}</div>
+                    <label className="font-medium block mb-1">π (Weight):</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      max="0.99"
+                      value={component.pi.toFixed(3)}
+                      onChange={(e) => onParameterChange(index, 'pi', Math.max(0.01, Math.min(0.99, parseFloat(e.target.value) || 0.01)))}
+                      className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                    />
                   </div>
                 </div>
               </div>
