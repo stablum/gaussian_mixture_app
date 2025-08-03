@@ -12,6 +12,12 @@ interface GMMChartProps {
   onHover?: (x: number, probabilities: { total: number, componentProbs: number[], posteriors: number[] } | null) => void;
   width?: number;
   height?: number;
+  curveVisibility?: {
+    mixture: boolean;
+    components: boolean;
+    posteriors: boolean;
+    dataPoints: boolean;
+  };
 }
 
 export default function GMMChart({ 
@@ -20,7 +26,13 @@ export default function GMMChart({
   onComponentDrag, 
   onHover,
   width = 800, 
-  height = 400 
+  height = 400,
+  curveVisibility = {
+    mixture: true,
+    components: true,
+    posteriors: true,
+    dataPoints: true
+  }
 }: GMMChartProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [isDragging, setIsDragging] = useState<number | null>(null);
@@ -152,19 +164,48 @@ export default function GMMChart({
       .attr('x', -10)
       .attr('y', -5)
       .attr('width', 190)
-      .attr('height', 75)
+      .attr('height', 95)
       .attr('fill', legendBgColor)
       .attr('stroke', legendBorderColor)
       .attr('stroke-width', 1)
       .attr('opacity', 0.9)
       .attr('rx', 4);
 
-    // Legend items with theme-aware colors
+    // Legend items with theme-aware colors and visibility indicators
     const mixtureCurveColor = isDarkMode ? '#f3f4f6' : 'black';
     const legendData = [
-      { label: 'Mixture Distribution', stroke: mixtureCurveColor, strokeWidth: 3, dashArray: 'none' },
-      { label: 'Component Densities', stroke: getComponentColor(0), strokeWidth: 1.5, dashArray: '5,5' },
-      { label: 'Posteriors (scaled)', stroke: getComponentColor(0), strokeWidth: 2, dashArray: '2,3' }
+      { 
+        label: 'Mixture Distribution', 
+        stroke: mixtureCurveColor, 
+        strokeWidth: 3, 
+        dashArray: 'none',
+        visible: curveVisibility.mixture,
+        key: 'mixture' as keyof typeof curveVisibility
+      },
+      { 
+        label: 'Component Densities', 
+        stroke: getComponentColor(0), 
+        strokeWidth: 1.5, 
+        dashArray: '5,5',
+        visible: curveVisibility.components,
+        key: 'components' as keyof typeof curveVisibility
+      },
+      { 
+        label: 'Posteriors (scaled)', 
+        stroke: getComponentColor(0), 
+        strokeWidth: 2, 
+        dashArray: '2,3',
+        visible: curveVisibility.posteriors,
+        key: 'posteriors' as keyof typeof curveVisibility
+      },
+      { 
+        label: 'Data Points', 
+        stroke: 'steelblue', 
+        strokeWidth: 2, 
+        dashArray: 'none',
+        visible: curveVisibility.dataPoints,
+        key: 'dataPoints' as keyof typeof curveVisibility
+      }
     ];
 
     const legendItems = legend.selectAll('.legend-item')
@@ -173,21 +214,32 @@ export default function GMMChart({
       .attr('class', 'legend-item')
       .attr('transform', (d, i) => `translate(0, ${i * 20})`);
 
+    // Visibility indicator (eye icon or checkbox)
+    legendItems.append('circle')
+      .attr('cx', -5)
+      .attr('cy', 0)
+      .attr('r', 4)
+      .attr('fill', d => d.visible ? (isDarkMode ? '#10b981' : '#059669') : 'transparent')
+      .attr('stroke', d => d.visible ? (isDarkMode ? '#10b981' : '#059669') : (isDarkMode ? '#6b7280' : '#9ca3af'))
+      .attr('stroke-width', 1.5);
+
+    // Sample line
     legendItems.append('line')
-      .attr('x1', 0)
-      .attr('x2', 20)
+      .attr('x1', 5)
+      .attr('x2', 25)
       .attr('y1', 0)
       .attr('y2', 0)
-      .attr('stroke', d => d.stroke)
+      .attr('stroke', d => d.visible ? d.stroke : (isDarkMode ? '#6b7280' : '#9ca3af'))
       .attr('stroke-width', d => d.strokeWidth)
-      .attr('stroke-dasharray', d => d.dashArray === 'none' ? null : d.dashArray);
+      .attr('stroke-dasharray', d => d.dashArray === 'none' ? null : d.dashArray)
+      .attr('opacity', d => d.visible ? 1 : 0.5);
 
     legendItems.append('text')
-      .attr('x', 25)
+      .attr('x', 30)
       .attr('y', 0)
       .attr('dy', '0.35em')
-      .style('font-size', '12px')
-      .style('fill', textColor)
+      .style('font-size', '11px')
+      .style('fill', d => d.visible ? textColor : (isDarkMode ? '#6b7280' : '#9ca3af'))
       .text(d => d.label);
 
     const line = d3.line<{x: number, y: number}>()
@@ -195,45 +247,55 @@ export default function GMMChart({
       .y(d => yScale(d.y))
       .curve(d3.curveCardinal);
 
-    // Draw component probability curves (dashed lines)
-    componentCurves.forEach((curve, i) => {
+    // Draw component probability curves (dashed lines) - only if visible
+    if (curveVisibility.components) {
+      componentCurves.forEach((curve, i) => {
+        chartArea.append('path')
+          .datum(curve)
+          .attr('fill', 'none')
+          .attr('stroke', getComponentColor(i))
+          .attr('stroke-width', 1.5)
+          .attr('stroke-dasharray', '5,5')
+          .attr('d', line);
+      });
+    }
+
+    // Draw posterior probability curves (dotted lines) - only if visible
+    if (curveVisibility.posteriors) {
+      posteriorCurves.forEach((curve, i) => {
+        chartArea.append('path')
+          .datum(curve)
+          .attr('fill', 'none')
+          .attr('stroke', getComponentColor(i))
+          .attr('stroke-width', 2)
+          .attr('stroke-dasharray', '2,3')
+          .attr('opacity', 0.8)
+          .attr('d', line);
+      });
+    }
+
+    // Draw mixture distribution - only if visible
+    if (curveVisibility.mixture) {
       chartArea.append('path')
-        .datum(curve)
+        .datum(mixtureValues)
         .attr('fill', 'none')
-        .attr('stroke', getComponentColor(i))
-        .attr('stroke-width', 1.5)
-        .attr('stroke-dasharray', '5,5')
+        .attr('stroke', mixtureCurveColor)
+        .attr('stroke-width', 3)
         .attr('d', line);
-    });
+    }
 
-    // Draw posterior probability curves (dotted lines)
-    posteriorCurves.forEach((curve, i) => {
-      chartArea.append('path')
-        .datum(curve)
-        .attr('fill', 'none')
-        .attr('stroke', getComponentColor(i))
-        .attr('stroke-width', 2)
-        .attr('stroke-dasharray', '2,3')
-        .attr('opacity', 0.8)
-        .attr('d', line);
-    });
-
-    chartArea.append('path')
-      .datum(mixtureValues)
-      .attr('fill', 'none')
-      .attr('stroke', mixtureCurveColor)
-      .attr('stroke-width', 3)
-      .attr('d', line);
-
-    const dataPoints = chartArea.selectAll('.data-point')
-      .data(data)
-      .enter().append('circle')
-      .attr('class', 'data-point')
-      .attr('cx', d => xScale(d))
-      .attr('cy', chartHeight - 10)
-      .attr('r', 3)
-      .attr('fill', 'steelblue')
-      .attr('opacity', 0.6);
+    // Draw data points - only if visible
+    if (curveVisibility.dataPoints) {
+      const dataPoints = chartArea.selectAll('.data-point')
+        .data(data)
+        .enter().append('circle')
+        .attr('class', 'data-point')
+        .attr('cx', d => xScale(d))
+        .attr('cy', chartHeight - 10)
+        .attr('r', 3)
+        .attr('fill', 'steelblue')
+        .attr('opacity', 0.6);
+    }
 
     const muLines = chartArea.selectAll('.mu-line')
       .data(components)

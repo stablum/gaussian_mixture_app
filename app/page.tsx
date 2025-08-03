@@ -8,6 +8,7 @@ import FileUpload from '@/components/FileUpload';
 import EMControls from '@/components/EMControls';
 import ParameterPanel from '@/components/ParameterPanel';
 import MathFormulasPanel from '@/components/MathFormulasPanel';
+import CurveVisibilityControls from '@/components/CurveVisibilityControls';
 import ThemeToggle from '@/components/ThemeToggle';
 
 export default function Home() {
@@ -25,6 +26,12 @@ export default function Home() {
       posteriors: number[];
     };
   } | null>(null);
+  const [curveVisibility, setCurveVisibility] = useState({
+    mixture: true,
+    components: true,
+    posteriors: true,
+    dataPoints: true
+  });
 
   const initializeGMM = useCallback((newData: number[], numComponents: number = 2) => {
     if (newData.length === 0) return;
@@ -184,6 +191,13 @@ export default function Home() {
     }
   };
 
+  const handleVisibilityChange = (key: keyof typeof curveVisibility, value: boolean) => {
+    setCurveVisibility(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+
   const currentLogLikelihood = gmmHistory[currentStep]?.logLikelihood ?? -Infinity;
   
 
@@ -207,8 +221,8 @@ export default function Home() {
           </div>
         </header>
 
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-          <div className="lg:col-span-2 xl:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-6">
             <FileUpload onDataLoad={handleDataLoad} />
             
             <EMControls
@@ -232,11 +246,16 @@ export default function Home() {
                 onHover={handleHover}
                 width={800}
                 height={500}
+                curveVisibility={curveVisibility}
               />
             )}
           </div>
           
           <div className="space-y-6">
+            <CurveVisibilityControls
+              visibility={curveVisibility}
+              onVisibilityChange={handleVisibilityChange}
+            />
             {components.length > 0 && (
               <ParameterPanel
                 components={components}
@@ -244,9 +263,6 @@ export default function Home() {
                 onComponentCountChange={handleComponentCountChange}
               />
             )}
-          </div>
-
-          <div className="space-y-6">
             {components.length > 0 && (
               <MathFormulasPanel componentCount={components.length} />
             )}

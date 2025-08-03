@@ -10,6 +10,7 @@ interface MathFormulasPanelProps {
 
 export default function MathFormulasPanel({ componentCount }: MathFormulasPanelProps) {
   const [activeSection, setActiveSection] = useState<'mixture' | 'em' | 'posteriors'>('mixture');
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const sections = [
     { id: 'mixture', label: 'Mixture Model', icon: '🎯' },
@@ -186,39 +187,61 @@ export default function MathFormulasPanel({ componentCount }: MathFormulasPanelP
     <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4 transition-colors">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Mathematical Formulation</h3>
-        <div className="text-xs text-gray-500 dark:text-gray-400">
-          K = {componentCount} components
+        <div className="flex items-center gap-3">
+          <div className="text-xs text-gray-500 dark:text-gray-400">
+            K = {componentCount} components
+          </div>
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+            title={isCollapsed ? "Expand panel" : "Collapse panel"}
+          >
+            <svg
+              className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform ${
+                isCollapsed ? 'rotate-180' : ''
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
         </div>
       </div>
 
-      {/* Section tabs */}
-      <div className="flex space-x-1 mb-4 bg-gray-100 dark:bg-gray-700 p-1 rounded transition-colors">
-        {sections.map((section) => (
-          <button
-            key={section.id}
-            onClick={() => setActiveSection(section.id)}
-            className={`flex-1 px-3 py-2 text-sm font-medium rounded transition-colors ${
-              activeSection === section.id
-                ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
-                : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100'
-            }`}
-          >
-            <span className="mr-1">{section.icon}</span>
-            {section.label}
-          </button>
-        ))}
-      </div>
+      {!isCollapsed && (
+        <>
+          {/* Section tabs */}
+          <div className="flex space-x-1 mb-4 bg-gray-100 dark:bg-gray-700 p-1 rounded transition-colors">
+            {sections.map((section) => (
+              <button
+                key={section.id}
+                onClick={() => setActiveSection(section.id)}
+                className={`flex-1 px-3 py-2 text-sm font-medium rounded transition-colors ${
+                  activeSection === section.id
+                    ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
+                    : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100'
+                }`}
+              >
+                <span className="mr-1">{section.icon}</span>
+                {section.label}
+              </button>
+            ))}
+          </div>
 
-      {/* Content */}
-      <div className="min-h-[400px]">
-        {activeSection === 'mixture' && renderMixtureFormulas()}
-        {activeSection === 'em' && renderEMFormulas()}
-        {activeSection === 'posteriors' && renderPosteriorsFormulas()}
-      </div>
+          {/* Content */}
+          <div className="min-h-[400px]">
+            {activeSection === 'mixture' && renderMixtureFormulas()}
+            {activeSection === 'em' && renderEMFormulas()}
+            {activeSection === 'posteriors' && renderPosteriorsFormulas()}
+          </div>
 
-      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600 text-xs text-gray-600 dark:text-gray-400 transition-colors">
-        <p><strong>Interactive:</strong> Hover over the chart to see posterior probabilities in action!</p>
-      </div>
+          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600 text-xs text-gray-600 dark:text-gray-400 transition-colors">
+            <p><strong>Interactive:</strong> Hover over the chart to see posterior probabilities in action!</p>
+          </div>
+        </>
+      )}
     </div>
   );
 }
