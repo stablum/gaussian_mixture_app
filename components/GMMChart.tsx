@@ -85,7 +85,7 @@ export default function GMMChart({
     let clusterAssignments: number[] = [];
     let centroids: number[] = [];
 
-    if (isKMeans) {
+    if (isKMeans && clusters.length > 0) {
       // K-means visualization preparation
       centroids = clusters.map(cluster => cluster.centroid);
       
@@ -105,6 +105,11 @@ export default function GMMChart({
       });
       
       initialMaxY = Math.max(data.length * 0.1, 10); // Base height for visualization
+    } else if (isKMeans) {
+      // K-means mode but no clusters yet - set defaults
+      centroids = [];
+      clusterAssignments = [];
+      initialMaxY = Math.max(data.length * 0.1, 10);
     } else {
       // GMM visualization preparation (original logic)
       const gmm = new GaussianMixtureModel(data);
@@ -731,7 +736,7 @@ export default function GMMChart({
             .attr('y2', chartHeight)
             .attr('opacity', 1);
           
-          if (isKMeans) {
+          if (isKMeans && centroids.length > 0) {
             // K-means hover info: calculate distances to centroids
             const clusterDistances = centroids.map(centroid => Math.abs(x - centroid));
             const nearestClusterIndex = clusterDistances.indexOf(Math.min(...clusterDistances));
@@ -739,6 +744,12 @@ export default function GMMChart({
             onHover(x, {
               clusterDistances,
               nearestCluster: nearestClusterIndex
+            });
+          } else if (isKMeans) {
+            // K-means mode but no centroids yet
+            onHover(x, {
+              clusterDistances: [],
+              nearestCluster: -1
             });
           } else {
             // GMM hover info: calculate probabilities

@@ -107,7 +107,11 @@ export default function Home() {
 
   const handleDataLoad = (newData: number[]) => {
     setData(newData);
-    initializeGMM(newData, components.length);
+    if (algorithmMode === AlgorithmMode.GMM) {
+      initializeGMM(newData, components.length);
+    } else {
+      initializeKMeans(newData, clusters.length || 2);
+    }
   };
 
   const handleComponentCountChange = (newCount: number) => {
@@ -181,7 +185,11 @@ export default function Home() {
   };
 
   const handleReset = () => {
-    initializeGMM(data, components.length);
+    if (algorithmMode === AlgorithmMode.GMM) {
+      initializeGMM(data, components.length);
+    } else {
+      initializeKMeans(data, clusters.length);
+    }
   };
 
   const handleRunToConvergence = async () => {

@@ -74,4 +74,4 @@ jobs:
     - name: Update deployment status
       run: |
         echo "🚀 Deployment successful!"
-        echo "Live at: https://gaussian-mixture-app.vercel.app/"
+        echo "Live at: https://explorer.mltutor.nl/"
