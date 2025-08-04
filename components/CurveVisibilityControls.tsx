@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
+import { AlgorithmMode } from '@/lib/algorithmTypes';
 
 interface CurveVisibilityControlsProps {
+  mode?: AlgorithmMode;
   visibility: {
     mixture: boolean;
     components: boolean;
@@ -12,10 +14,21 @@ interface CurveVisibilityControlsProps {
   onVisibilityChange: (key: keyof CurveVisibilityControlsProps['visibility'], value: boolean) => void;
 }
 
-export default function CurveVisibilityControls({ visibility, onVisibilityChange }: CurveVisibilityControlsProps) {
+export default function CurveVisibilityControls({ 
+  mode = AlgorithmMode.GMM, 
+  visibility, 
+  onVisibilityChange 
+}: CurveVisibilityControlsProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   
-  const controls = [
+  const isKMeans = mode === AlgorithmMode.KMEANS;
+  
+  // Define controls based on algorithm mode
+  const controls = isKMeans ? [
+    { key: 'mixture' as const, label: 'Cluster Centroids', color: 'text-gray-900 dark:text-gray-100' },
+    { key: 'components' as const, label: 'Cluster Boundaries', color: 'text-blue-600 dark:text-blue-400' },
+    { key: 'dataPoints' as const, label: 'Data Points (Colored)', color: 'text-indigo-600 dark:text-indigo-400' }
+  ] : [
     { key: 'mixture' as const, label: 'Mixture Distribution', color: 'text-gray-900 dark:text-gray-100' },
     { key: 'components' as const, label: 'Component Densities', color: 'text-blue-600 dark:text-blue-400' },
     { key: 'posteriors' as const, label: 'Posteriors (scaled)', color: 'text-green-600 dark:text-green-400' },
@@ -25,10 +38,12 @@ export default function CurveVisibilityControls({ visibility, onVisibilityChange
   return (
     <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors" style={{ padding: isCollapsed ? '8px 16px' : '16px' }}>
       <div className={`flex justify-between items-center ${isCollapsed ? 'mb-0' : 'mb-3'}`}>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Chart Display</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          {isKMeans ? 'Visualization Options' : 'Chart Display'}
+        </h3>
         <div className="flex items-center gap-3">
           <div className="text-xs text-gray-500 dark:text-gray-400">
-            Toggle curve visibility
+            {isKMeans ? 'Toggle visualization elements' : 'Toggle curve visibility'}
           </div>
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
@@ -68,7 +83,13 @@ export default function CurveVisibilityControls({ visibility, onVisibilityChange
           </div>
           
           <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-600 text-xs text-gray-600 dark:text-gray-400">
-            <p><strong>Teaching Tip:</strong> Hide curves to focus on specific aspects during explanations</p>
+            <p>
+              <strong>Teaching Tip:</strong> {
+                isKMeans 
+                  ? 'Hide elements to focus on specific aspects of clustering during explanations'
+                  : 'Hide curves to focus on specific aspects during explanations'
+              }
+            </p>
           </div>
         </>
       )}

@@ -475,6 +475,7 @@ export default function Home() {
           
           <div className="space-y-6">
             <CurveVisibilityControls
+              mode={algorithmMode}
               visibility={curveVisibility}
               onVisibilityChange={handleVisibilityChange}
             />

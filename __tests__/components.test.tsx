@@ -174,10 +174,10 @@ describe('Component Integration Tests', () => {
       jest.clearAllMocks();
     });
 
-    it('should render component parameters', () => {
+    it('should render component parameters in GMM mode', () => {
       render(<ParameterPanel {...defaultProps} />);
       
-      expect(screen.getByText('Parameters')).toBeInTheDocument();
+      expect(screen.getByText('Component Parameters')).toBeInTheDocument();
       
       // Check if component parameters are displayed - they should be in the format from the actual component
       expect(screen.getAllByText(/μ \(Mean\):/)).toHaveLength(2); // Two components
@@ -201,7 +201,7 @@ describe('Component Integration Tests', () => {
     it('should handle empty components array', () => {
       render(<ParameterPanel {...defaultProps} components={[]} />);
       
-      expect(screen.getByText('Parameters')).toBeInTheDocument();
+      expect(screen.getByText('Component Parameters')).toBeInTheDocument();
       // Should not crash when no components are provided
     });
 
