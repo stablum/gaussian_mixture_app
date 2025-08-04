@@ -769,11 +769,25 @@ export default function GMMChart({
               clusterDistances: [],
               nearestCluster: -1
             });
-          } else {
+          } else if (components && components.length > 0 && data && data.length > 0) {
             // GMM hover info: calculate probabilities
-            const gmm = new GaussianMixtureModel(data);
-            const probabilities = gmm.evaluateMixture(x, components);
-            onHover(x, { probabilities });
+            try {
+              const gmm = new GaussianMixtureModel(data);
+              const probabilities = gmm.evaluateMixture(x, components);
+              if (probabilities && probabilities.componentProbs && probabilities.posteriors) {
+                onHover(x, { probabilities });
+              } else {
+                onHover(x, null);
+              }
+            } catch (error) {
+              console.error('Error calculating GMM probabilities:', error);
+              const errorMessage = error instanceof Error ? error.message : String(error);
+              // Pass error info to parent for display
+              onHover(x, { error: `GMM calculation error: ${errorMessage}` });
+            }
+          } else {
+            // No valid components for GMM
+            onHover(x, null);
           }
         })
         .on('mouseleave', function() {

@@ -44,6 +44,26 @@ export default function Home() {
     clusterDistances?: number[];
     nearestCluster?: number;
   } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Global error handler
+  useEffect(() => {
+    const handleGlobalError = (event: ErrorEvent) => {
+      setError(`Unhandled error: ${event.message} at ${event.filename}:${event.lineno}`);
+    };
+    
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      setError(`Unhandled promise rejection: ${event.reason}`);
+    };
+    
+    window.addEventListener('error', handleGlobalError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    
+    return () => {
+      window.removeEventListener('error', handleGlobalError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
+  }, []);
   
   const [curveVisibility, setCurveVisibility] = useState({
     mixture: true,
@@ -346,11 +366,24 @@ export default function Home() {
     setIsRunning(false);
   };
 
-  const handleHover = (x: number, probabilities: any) => {
-    if (probabilities) {
-      setHoverInfo({ x, probabilities });
-    } else {
-      setHoverInfo(null);
+  const handleHover = (x: number, info: any) => {
+    try {
+      if (info) {
+        if (info.error) {
+          setError(info.error);
+          setHoverInfo(null);
+        } else {
+          setHoverInfo({ x, ...info });
+          setError(null); // Clear any previous errors
+        }
+      } else {
+        setHoverInfo(null);
+        setError(null);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      setError(`Hover handler error: ${errorMessage}`);
+      console.error('Hover handler error:', error);
     }
   };
 
@@ -425,12 +458,29 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models and K-means clustering algorithms
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.2.3 - Dual Algorithm Mode (GMM + K-means)
+                v3.2.5 - Dual Algorithm Mode (GMM + K-means)
               </div>
             </div>
             <ThemeToggle />
           </div>
         </header>
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 rounded-lg">
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="text-red-800 dark:text-red-200 font-semibold">Application Error</h3>
+                <p className="text-red-700 dark:text-red-300 text-sm mt-1 font-mono">{error}</p>
+              </div>
+              <button 
+                onClick={() => setError(null)}
+                className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-200"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="space-y-6">

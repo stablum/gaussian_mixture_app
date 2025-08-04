@@ -200,7 +200,23 @@ export class GaussianMixtureModel {
     componentProbs: number[],
     posteriors: number[]
   } {
-    const componentProbs = components.map(comp => 
+    // Validate components
+    const validComponents = components.filter(comp => 
+      comp && 
+      typeof comp.pi === 'number' && !isNaN(comp.pi) && comp.pi > 0 &&
+      typeof comp.mu === 'number' && !isNaN(comp.mu) &&
+      typeof comp.sigma === 'number' && !isNaN(comp.sigma) && comp.sigma > 0
+    );
+    
+    if (validComponents.length === 0) {
+      return {
+        total: 0,
+        componentProbs: [],
+        posteriors: []
+      };
+    }
+    
+    const componentProbs = validComponents.map(comp => 
       comp.pi * this.gaussianPDF(x, comp.mu, comp.sigma)
     );
     
@@ -208,7 +224,7 @@ export class GaussianMixtureModel {
     
     const posteriors = total > 0 
       ? componentProbs.map(p => p / total)
-      : new Array(components.length).fill(1 / components.length);
+      : new Array(validComponents.length).fill(1 / validComponents.length);
     
     return { total, componentProbs, posteriors };
   }
