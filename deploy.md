@@ -1,4 +1,4 @@
-# Gaussian Mixture Model Explorer - Deployment Guide
+# ML Explorer - Deployment Guide
 
 ## Online Deployment Options
 
@@ -15,10 +15,10 @@
    - Go to [vercel.com](https://vercel.com)
    - Sign in with GitHub
    - Click "New Project"
-   - Import your `gaussian_mixture_app` repository
+   - Import your `ml-explorer` repository
    - Vercel will auto-detect Next.js and deploy
 
-3. **Your app will be live at:** `https://your-repo-name.vercel.app`
+3. **Your app will be live at:** `https://explorer.mltutor.nl`
 
 ### Option 2: Netlify (Alternative - Free)
 
@@ -35,7 +35,7 @@
 ### Option 3: GitHub Pages (Free)
 
 1. **Enable GitHub Pages in your repository settings**
-2. **The app will be available at:** `https://username.github.io/gaussian_mixture_app`
+2. **The app will be available at:** `https://username.github.io/ml-explorer`
 
 ## Quick Deploy Command
 
@@ -49,12 +49,15 @@ npx vercel --prod
 - No additional environment variables required
 
 ## Features Included in Deployment
-✅ Interactive Gaussian Mixture Model visualization
-✅ EM Algorithm step-by-step execution
+✅ Interactive ML algorithm visualization (GMM + K-means)
+✅ Dual-mode algorithm switching
+✅ EM Algorithm and K-means step-by-step execution
 ✅ CSV data upload functionality
-✅ Real-time parameter visualization
-✅ Convergence analysis
+✅ Real-time parameter visualization with draggable controls
+✅ Convergence analysis for both algorithms
+✅ Mathematical formulas panels
 ✅ Sample data generation
+✅ Dark/light theme support
 ✅ Comprehensive error handling
 ✅ Mobile responsive design
 

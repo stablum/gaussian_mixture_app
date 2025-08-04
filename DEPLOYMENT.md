@@ -2,9 +2,9 @@
 
 ## 🚀 Current Setup
 
-Your Gaussian Mixture Model Explorer has **automated deployment** configured:
+Your ML Explorer has **automated deployment** configured:
 
-- **Production URL**: https://gaussian-mixture-app.vercel.app/
+- **Production URL**: https://explorer.mltutor.nl/
 - **Auto-deploy on**: Every push to `main` branch
 - **Tests run automatically**: Before each deployment
 - **Preview deployments**: Created for pull requests
@@ -33,7 +33,7 @@ git push origin main
 # ✅ Your changes are automatically:
 # 1. Tested
 # 2. Built  
-# 3. Deployed to https://gaussian-mixture-app.vercel.app/
+# 3. Deployed to https://explorer.mltutor.nl/
 ```
 
 ## 🛠 Setup Details
@@ -53,7 +53,7 @@ NODE_ENV=production
 
 You can check deployment status at:
 - **Vercel Dashboard**: https://vercel.com/dashboard
-- **GitHub Actions**: https://github.com/stablum/gaussian_mixture_app/actions
+- **GitHub Actions**: https://github.com/stablum/ml-explorer/actions
 
 ## 🔧 Manual Deployment (if needed)
 

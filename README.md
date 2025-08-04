@@ -2,6 +2,8 @@
 
 An interactive educational tool for exploring machine learning algorithms including Gaussian Mixture Models (GMM) and K-means clustering.
 
+🚀 **Live Demo**: [explorer.mltutor.nl](https://explorer.mltutor.nl)
+
 ## Features
 
 ### Dual Algorithm Support

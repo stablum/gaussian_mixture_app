@@ -2,7 +2,7 @@
 
 ## Current Status
 ✅ **Vercel Integration**: Your app auto-deploys on every push to main branch  
-✅ **Production URL**: https://gaussian-mixture-app.vercel.app/  
+✅ **Production URL**: https://explorer.mltutor.nl/  
 ✅ **GitHub Actions**: Active and running (2 workflows deployed)
 ✅ **Token Permissions**: Updated with workflow scope
 
@@ -26,7 +26,7 @@ Your current token lacks 'workflow' scope. Create a new token:
 4. Copy the new token
 5. Update your git credentials:
    ```bash
-   git remote set-url origin https://NEW_TOKEN@github.com/stablum/gaussian_mixture_app.git
+   git remote set-url origin https://NEW_TOKEN@github.com/stablum/ml-explorer.git
    ```
 
 ### 2. Add Workflow Files
@@ -41,7 +41,7 @@ git push origin main
 ### 3. Configure Vercel Secrets (Optional)
 For GitHub Actions integration:
 1. Get Vercel token: https://vercel.com/account/tokens
-2. Add these secrets in GitHub: https://github.com/stablum/gaussian_mixture_app/settings/secrets/actions
+2. Add these secrets in GitHub: https://github.com/stablum/ml-explorer/settings/secrets/actions
    - `VERCEL_TOKEN`
    - `ORG_ID` 
    - `PROJECT_ID`
@@ -52,7 +52,7 @@ For GitHub Actions integration:
 git add .
 git commit -m "Your changes"
 git push origin main
-# ✨ Auto-deployed to https://gaussian-mixture-app.vercel.app/
+# ✨ Auto-deployed to https://explorer.mltutor.nl/
 ```
 
 ## Benefits You Already Have
