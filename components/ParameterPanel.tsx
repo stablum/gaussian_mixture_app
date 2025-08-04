@@ -206,7 +206,7 @@ export default function ParameterPanel({
                       </div>
                     </div>
                   </>
-                ) : hoverInfo.probabilities && hoverInfo.probabilities.componentProbs && Array.isArray(hoverInfo.probabilities.componentProbs) ? (
+                ) : hoverInfo.probabilities ? (
                   // GMM hover info
                   <>
                     <div>
@@ -217,29 +217,37 @@ export default function ParameterPanel({
                     <div>
                       <span className="font-medium">Component Probabilities:</span>
                       <div className="mt-1 space-y-1">
-                        {hoverInfo.probabilities.componentProbs.map((prob, index) => (
-                          <div key={index} className="flex justify-between">
-                            <span style={{ color: getComponentColor(index) }}>Component {index + 1}:</span>
-                            <span className="font-mono">{prob.toFixed(4)}</span>
-                          </div>
-                        ))}
+                        {hoverInfo.probabilities.componentProbs && Array.isArray(hoverInfo.probabilities.componentProbs) ? 
+                          hoverInfo.probabilities.componentProbs.map((prob, index) => (
+                            <div key={index} className="flex justify-between">
+                              <span style={{ color: getComponentColor(index) }}>Component {index + 1}:</span>
+                              <span className="font-mono">{prob.toFixed(4)}</span>
+                            </div>
+                          )) : null
+                        }
                       </div>
                     </div>
                     
                     <div>
                       <span className="font-medium">Posterior Probabilities:</span>
                       <div className="mt-1 space-y-1">
-                        {hoverInfo.probabilities.posteriors.map((posterior, index) => (
-                          <div key={index} className="flex justify-between">
-                            <span style={{ color: getComponentColor(index) }}>P(Component {index + 1} | x):</span>
-                            <span className="font-mono">{posterior.toFixed(4)}</span>
-                          </div>
-                        ))}
+                        {hoverInfo.probabilities.posteriors && Array.isArray(hoverInfo.probabilities.posteriors) ? 
+                          hoverInfo.probabilities.posteriors.map((posterior, index) => (
+                            <div key={index} className="flex justify-between">
+                              <span style={{ color: getComponentColor(index) }}>P(Component {index + 1} | x):</span>
+                              <span className="font-mono">{posterior.toFixed(4)}</span>
+                            </div>
+                          )) : null
+                        }
                       </div>
                     </div>
                     
                     <div className="text-xs text-gray-600 dark:text-gray-400 mt-2">
-                      Posterior probabilities sum to: {hoverInfo.probabilities.posteriors.reduce((sum, p) => sum + p, 0).toFixed(4)}
+                      Posterior probabilities sum to: {
+                        hoverInfo.probabilities.posteriors && Array.isArray(hoverInfo.probabilities.posteriors) ? 
+                          hoverInfo.probabilities.posteriors.reduce((sum, p) => sum + p, 0).toFixed(4) :
+                          '0.0000'
+                      }
                     </div>
                   </>
                 ) : null}
