@@ -43,6 +43,7 @@ export default function Home() {
     };
     clusterDistances?: number[];
     nearestCluster?: number;
+    error?: string;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -458,7 +459,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models and K-means clustering algorithms
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.2.6 - Dual Algorithm Mode (GMM + K-means)
+                v3.2.7 - Dual Algorithm Mode (GMM + K-means)
               </div>
             </div>
             <ThemeToggle />

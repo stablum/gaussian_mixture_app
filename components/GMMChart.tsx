@@ -18,6 +18,7 @@ interface GMMChartProps {
     probabilities?: { total: number, componentProbs: number[], posteriors: number[] };
     clusterDistances?: number[];
     nearestCluster?: number;
+    error?: string;
   } | null) => void;
   width?: number;
   height?: number;
