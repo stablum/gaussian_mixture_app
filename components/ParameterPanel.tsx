@@ -184,7 +184,7 @@ export default function ParameterPanel({
               <h4 className="font-medium mb-2 text-gray-900 dark:text-white">Query at x = {hoverInfo.x.toFixed(3)}</h4>
               
               <div className="space-y-2 text-sm text-gray-900 dark:text-gray-100">
-                {isKMeans && hoverInfo.clusterDistances ? (
+                {isKMeans && hoverInfo.clusterDistances && Array.isArray(hoverInfo.clusterDistances) && hoverInfo.clusterDistances.length > 0 ? (
                   // K-means hover info
                   <>
                     <div>
@@ -206,7 +206,7 @@ export default function ParameterPanel({
                       </div>
                     </div>
                   </>
-                ) : hoverInfo.probabilities ? (
+                ) : hoverInfo.probabilities && hoverInfo.probabilities.componentProbs && Array.isArray(hoverInfo.probabilities.componentProbs) ? (
                   // GMM hover info
                   <>
                     <div>

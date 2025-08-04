@@ -87,12 +87,15 @@ export default function GMMChart({
 
     if (isKMeans && clusters.length > 0) {
       // K-means visualization preparation
-      centroids = clusters.map(cluster => cluster.centroid);
+      centroids = clusters
+        .map(cluster => cluster.centroid)
+        .filter(centroid => centroid !== undefined && !isNaN(centroid));
       
       // Assign each data point to nearest cluster
-      clusterAssignments = data.map(point => {
-        let nearestCluster = 0;
-        let minDistance = Math.abs(point - centroids[0]);
+      if (centroids.length > 0) {
+        clusterAssignments = data.map(point => {
+          let nearestCluster = 0;
+          let minDistance = Math.abs(point - centroids[0]);
         
         for (let i = 1; i < centroids.length; i++) {
           const distance = Math.abs(point - centroids[i]);
@@ -103,6 +106,10 @@ export default function GMMChart({
         }
         return nearestCluster;
       });
+      } else {
+        // No valid centroids
+        clusterAssignments = [];
+      }
       
       initialMaxY = Math.max(data.length * 0.1, 10); // Base height for visualization
     } else if (isKMeans) {
@@ -738,13 +745,24 @@ export default function GMMChart({
           
           if (isKMeans && centroids.length > 0) {
             // K-means hover info: calculate distances to centroids
-            const clusterDistances = centroids.map(centroid => Math.abs(x - centroid));
-            const nearestClusterIndex = clusterDistances.indexOf(Math.min(...clusterDistances));
+            const clusterDistances = centroids
+              .filter(centroid => centroid !== undefined && !isNaN(centroid))
+              .map(centroid => Math.abs(x - centroid));
             
-            onHover(x, {
-              clusterDistances,
-              nearestCluster: nearestClusterIndex
-            });
+            if (clusterDistances.length > 0) {
+              const nearestClusterIndex = clusterDistances.indexOf(Math.min(...clusterDistances));
+              
+              onHover(x, {
+                clusterDistances,
+                nearestCluster: nearestClusterIndex
+              });
+            } else {
+              // Valid centroids but no valid distances
+              onHover(x, {
+                clusterDistances: [],
+                nearestCluster: -1
+              });
+            }
           } else if (isKMeans) {
             // K-means mode but no centroids yet
             onHover(x, {
