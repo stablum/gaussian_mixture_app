@@ -246,6 +246,10 @@ export default function Home() {
   // K-means specific handlers
   const handleKMeansStepForward = () => {
     if (currentStep >= kmeansHistory.length - 1 && !converged) {
+      if (clusters.length === 0) {
+        console.warn('No clusters available for K-means step forward');
+        return;
+      }
       const kmeans = new KMeansAlgorithm(data, clusters.length);
       const currentCentroids = clusters.map(cluster => cluster.centroid);
       const result = kmeans.singleIteration(currentCentroids);
@@ -260,9 +264,10 @@ export default function Home() {
       if (kmeansHistory.length > 0) {
         const prevCentroids = kmeansHistory[kmeansHistory.length - 1].clusters.map(c => c.centroid);
         const newCentroids = result.clusters.map(c => c.centroid);
-        const hasConverged = prevCentroids.every((centroid, i) => 
-          Math.abs(centroid - newCentroids[i]) < 1e-6
-        );
+        const hasConverged = prevCentroids.length === newCentroids.length && 
+          prevCentroids.every((centroid, i) => 
+            i < newCentroids.length && Math.abs(centroid - newCentroids[i]) < 1e-6
+          );
         if (hasConverged) {
           setConverged(true);
         }
@@ -290,6 +295,12 @@ export default function Home() {
     setIsRunning(true);
     setConverged(false);
     
+    if (clusters.length === 0) {
+      console.warn('No clusters available for K-means run to convergence');
+      setIsRunning(false);
+      return;
+    }
+    
     const kmeans = new KMeansAlgorithm(data, clusters.length);
     let currentCentroids = clusters.map(cluster => cluster.centroid);
     let iteration = currentStep;
@@ -310,12 +321,13 @@ export default function Home() {
       setClusters(result.clusters);
       setCurrentStep(iteration);
       
-      // Check for convergence
+      // Check for convergence  
       if (kmeansHistory.length > 0) {
         const prevCentroids = kmeansHistory[kmeansHistory.length - 1].clusters.map(c => c.centroid);
-        const hasConverged = prevCentroids.every((centroid, i) => 
-          Math.abs(centroid - currentCentroids[i]) < 1e-6
-        );
+        const hasConverged = prevCentroids.length === currentCentroids.length &&
+          prevCentroids.every((centroid, i) => 
+            i < currentCentroids.length && Math.abs(centroid - currentCentroids[i]) < 1e-6
+          );
         
         if (hasConverged) {
           setIsRunning(false);
@@ -413,7 +425,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models and K-means clustering algorithms
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.2.0 - Dual Algorithm Mode (GMM + K-means)
+                v3.2.1 - Dual Algorithm Mode (GMM + K-means)
               </div>
             </div>
             <ThemeToggle />
