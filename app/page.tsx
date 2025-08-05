@@ -93,8 +93,9 @@ export default function Home() {
     };
   }, [cleanup]);
   
+  // Initialize curve visibility with performance-conscious defaults
   const [curveVisibility, setCurveVisibility] = useState({
-    mixture: true,
+    mixture: false, // Start heatmap disabled for better performance (especially in 2D mode)
     components: true,
     posteriors: true,
     dataPoints: true
@@ -838,7 +839,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.6.4 - STABILITY FIX: Added numerical stability controls for gradient descent. Adaptive learning rates, bounds checking, and improved regularization prevent covariance matrix explosion while maintaining mathematical accuracy.
+                v3.6.5 - PERFORMANCE: Disabled probability density heatmap by default to improve initial loading performance. Users can still enable it via the 2D Chart Display controls when needed.
               </div>
             </div>
             <ThemeToggle />
