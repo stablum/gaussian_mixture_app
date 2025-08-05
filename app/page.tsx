@@ -838,7 +838,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.6.2 - Fixed Data Input panel for 2D Gaussian fitting: Added dedicated FileUpload2D component with 2D data generation presets and CSV upload support for x,y data.
+                v3.6.3 - CRITICAL FIX: Corrected gradient descent covariance matrix calculations. Off-diagonal gradients now properly account for symmetry constraint, enabling accurate fitting of correlated 2D Gaussian distributions.
               </div>
             </div>
             <ThemeToggle />

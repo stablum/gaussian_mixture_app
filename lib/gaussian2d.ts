@@ -272,7 +272,8 @@ export class Gaussian2DAlgorithm {
     
     // Start with the -n/2 * Σ⁻¹ term
     let sigmaGradXX = -0.5 * n * sigmaInverse.xx;
-    let sigmaGradXY = -0.5 * n * sigmaInverse.xy;
+    // For off-diagonal element: need factor of 2 due to symmetry constraint
+    let sigmaGradXY = -0.5 * n * sigmaInverse.xy * 2;
     let sigmaGradYY = -0.5 * n * sigmaInverse.yy;
 
     // Add the data-dependent term: 1/2 * Σᵢ Σ⁻¹(xᵢ - μ)(xᵢ - μ)ᵀΣ⁻¹
@@ -286,7 +287,8 @@ export class Gaussian2DAlgorithm {
 
       // Compute Σ⁻¹(xᵢ - μ)(xᵢ - μ)ᵀΣ⁻¹
       sigmaGradXX += 0.5 * invSigmaDiffX * invSigmaDiffX;
-      sigmaGradXY += 0.5 * invSigmaDiffX * invSigmaDiffY;
+      // For off-diagonal element: need factor of 2 due to symmetry constraint (∂f/∂σ₁₂ = 2*(∂f/∂Σ)₁₂)
+      sigmaGradXY += invSigmaDiffX * invSigmaDiffY;
       sigmaGradYY += 0.5 * invSigmaDiffY * invSigmaDiffY;
     }
 
