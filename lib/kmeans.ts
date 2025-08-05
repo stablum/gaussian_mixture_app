@@ -1,4 +1,8 @@
 // K-means algorithm implementation for 1D data
+import { uniformInitialization1D, kMeansPlusPlusInitialization1D } from './math';
+import { findNearest1D, squaredEuclideanDistance1D } from './math';
+import { hasConvergedArray } from './math';
+
 export interface Centroid {
   value: number;
   color: string;
@@ -38,84 +42,19 @@ export class KMeansAlgorithm {
 
   // Initialize centroids using k-means++ algorithm for better initial placement
   private initializeCentroids(): number[] {
-    if (this.data.length === 0) return [];
-
-    const centroids: number[] = [];
-    const dataRange = Math.max(...this.data) - Math.min(...this.data);
-    
-    if (dataRange === 0) {
-      // All data points are the same
-      return Array(this.k).fill(this.data[0]);
-    }
-
-    // K-means++ initialization
-    // Choose first centroid randomly
-    centroids.push(this.data[Math.floor(Math.random() * this.data.length)]);
-
-    // Choose remaining centroids based on distance from existing ones
-    for (let i = 1; i < this.k; i++) {
-      const distances = this.data.map(point => {
-        const minDistToCentroid = Math.min(...centroids.map(c => Math.abs(point - c)));
-        return minDistToCentroid * minDistToCentroid; // Squared distance
-      });
-
-      // Weighted random selection
-      const totalDistance = distances.reduce((sum, d) => sum + d, 0);
-      if (totalDistance === 0) {
-        // Fallback: spread centroids evenly
-        const min = Math.min(...this.data);
-        const max = Math.max(...this.data);
-        centroids.push(min + (max - min) * i / (this.k - 1));
-      } else {
-        let random = Math.random() * totalDistance;
-        for (let j = 0; j < distances.length; j++) {
-          random -= distances[j];
-          if (random <= 0) {
-            centroids.push(this.data[j]);
-            break;
-          }
-        }
-      }
-    }
-
-    return centroids.sort((a, b) => a - b); // Sort centroids for consistent display
+    return kMeansPlusPlusInitialization1D(this.data, this.k);
   }
 
   // Simple initialization - spread centroids evenly across data range
   public initializeCentroidsSimple(): number[] {
-    if (this.data.length === 0) return [];
-    
-    const min = Math.min(...this.data);
-    const max = Math.max(...this.data);
-    const range = max - min;
-
-    if (range === 0) {
-      return Array(this.k).fill(min);
-    }
-
-    const centroids: number[] = [];
-    for (let i = 0; i < this.k; i++) {
-      centroids.push(min + (range * (i + 1)) / (this.k + 1));
-    }
-
-    return centroids;
+    return uniformInitialization1D(this.data, this.k);
   }
 
   // Assign each data point to the nearest centroid
   private assignPointsToCentroids(centroids: number[]): number[] {
     return this.data.map(point => {
-      let minDistance = Infinity;
-      let closestCentroid = 0;
-
-      centroids.forEach((centroid, index) => {
-        const distance = Math.abs(point - centroid);
-        if (distance < minDistance) {
-          minDistance = distance;
-          closestCentroid = index;
-        }
-      });
-
-      return closestCentroid;
+      const result = findNearest1D(point, centroids);
+      return result.index;
     });
   }
 
@@ -144,7 +83,7 @@ export class KMeansAlgorithm {
     
     this.data.forEach((point, index) => {
       const centroid = centroids[assignments[index]];
-      inertia += Math.pow(point - centroid, 2);
+      inertia += squaredEuclideanDistance1D(point, centroid);
     });
 
     return inertia;
@@ -181,9 +120,7 @@ export class KMeansAlgorithm {
     const clusters = this.createClusters(newCentroids, assignments);
     
     // Check convergence (centroids haven't moved significantly)
-    const converged = currentCentroids.every((centroid, index) => 
-      Math.abs(centroid - newCentroids[index]) < 1e-6
-    );
+    const converged = hasConvergedArray(newCentroids, currentCentroids, 1e-6);
 
     return {
       centroids: newCentroids,

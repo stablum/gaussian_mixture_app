@@ -1,6 +1,12 @@
 // 2D Gaussian Distribution Implementation
 // Mathematical formulation based on Bishop's "Pattern Recognition and Machine Learning"
 
+import { calculateMean2D, calculateBasicStats2D } from './math';
+import { calculateDeterminant2x2, calculateInverse2x2, isPositiveDefinite2x2, regularizeCovariance2x2 } from './math';
+import { gaussianPDF2D, safeLog } from './math';
+import { hasConvergedAbsolute, hasConverged2D } from './math';
+import { initializeCovarianceMatrix2D } from './math';
+
 export interface Point2D {
   x: number;
   y: number;
@@ -45,17 +51,7 @@ export class Gaussian2DAlgorithm {
 
   // Calculate sample mean
   calculateMean(): Point2D {
-    if (this.data.length === 0) {
-      return { x: 0, y: 0 };
-    }
-
-    const sumX = this.data.reduce((sum, point) => sum + point.x, 0);
-    const sumY = this.data.reduce((sum, point) => sum + point.y, 0);
-
-    return {
-      x: sumX / this.data.length,
-      y: sumY / this.data.length
-    };
+    return calculateMean2D(this.data);
   }
 
   // Calculate sample covariance matrix
@@ -90,48 +86,17 @@ export class Gaussian2DAlgorithm {
 
   // Calculate determinant of 2x2 covariance matrix
   calculateDeterminant(sigma: Matrix2x2): number {
-    return sigma.xx * sigma.yy - sigma.xy * sigma.xy;
+    return calculateDeterminant2x2(sigma);
   }
 
   // Calculate inverse of 2x2 covariance matrix
   calculateInverse(sigma: Matrix2x2): Matrix2x2 | null {
-    const det = this.calculateDeterminant(sigma);
-    
-    if (Math.abs(det) < 1e-10) {
-      // Matrix is singular or nearly singular
-      return null;
-    }
-
-    return {
-      xx: sigma.yy / det,
-      xy: -sigma.xy / det,
-      yy: sigma.xx / det
-    };
+    return calculateInverse2x2(sigma);
   }
 
   // Evaluate multivariate Gaussian PDF at a point
   evaluatePDF(point: Point2D, gaussian: Gaussian2D): number {
-    const dx = point.x - gaussian.mu.x;
-    const dy = point.y - gaussian.mu.y;
-
-    const sigmaInverse = this.calculateInverse(gaussian.sigma);
-    if (!sigmaInverse) {
-      return 0; // Singular covariance matrix
-    }
-
-    const det = this.calculateDeterminant(gaussian.sigma);
-    if (det <= 0) {
-      return 0; // Invalid covariance matrix
-    }
-
-    // Mahalanobis distance squared: (x-μ)ᵀ Σ⁻¹ (x-μ)
-    const mahalanobis = dx * dx * sigmaInverse.xx + 
-                       2 * dx * dy * sigmaInverse.xy + 
-                       dy * dy * sigmaInverse.yy;
-
-    // Multivariate Gaussian PDF: (2π)^(-k/2) |Σ|^(-1/2) exp(-1/2 * mahalanobis)
-    const normalization = 1.0 / (2 * Math.PI * Math.sqrt(det));
-    return normalization * Math.exp(-0.5 * mahalanobis);
+    return gaussianPDF2D(point, gaussian.mu, gaussian.sigma);
   }
 
   // Calculate log-likelihood of the data given the Gaussian parameters
@@ -144,12 +109,7 @@ export class Gaussian2DAlgorithm {
     
     for (const point of this.data) {
       const pdf = this.evaluatePDF(point, gaussian);
-      if (pdf > 0) {
-        logLikelihood += Math.log(pdf);
-      } else {
-        // Handle numerical issues
-        logLikelihood += -1000; // Very low log probability
-      }
+      logLikelihood += safeLog(pdf);
     }
 
     return logLikelihood;
@@ -160,16 +120,15 @@ export class Gaussian2DAlgorithm {
     const mu = this.calculateMean();
     const sigma = this.calculateCovariance(mu);
     
-    // Ensure covariance matrix is positive definite by adding small regularization if needed
-    const det = this.calculateDeterminant(sigma);
-    if (det <= 1e-6) {
-      sigma.xx += 0.01;
-      sigma.yy += 0.01;
+    // Ensure covariance matrix is positive definite
+    let regularizedSigma = sigma;
+    if (!isPositiveDefinite2x2(sigma)) {
+      regularizedSigma = regularizeCovariance2x2(sigma);
     }
 
     const gaussian: Gaussian2D = {
       mu,
-      sigma,
+      sigma: regularizedSigma,
       logLikelihood: 0
     };
 
@@ -191,18 +150,7 @@ export class Gaussian2DAlgorithm {
 
     // Use simple initial estimates
     const mu = this.calculateMean();
-    
-    // Calculate data range for initial covariance
-    const xValues = this.data.map(p => p.x);
-    const yValues = this.data.map(p => p.y);
-    const xRange = Math.max(...xValues) - Math.min(...xValues);
-    const yRange = Math.max(...yValues) - Math.min(...yValues);
-    
-    const sigma: Matrix2x2 = {
-      xx: Math.max(0.1, (xRange / 4) ** 2), // Initial variance
-      xy: 0, // No initial correlation
-      yy: Math.max(0.1, (yRange / 4) ** 2)
-    };
+    const sigma = initializeCovarianceMatrix2D(this.data);
 
     const gaussian: Gaussian2D = { mu, sigma, logLikelihood: 0 };
     gaussian.logLikelihood = this.calculateLogLikelihood(gaussian);
@@ -412,7 +360,7 @@ export class Gaussian2DAlgorithm {
       });
 
       // Check for convergence
-      if (logLikelihoodChange < this.tolerance) {
+      if (hasConvergedAbsolute(newGaussian.logLikelihood, prevLogLikelihood, this.tolerance)) {
         return {
           gaussian: newGaussian,
           iteration,

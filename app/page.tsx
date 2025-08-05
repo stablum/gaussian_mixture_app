@@ -820,7 +820,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.5.1 - Code refactoring: Extracted common UI components and utilities for better maintainability and reduced duplication.
+                v3.6.0 - Numerical code refactoring: Extracted common mathematical utilities and functions for improved code organization and reduced duplication in algorithms.
               </div>
             </div>
             <ThemeToggle />

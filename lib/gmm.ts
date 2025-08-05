@@ -20,6 +20,10 @@ export interface GMMHistoryStep {
   responsibilities?: number[][];
 }
 
+import { calculateBasicStats, randomInitialization1D, statisticalInitialization1D } from './math';
+import { gaussianPDF1D, safeLog } from './math';
+import { hasConvergedAbsolute } from './math';
+
 export class GaussianMixtureModel {
   private data: number[];
   private k: number;
@@ -34,16 +38,16 @@ export class GaussianMixtureModel {
   }
 
   initializeComponents(): GaussianComponent[] {
-    const dataMin = Math.min(...this.data);
-    const dataMax = Math.max(...this.data);
-    const dataStd = this.calculateStandardDeviation(this.data);
-    
+    const stats = calculateBasicStats(this.data);
     const components: GaussianComponent[] = [];
+    
+    // Use statistical initialization for better starting points
+    const means = statisticalInitialization1D(this.data, this.k);
     
     for (let i = 0; i < this.k; i++) {
       components.push({
-        mu: dataMin + (dataMax - dataMin) * Math.random(),
-        sigma: dataStd * (0.5 + Math.random()),
+        mu: means[i],
+        sigma: stats.standardDeviation * (0.5 + Math.random()),
         pi: 1 / this.k
       });
     }
@@ -51,20 +55,8 @@ export class GaussianMixtureModel {
     return components;
   }
 
-  private calculateMean(data: number[]): number {
-    return data.reduce((sum, x) => sum + x, 0) / data.length;
-  }
-
-  private calculateStandardDeviation(data: number[]): number {
-    const mean = this.calculateMean(data);
-    const variance = data.reduce((sum, x) => sum + Math.pow(x - mean, 2), 0) / data.length;
-    return Math.sqrt(variance);
-  }
-
   gaussianPDF(x: number, mu: number, sigma: number): number {
-    const coefficient = 1 / (sigma * Math.sqrt(2 * Math.PI));
-    const exponent = -Math.pow(x - mu, 2) / (2 * Math.pow(sigma, 2));
-    return coefficient * Math.exp(exponent);
+    return gaussianPDF1D(x, mu, sigma);
   }
 
   calculateResponsibilities(components: GaussianComponent[]): number[][] {
@@ -131,12 +123,7 @@ export class GaussianMixtureModel {
         sum + comp.pi * this.gaussianPDF(x, comp.mu, comp.sigma), 0
       );
       
-      if (likelihood > 1e-100) {
-        logLikelihood += Math.log(likelihood);
-      } else {
-        // Use a very small epsilon to avoid log(0)
-        logLikelihood += Math.log(1e-100);
-      }
+      logLikelihood += safeLog(likelihood);
     }
     
     return logLikelihood;
@@ -180,7 +167,7 @@ export class GaussianMixtureModel {
         responsibilities: result.responsibilities
       });
 
-      if (Math.abs(logLikelihood - prevLogLikelihood) < this.tolerance) {
+      if (hasConvergedAbsolute(logLikelihood, prevLogLikelihood, this.tolerance)) {
         break;
       }
     }
@@ -190,7 +177,7 @@ export class GaussianMixtureModel {
       data: this.data,
       iteration,
       logLikelihood,
-      converged: Math.abs(logLikelihood - prevLogLikelihood) < this.tolerance,
+      converged: hasConvergedAbsolute(logLikelihood, prevLogLikelihood, this.tolerance),
       history
     };
   }
