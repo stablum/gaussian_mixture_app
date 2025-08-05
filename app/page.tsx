@@ -859,7 +859,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.6.7 - FIX: Fixed chart display controls to maintain independent visibility states per algorithm mode. GMM, K-means, and 2D Gaussian modes now have separate checkbox states.
+                v3.6.8 - TESTS: Fixed Jest configuration for D3.js ES modules and component test contexts. All 252 unit tests now pass, resolving D3 module import errors and theme context mocking.
               </div>
             </div>
             <ThemeToggle />
