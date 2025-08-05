@@ -839,7 +839,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.6.5 - PERFORMANCE: Disabled probability density heatmap by default to improve initial loading performance. Users can still enable it via the 2D Chart Display controls when needed.
+                v3.6.6 - FORMULAS: Enhanced 2D Gaussian mathematical formulas panel with improved gradient descent optimization theory, symmetry constraints, and better organized statistical formulas.
               </div>
             </div>
             <ThemeToggle />
