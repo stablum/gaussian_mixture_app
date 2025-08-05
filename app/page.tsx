@@ -730,7 +730,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.4.3 - Comprehensive unit test coverage added for all algorithms and core functionality!
+                v3.4.4 - Enhanced 2D Gaussian hover functionality with probability density, Mahalanobis distance, and relative density calculations!
               </div>
             </div>
             <ThemeToggle />

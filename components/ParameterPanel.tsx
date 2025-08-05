@@ -22,6 +22,9 @@ interface ParameterPanelProps {
     clusterDistances?: number[];
     nearestCluster?: number;
     density?: number;
+    mahalanobisDistance?: number;
+    euclideanDistance?: number;
+    error?: string;
   } | null;
   onComponentCountChange: (newCount: number) => void;
   onParameterChange?: (index: number, parameter: 'mu' | 'sigma' | 'pi', value: number) => void;
@@ -335,10 +338,47 @@ export default function ParameterPanel({
               <div className="space-y-2 text-sm text-gray-900 dark:text-gray-100">
                 {isGaussian2D && hoverInfo.density !== undefined ? (
                   // 2D Gaussian hover info
-                  <div>
-                    <span className="font-medium">Probability Density:</span>
-                    <span className="ml-2 font-mono">{hoverInfo.density.toFixed(6)}</span>
-                  </div>
+                  <>
+                    <div>
+                      <span className="font-medium">Probability Density:</span>
+                      <span className="ml-2 font-mono">{hoverInfo.density.toFixed(6)}</span>
+                    </div>
+                    
+                    {hoverInfo.euclideanDistance !== undefined && (
+                      <div>
+                        <span className="font-medium">Euclidean Distance:</span>
+                        <span className="ml-2 font-mono">{hoverInfo.euclideanDistance.toFixed(3)}</span>
+                      </div>
+                    )}
+                    
+                    {hoverInfo.mahalanobisDistance !== undefined && (
+                      <div>
+                        <span className="font-medium">Mahalanobis Distance:</span>
+                        <span className="ml-2 font-mono">{hoverInfo.mahalanobisDistance.toFixed(3)}</span>
+                      </div>
+                    )}
+                    
+                    {gaussian2d && (
+                      <>
+                        <div>
+                          <span className="font-medium">Relative Density:</span>
+                          <span className="ml-2 font-mono">
+                            {(() => {
+                              const det = gaussian2d.sigma.xx * gaussian2d.sigma.yy - gaussian2d.sigma.xy * gaussian2d.sigma.xy;
+                              const maxDensity = 1 / (2 * Math.PI * Math.sqrt(det));
+                              return (hoverInfo.density / maxDensity).toFixed(4);
+                            })()}
+                          </span>
+                        </div>
+                        
+                        <div className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                          Query at μ = ({gaussian2d.mu.x.toFixed(3)}, {gaussian2d.mu.y.toFixed(3)})
+                          <br />
+                          Mahalanobis distance accounts for correlation and scale
+                        </div>
+                      </>
+                    )}
+                  </>
                 ) : isKMeans && hoverInfo.clusterDistances && Array.isArray(hoverInfo.clusterDistances) && hoverInfo.clusterDistances.length > 0 ? (
                   // K-means hover info
                   <>

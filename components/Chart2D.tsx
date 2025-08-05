@@ -11,6 +11,8 @@ interface Chart2DProps {
   onGaussianDrag?: (newMu: Point2D) => void;
   onHover?: (point: Point2D, info: { 
     density?: number;
+    mahalanobisDistance?: number;
+    euclideanDistance?: number;
     error?: string;
   } | null) => void;
   width?: number;
@@ -342,9 +344,32 @@ export default function Chart2D({
             .attr('opacity', 1);
           
           if (gaussian) {
-            const gaussianAlg = new Gaussian2DAlgorithm(data);
-            const density = gaussianAlg.evaluatePDF(point, gaussian);
-            onHover(point, { density });
+            try {
+              const gaussianAlg = new Gaussian2DAlgorithm(data);
+              const density = gaussianAlg.evaluatePDF(point, gaussian);
+              
+              // Calculate Mahalanobis distance
+              const dx = point.x - gaussian.mu.x;
+              const dy = point.y - gaussian.mu.y;
+              const sigmaInverse = gaussianAlg.calculateInverse(gaussian.sigma);
+              let mahalanobisDistance = 0;
+              
+              if (sigmaInverse) {
+                const mahalanobisSq = dx * dx * sigmaInverse.xx + 
+                                    2 * dx * dy * sigmaInverse.xy + 
+                                    dy * dy * sigmaInverse.yy;
+                mahalanobisDistance = Math.sqrt(Math.max(0, mahalanobisSq));
+              }
+              
+              onHover(point, { 
+                density, 
+                mahalanobisDistance,
+                euclideanDistance: Math.sqrt(dx * dx + dy * dy)
+              });
+            } catch (error) {
+              console.error('Error calculating 2D hover density:', error);
+              onHover(point, { error: 'Failed to calculate density' });
+            }
           } else {
             onHover(point, null);
           }
