@@ -730,7 +730,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.4.1 - Fixed gradient descent to correctly maximize log-likelihood (was decreasing instead of increasing)
+                v3.4.2 - Fixed gradient calculation from first principles - now correctly maximizes log-likelihood!
               </div>
             </div>
             <ThemeToggle />

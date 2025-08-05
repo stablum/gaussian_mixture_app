@@ -285,7 +285,8 @@ export class Gaussian2DAlgorithm {
 
   // Gradient descent methods for parameter fitting
 
-  // Calculate gradients of positive log-likelihood with respect to parameters
+  // Calculate gradients of log-likelihood with respect to parameters
+  // log L = -n/2 * log(2π) - n/2 * log|Σ| - 1/2 * Σᵢ (xᵢ - μ)ᵀ Σ⁻¹ (xᵢ - μ)
   calculateGradients(gaussian: Gaussian2D): {
     muGrad: Point2D;
     sigmaGrad: Matrix2x2;
@@ -306,42 +307,39 @@ export class Gaussian2DAlgorithm {
       };
     }
 
+    // ∂log L/∂μ = Σᵢ Σ⁻¹(xᵢ - μ)
     let muGradX = 0, muGradY = 0;
-    let sigmaGradXX = 0, sigmaGradXY = 0, sigmaGradYY = 0;
-
-    // Initialize sigma gradients with the determinant term (flipped sign for positive log-likelihood)
-    sigmaGradXX = 0.5 * n * sigmaInverse.xx;
-    sigmaGradXY = 0.5 * n * sigmaInverse.xy;
-    sigmaGradYY = 0.5 * n * sigmaInverse.yy;
-
+    
     for (const point of this.data) {
       const dx = point.x - gaussian.mu.x;
       const dy = point.y - gaussian.mu.y;
 
-      // Gradient w.r.t. mean (mu) - derivative of positive log-likelihood
-      muGradX -= sigmaInverse.xx * dx + sigmaInverse.xy * dy;
-      muGradY -= sigmaInverse.xy * dx + sigmaInverse.yy * dy;
+      // Add contribution from each data point
+      muGradX += sigmaInverse.xx * dx + sigmaInverse.xy * dy;
+      muGradY += sigmaInverse.xy * dx + sigmaInverse.yy * dy;
+    }
 
-      // For covariance gradients, subtract the data term (flipped sign for positive log-likelihood)
-      // This is -0.5 * (x-mu)(x-mu)^T * sigma^-1 * sigma^-1
-      const mahalanobisGradXX = sigmaInverse.xx * dx * dx * sigmaInverse.xx + 
-                               sigmaInverse.xy * dx * dy * sigmaInverse.xx +
-                               sigmaInverse.xx * dy * dx * sigmaInverse.xy +
-                               sigmaInverse.xy * dy * dy * sigmaInverse.xy;
-      
-      const mahalanobisGradXY = sigmaInverse.xx * dx * dx * sigmaInverse.xy +
-                               sigmaInverse.xy * dx * dy * sigmaInverse.xy +
-                               sigmaInverse.xx * dy * dx * sigmaInverse.yy +
-                               sigmaInverse.xy * dy * dy * sigmaInverse.yy;
-      
-      const mahalanobisGradYY = sigmaInverse.xy * dx * dx * sigmaInverse.xy +
-                               sigmaInverse.yy * dx * dy * sigmaInverse.xy +
-                               sigmaInverse.xy * dy * dx * sigmaInverse.yy +
-                               sigmaInverse.yy * dy * dy * sigmaInverse.yy;
+    // For covariance matrix gradients, we need:
+    // ∂log L/∂Σ = -n/2 * Σ⁻¹ + 1/2 * Σᵢ Σ⁻¹(xᵢ - μ)(xᵢ - μ)ᵀΣ⁻¹
+    
+    // Start with the -n/2 * Σ⁻¹ term
+    let sigmaGradXX = -0.5 * n * sigmaInverse.xx;
+    let sigmaGradXY = -0.5 * n * sigmaInverse.xy;
+    let sigmaGradYY = -0.5 * n * sigmaInverse.yy;
 
-      sigmaGradXX -= 0.5 * mahalanobisGradXX;
-      sigmaGradXY -= 0.5 * mahalanobisGradXY;
-      sigmaGradYY -= 0.5 * mahalanobisGradYY;
+    // Add the data-dependent term: 1/2 * Σᵢ Σ⁻¹(xᵢ - μ)(xᵢ - μ)ᵀΣ⁻¹
+    for (const point of this.data) {
+      const dx = point.x - gaussian.mu.x;
+      const dy = point.y - gaussian.mu.y;
+
+      // Compute Σ⁻¹(xᵢ - μ)
+      const invSigmaDiffX = sigmaInverse.xx * dx + sigmaInverse.xy * dy;
+      const invSigmaDiffY = sigmaInverse.xy * dx + sigmaInverse.yy * dy;
+
+      // Compute Σ⁻¹(xᵢ - μ)(xᵢ - μ)ᵀΣ⁻¹
+      sigmaGradXX += 0.5 * invSigmaDiffX * invSigmaDiffX;
+      sigmaGradXY += 0.5 * invSigmaDiffX * invSigmaDiffY;
+      sigmaGradYY += 0.5 * invSigmaDiffY * invSigmaDiffY;
     }
 
     return {
