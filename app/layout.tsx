@@ -3,8 +3,8 @@ import './globals.css'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 
 export const metadata: Metadata = {
-  title: 'Gaussian Mixture Explorer',
-  description: 'Interactive tool for exploring 1D Gaussian mixture models and the EM algorithm',
+  title: 'Machine Learning Algorithm Explorer',
+  description: 'Interactive tool for exploring Gaussian mixture models, K-means clustering, and 2D Gaussian fitting with real-time visualizations',
 }
 
 export default function RootLayout({
