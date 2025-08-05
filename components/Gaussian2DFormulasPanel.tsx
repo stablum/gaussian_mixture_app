@@ -63,7 +63,7 @@ export default function Gaussian2DFormulasPanel() {
           </h4>
           <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
             <div className="min-w-max">
-              <BlockMath math="f(\mathbf{x}) = (2\pi)^{-k/2} |\mathbf{\Sigma}|^{-1/2} \exp\left(-\frac{1}{2}(\mathbf{x} - \boldsymbol{\mu})^T \mathbf{\Sigma}^{-1} (\mathbf{x} - \boldsymbol{\mu})\right)" />
+              <BlockMath math="f(\mathbf{x}) = \frac{1}{(2\pi)^{k/2} |\mathbf{\Sigma}|^{1/2}} \exp\left(-\frac{1}{2}(\mathbf{x} - \boldsymbol{\mu})^T \mathbf{\Sigma}^{-1} (\mathbf{x} - \boldsymbol{\mu})\right)" />
             </div>
           </div>
           <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
