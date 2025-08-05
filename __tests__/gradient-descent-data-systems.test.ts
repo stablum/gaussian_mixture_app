@@ -71,22 +71,23 @@ describe('Gradient Descent with Various Data Systems', () => {
       console.log('Initial log-likelihood:', initialGaussian.logLikelihood);
       
       // Test single step
-      const step1 = algorithm.singleGradientDescentStep(initialGaussian, 0.01);
-      console.log('After 1 step log-likelihood:', step1.logLikelihood);
-      console.log('Change:', step1.logLikelihood - initialGaussian.logLikelihood);
+      const result1 = algorithm.singleGradientDescentStep(initialGaussian, 0.01);
+      console.log('After 1 step log-likelihood:', result1.logLikelihood);
+      console.log('Change:', result1.logLikelihood - initialGaussian.logLikelihood);
       
       // Should improve (increase log-likelihood)
-      expect(step1.logLikelihood).toBeGreaterThan(initialGaussian.logLikelihood);
+      expect(result1.logLikelihood).toBeGreaterThan(initialGaussian.logLikelihood);
       
       // Test multiple steps
       let current = initialGaussian;
       let improvements = 0;
       
       for (let i = 0; i < 10; i++) {
-        const next = algorithm.singleGradientDescentStep(current, 0.01);
-        console.log(`Step ${i + 1}: ${next.logLikelihood} (change: ${next.logLikelihood - current.logLikelihood})`);
+        const result = algorithm.singleGradientDescentStep(current, 0.01);
+        const next = result.gaussian;
+        console.log(`Step ${i + 1}: ${result.logLikelihood} (change: ${result.logLikelihood - current.logLikelihood})`);
         
-        if (next.logLikelihood > current.logLikelihood) {
+        if (result.logLikelihood > current.logLikelihood) {
           improvements++;
         }
         current = next;
@@ -114,14 +115,14 @@ describe('Gradient Descent with Various Data Systems', () => {
       };
       initialGaussian.logLikelihood = algorithm.calculateLogLikelihood(initialGaussian);
       
-      const step1 = algorithm.singleGradientDescentStep(initialGaussian, 0.02);
+      const result1 = algorithm.singleGradientDescentStep(initialGaussian, 0.02);
       
       console.log('Shifted data test:');
       console.log('Initial LL:', initialGaussian.logLikelihood);
-      console.log('After step LL:', step1.logLikelihood);
-      console.log('Improvement:', step1.logLikelihood - initialGaussian.logLikelihood);
+      console.log('After step LL:', result1.logLikelihood);
+      console.log('Improvement:', result1.logLikelihood - initialGaussian.logLikelihood);
       
-      expect(step1.logLikelihood).toBeGreaterThan(initialGaussian.logLikelihood);
+      expect(result1.logLikelihood).toBeGreaterThan(initialGaussian.logLikelihood);
     });
   });
 
@@ -148,14 +149,14 @@ describe('Gradient Descent with Various Data Systems', () => {
       };
       initialGaussian.logLikelihood = algorithm.calculateLogLikelihood(initialGaussian);
       
-      const step1 = algorithm.singleGradientDescentStep(initialGaussian, 0.01);
+      const result1 = algorithm.singleGradientDescentStep(initialGaussian, 0.01);
       
       console.log('Tight cluster test:');
       console.log('Initial LL:', initialGaussian.logLikelihood);
-      console.log('After step LL:', step1.logLikelihood);
-      console.log('Mean moved from', initialGaussian.mu, 'to', step1.gaussian.mu);
+      console.log('After step LL:', result1.logLikelihood);
+      console.log('Mean moved from', initialGaussian.mu, 'to', result1.gaussian.mu);
       
-      expect(step1.logLikelihood).toBeGreaterThan(initialGaussian.logLikelihood);
+      expect(result1.logLikelihood).toBeGreaterThan(initialGaussian.logLikelihood);
     });
 
     it('should improve log-likelihood with spread out data', () => {
@@ -180,14 +181,14 @@ describe('Gradient Descent with Various Data Systems', () => {
       };
       initialGaussian.logLikelihood = algorithm.calculateLogLikelihood(initialGaussian);
       
-      const step1 = algorithm.singleGradientDescentStep(initialGaussian, 0.01);
+      const result1 = algorithm.singleGradientDescentStep(initialGaussian, 0.01);
       
       console.log('Spread data test:');
       console.log('Initial LL:', initialGaussian.logLikelihood);
-      console.log('After step LL:', step1.logLikelihood);
-      console.log('Sigma changed from', initialGaussian.sigma, 'to', step1.gaussian.sigma);
+      console.log('After step LL:', result1.logLikelihood);
+      console.log('Sigma changed from', initialGaussian.sigma, 'to', result1.gaussian.sigma);
       
-      expect(step1.logLikelihood).toBeGreaterThan(initialGaussian.logLikelihood);
+      expect(result1.logLikelihood).toBeGreaterThan(initialGaussian.logLikelihood);
     });
   });
 
@@ -227,14 +228,14 @@ describe('Gradient Descent with Various Data Systems', () => {
       expect(gradients.muGrad.y).toBeGreaterThan(0);
       
       // Test the step
-      const step = algorithm.singleGradientDescentStep(testGaussian, 0.1);
-      console.log('After step mean:', step.gaussian.mu);
-      console.log('LL change:', step.logLikelihood - testGaussian.logLikelihood);
+      const result = algorithm.singleGradientDescentStep(testGaussian, 0.1);
+      console.log('After step mean:', result.gaussian.mu);
+      console.log('LL change:', result.logLikelihood - testGaussian.logLikelihood);
       
       // Mean should move toward centroid
-      expect(step.gaussian.mu.x).toBeGreaterThan(testGaussian.mu.x);
-      expect(step.gaussian.mu.y).toBeGreaterThan(testGaussian.mu.y);
-      expect(step.logLikelihood).toBeGreaterThan(testGaussian.logLikelihood);
+      expect(result.gaussian.mu.x).toBeGreaterThan(testGaussian.mu.x);
+      expect(result.gaussian.mu.y).toBeGreaterThan(testGaussian.mu.y);
+      expect(result.logLikelihood).toBeGreaterThan(testGaussian.logLikelihood);
     });
 
     it('should improve with optimal starting point nearby', () => {
@@ -265,14 +266,14 @@ describe('Gradient Descent with Various Data Systems', () => {
       console.log('Near optimal LL:', nearOptimal.logLikelihood);
       
       // Test gradient descent step
-      const step = algorithm.singleGradientDescentStep(nearOptimal, 0.01);
+      const result = algorithm.singleGradientDescentStep(nearOptimal, 0.01);
       
-      console.log('After GD step LL:', step.logLikelihood);
-      console.log('GD improvement:', step.logLikelihood - nearOptimal.logLikelihood);
+      console.log('After GD step LL:', result.logLikelihood);
+      console.log('GD improvement:', result.logLikelihood - nearOptimal.logLikelihood);
       
       // Should improve toward MLE solution
-      expect(step.logLikelihood).toBeGreaterThan(nearOptimal.logLikelihood);
-      expect(step.logLikelihood).toBeLessThanOrEqual(mleGaussian.logLikelihood + 0.1); // Allow small tolerance
+      expect(result.logLikelihood).toBeGreaterThan(nearOptimal.logLikelihood);
+      expect(result.logLikelihood).toBeLessThanOrEqual(mleGaussian.logLikelihood + 0.1); // Allow small tolerance
     });
   });
 
@@ -294,13 +295,13 @@ describe('Gradient Descent with Various Data Systems', () => {
       initial.logLikelihood = algorithm.calculateLogLikelihood(initial);
       
       // Very small learning rate
-      const step = algorithm.singleGradientDescentStep(initial, 0.001);
+      const result = algorithm.singleGradientDescentStep(initial, 0.001);
       
       console.log('Small learning rate test:');
-      console.log('LL change:', step.logLikelihood - initial.logLikelihood);
+      console.log('LL change:', result.logLikelihood - initial.logLikelihood);
       
       // Should still improve, even if slowly
-      expect(step.logLikelihood).toBeGreaterThanOrEqual(initial.logLikelihood);
+      expect(result.logLikelihood).toBeGreaterThanOrEqual(initial.logLikelihood);
     });
 
     it('should handle identity covariance properly', () => {
@@ -319,13 +320,13 @@ describe('Gradient Descent with Various Data Systems', () => {
       };
       identityStart.logLikelihood = algorithm.calculateLogLikelihood(identityStart);
       
-      const step = algorithm.singleGradientDescentStep(identityStart, 0.02);
+      const result = algorithm.singleGradientDescentStep(identityStart, 0.02);
       
       console.log('Identity covariance test:');
       console.log('Initial LL:', identityStart.logLikelihood);
-      console.log('After step LL:', step.logLikelihood);
+      console.log('After step LL:', result.logLikelihood);
       
-      expect(step.logLikelihood).toBeGreaterThan(identityStart.logLikelihood);
+      expect(result.logLikelihood).toBeGreaterThan(identityStart.logLikelihood);
     });
   });
 
