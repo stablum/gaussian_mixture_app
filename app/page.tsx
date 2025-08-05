@@ -93,13 +93,30 @@ export default function Home() {
     };
   }, [cleanup]);
   
-  // Initialize curve visibility with performance-conscious defaults
-  const [curveVisibility, setCurveVisibility] = useState({
-    mixture: false, // Start heatmap disabled for better performance (especially in 2D mode)
-    components: true,
-    posteriors: true,
-    dataPoints: true
+  // Initialize separate curve visibility states for each mode with performance-conscious defaults
+  const [curveVisibilities, setCurveVisibilities] = useState({
+    [AlgorithmMode.GMM]: {
+      mixture: true, // Mixture distribution
+      components: true, // Component densities
+      posteriors: true, // Posteriors (scaled)
+      dataPoints: true
+    },
+    [AlgorithmMode.KMEANS]: {
+      mixture: true, // Cluster centroids
+      components: true, // Cluster boundaries  
+      posteriors: false, // Not used in K-means
+      dataPoints: true
+    },
+    [AlgorithmMode.GAUSSIAN_2D]: {
+      mixture: false, // Start heatmap disabled for better performance
+      components: true, // Confidence ellipses
+      posteriors: true, // Mean point (μ)
+      dataPoints: true
+    }
   });
+
+  // Get current visibility state based on algorithm mode
+  const curveVisibility = curveVisibilities[algorithmMode];
 
   const initializeGMM = useCallback((newData: number[], numComponents: number = 2) => {
     if (newData.length === 0) return;
@@ -729,9 +746,12 @@ export default function Home() {
   };
 
   const handleVisibilityChange = (key: keyof typeof curveVisibility, value: boolean) => {
-    setCurveVisibility(prev => ({
+    setCurveVisibilities(prev => ({
       ...prev,
-      [key]: value
+      [algorithmMode]: {
+        ...prev[algorithmMode],
+        [key]: value
+      }
     }));
   };
 
@@ -839,7 +859,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.6.6 - FORMULAS: Enhanced 2D Gaussian mathematical formulas panel with improved gradient descent optimization theory, symmetry constraints, and better organized statistical formulas.
+                v3.6.7 - FIX: Fixed chart display controls to maintain independent visibility states per algorithm mode. GMM, K-means, and 2D Gaussian modes now have separate checkbox states.
               </div>
             </div>
             <ThemeToggle />
