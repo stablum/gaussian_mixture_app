@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import 'katex/dist/katex.min.css';
+import { InlineMath, BlockMath } from 'react-katex';
 
 export default function Gaussian2DFormulasPanel() {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -59,16 +61,14 @@ export default function Gaussian2DFormulasPanel() {
           <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
             Multivariate Gaussian Probability Density Function
           </h4>
-          <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg font-mono text-sm overflow-x-auto">
-            <div className="text-center">
-              <div className="mb-2">
-                f(<strong>x</strong>) = (2π)<sup>-k/2</sup> |<strong>Σ</strong>|<sup>-1/2</sup> exp(-½(<strong>x</strong> - <strong>μ</strong>)<sup>T</sup> <strong>Σ</strong><sup>-1</sup> (<strong>x</strong> - <strong>μ</strong>))
-              </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400 mt-2">
-                where k = 2 (dimensionality), <strong>x</strong> = [x₁, x₂]<sup>T</sup>, <strong>μ</strong> = [μ₁, μ₂]<sup>T</sup>
-              </div>
+          <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+            <div className="min-w-max">
+              <BlockMath math="f(\mathbf{x}) = (2\pi)^{-k/2} |\mathbf{\Sigma}|^{-1/2} \exp\left(-\frac{1}{2}(\mathbf{x} - \boldsymbol{\mu})^T \mathbf{\Sigma}^{-1} (\mathbf{x} - \boldsymbol{\mu})\right)" />
             </div>
           </div>
+          <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+            where <InlineMath math="k = 2" /> (dimensionality), <InlineMath math="\mathbf{x} = [x_1, x_2]^T" />, <InlineMath math="\boldsymbol{\mu} = [\mu_1, \mu_2]^T" />
+          </p>
         </div>
 
         {/* Mean Vector */}
@@ -76,16 +76,14 @@ export default function Gaussian2DFormulasPanel() {
           <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
             Mean Vector (Maximum Likelihood Estimate)
           </h4>
-          <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg font-mono text-sm overflow-x-auto">
-            <div className="text-center">
-              <div className="mb-2">
-                <strong>μ̂</strong> = [μ̂₁, μ̂₂]<sup>T</sup> = (1/N) Σᵢ<strong>xᵢ</strong>
-              </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">
-                μ̂₁ = (1/N) Σᵢx₁ᵢ, μ̂₂ = (1/N) Σᵢx₂ᵢ
-              </div>
+          <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+            <div className="min-w-max">
+              <BlockMath math="\hat{\boldsymbol{\mu}} = [\hat{\mu}_1, \hat{\mu}_2]^T = \frac{1}{N} \sum_{i=1}^{N} \mathbf{x}_i" />
             </div>
           </div>
+          <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+            <InlineMath math="\hat{\mu}_1 = \frac{1}{N} \sum_{i=1}^{N} x_{1i}" />, <InlineMath math="\hat{\mu}_2 = \frac{1}{N} \sum_{i=1}^{N} x_{2i}" />
+          </p>
         </div>
 
         {/* Covariance Matrix */}
@@ -93,21 +91,16 @@ export default function Gaussian2DFormulasPanel() {
           <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
             Covariance Matrix (Maximum Likelihood Estimate)
           </h4>
-          <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg font-mono text-sm overflow-x-auto">
-            <div className="text-center">
-              <div className="mb-3">
-                <strong>Σ̂</strong> = [σ̂₁₁  σ̂₁₂] = (1/(N-1)) Σᵢ(<strong>xᵢ</strong> - <strong>μ̂</strong>)(<strong>xᵢ</strong> - <strong>μ̂</strong>)<sup>T</sup>
-              </div>
-              <div className="mb-2">
-                [σ̂₂₁  σ̂₂₂]
-              </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
-                <div>σ̂₁₁ = (1/(N-1)) Σᵢ(x₁ᵢ - μ̂₁)²</div>
-                <div>σ̂₁₂ = σ̂₂₁ = (1/(N-1)) Σᵢ(x₁ᵢ - μ̂₁)(x₂ᵢ - μ̂₂)</div>
-                <div>σ̂₂₂ = (1/(N-1)) Σᵢ(x₂ᵢ - μ̂₂)²</div>
-              </div>
+          <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+            <div className="min-w-max">
+              <BlockMath math="\hat{\mathbf{\Sigma}} = \begin{bmatrix} \hat{\sigma}_{11} & \hat{\sigma}_{12} \\ \hat{\sigma}_{21} & \hat{\sigma}_{22} \end{bmatrix} = \frac{1}{N-1} \sum_{i=1}^{N} (\mathbf{x}_i - \hat{\boldsymbol{\mu}})(\mathbf{x}_i - \hat{\boldsymbol{\mu}})^T" />
             </div>
           </div>
+          <p className="text-xs text-gray-600 dark:text-gray-400 mt-2 space-y-1">
+            <div><InlineMath math="\hat{\sigma}_{11} = \frac{1}{N-1} \sum_{i=1}^{N} (x_{1i} - \hat{\mu}_1)^2" /></div>
+            <div><InlineMath math="\hat{\sigma}_{12} = \hat{\sigma}_{21} = \frac{1}{N-1} \sum_{i=1}^{N} (x_{1i} - \hat{\mu}_1)(x_{2i} - \hat{\mu}_2)" /></div>
+            <div><InlineMath math="\hat{\sigma}_{22} = \frac{1}{N-1} \sum_{i=1}^{N} (x_{2i} - \hat{\mu}_2)^2" /></div>
+          </p>
         </div>
 
         {/* Mahalanobis Distance */}
@@ -115,16 +108,14 @@ export default function Gaussian2DFormulasPanel() {
           <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
             Mahalanobis Distance
           </h4>
-          <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg font-mono text-sm overflow-x-auto">
-            <div className="text-center">
-              <div className="mb-2">
-                d²(<strong>x</strong>, <strong>μ</strong>) = (<strong>x</strong> - <strong>μ</strong>)<sup>T</sup> <strong>Σ</strong><sup>-1</sup> (<strong>x</strong> - <strong>μ</strong>)
-              </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400 mt-2">
-                Measures distance accounting for correlation and variance
-              </div>
+          <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+            <div className="min-w-max">
+              <BlockMath math="d^2(\mathbf{x}, \boldsymbol{\mu}) = (\mathbf{x} - \boldsymbol{\mu})^T \mathbf{\Sigma}^{-1} (\mathbf{x} - \boldsymbol{\mu})" />
             </div>
           </div>
+          <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+            Measures distance accounting for correlation and variance
+          </p>
         </div>
 
         {/* Log-Likelihood */}
@@ -132,19 +123,15 @@ export default function Gaussian2DFormulasPanel() {
           <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
             Log-Likelihood
           </h4>
-          <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg font-mono text-sm overflow-x-auto">
-            <div className="text-center">
-              <div className="mb-2">
-                ℓ(<strong>μ</strong>, <strong>Σ</strong>) = Σᵢ log f(<strong>xᵢ</strong>)
-              </div>
-              <div className="mb-2">
-                = -½N log(2π) - ½ log|<strong>Σ</strong>| - ½ Σᵢ d²(<strong>xᵢ</strong>, <strong>μ</strong>)
-              </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400 mt-2">
-                Maximized to find optimal parameters
-              </div>
+          <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+            <div className="min-w-max">
+              <BlockMath math="\ell(\boldsymbol{\mu}, \mathbf{\Sigma}) = \sum_{i=1}^{N} \log f(\mathbf{x}_i)" />
+              <BlockMath math="= -\frac{N}{2} \log(2\pi) - \frac{1}{2} \log|\mathbf{\Sigma}| - \frac{1}{2} \sum_{i=1}^{N} d^2(\mathbf{x}_i, \boldsymbol{\mu})" />
             </div>
           </div>
+          <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+            Maximized to find optimal parameters
+          </p>
         </div>
 
         {/* Confidence Ellipses */}
@@ -152,18 +139,16 @@ export default function Gaussian2DFormulasPanel() {
           <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
             Confidence Ellipses
           </h4>
-          <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg font-mono text-sm overflow-x-auto">
-            <div className="text-center">
-              <div className="mb-2">
-                (<strong>x</strong> - <strong>μ</strong>)<sup>T</sup> <strong>Σ</strong><sup>-1</sup> (<strong>x</strong> - <strong>μ</strong>) = c²
-              </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
-                <div>c = 1: ~39% of data (1σ)</div>
-                <div>c = 2: ~86% of data (2σ)</div>
-                <div>c = 3: ~99% of data (3σ)</div>
-              </div>
+          <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+            <div className="min-w-max">
+              <BlockMath math="(\mathbf{x} - \boldsymbol{\mu})^T \mathbf{\Sigma}^{-1} (\mathbf{x} - \boldsymbol{\mu}) = c^2" />
             </div>
           </div>
+          <p className="text-xs text-gray-600 dark:text-gray-400 mt-2 space-y-1">
+            <div><InlineMath math="c = 1" />: ~39% of data (1σ)</div>
+            <div><InlineMath math="c = 2" />: ~86% of data (2σ)</div>
+            <div><InlineMath math="c = 3" />: ~99% of data (3σ)</div>
+          </p>
         </div>
 
         {/* Correlation Coefficient */}
@@ -171,16 +156,14 @@ export default function Gaussian2DFormulasPanel() {
           <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
             Correlation Coefficient
           </h4>
-          <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg font-mono text-sm overflow-x-auto">
-            <div className="text-center">
-              <div className="mb-2">
-                ρ = σ₁₂ / √(σ₁₁ σ₂₂)
-              </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400 mt-2">
-                ρ ∈ [-1, 1]: measures linear relationship strength
-              </div>
+          <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+            <div className="min-w-max">
+              <BlockMath math="\rho = \frac{\sigma_{12}}{\sqrt{\sigma_{11} \sigma_{22}}}" />
             </div>
           </div>
+          <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+            <InlineMath math="\rho \in [-1, 1]" />: measures linear relationship strength
+          </p>
         </div>
 
         {/* Matrix Operations */}
@@ -188,16 +171,19 @@ export default function Gaussian2DFormulasPanel() {
           <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
             2×2 Matrix Operations
           </h4>
-          <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg font-mono text-sm overflow-x-auto">
-            <div className="space-y-2">
+          <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+            <div className="space-y-3">
               <div>
-                <strong>Determinant:</strong> |<strong>Σ</strong>| = σ₁₁σ₂₂ - σ₁₂²
+                <strong className="text-gray-800 dark:text-gray-200">Determinant:</strong>
+                <div className="min-w-max">
+                  <InlineMath math="|\mathbf{\Sigma}| = \sigma_{11}\sigma_{22} - \sigma_{12}^2" />
+                </div>
               </div>
               <div>
-                <strong>Inverse:</strong> <strong>Σ</strong><sup>-1</sup> = (1/|<strong>Σ</strong>|) [σ₂₂  -σ₁₂]
-              </div>
-              <div className="ml-20">
-                [-σ₁₂  σ₁₁]
+                <strong className="text-gray-800 dark:text-gray-200">Inverse:</strong>
+                <div className="min-w-max">
+                  <BlockMath math="\mathbf{\Sigma}^{-1} = \frac{1}{|\mathbf{\Sigma}|} \begin{bmatrix} \sigma_{22} & -\sigma_{12} \\ -\sigma_{12} & \sigma_{11} \end{bmatrix}" />
+                </div>
               </div>
             </div>
           </div>
