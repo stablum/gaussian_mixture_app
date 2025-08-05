@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { GaussianComponent } from '@/lib/gmm';
 import { KMeansCluster } from '@/lib/kmeans';
-import { Gaussian2D, Point2D } from '@/lib/gaussian2d';
+import { Gaussian2D, Point2D, Matrix2x2 } from '@/lib/gaussian2d';
 import { getComponentColor } from '@/lib/colors';
 import { AlgorithmMode, PARAMETER_NAMES } from '@/lib/algorithmTypes';
 
@@ -27,6 +27,7 @@ interface ParameterPanelProps {
   onParameterChange?: (index: number, parameter: 'mu' | 'sigma' | 'pi', value: number) => void;
   onCentroidChange?: (index: number, value: number) => void;
   onGaussian2DChange?: (newMu: Point2D) => void;
+  onGaussian2DCovarianceChange?: (newSigma: Matrix2x2) => void;
 }
 
 export default function ParameterPanel({ 
@@ -38,7 +39,8 @@ export default function ParameterPanel({
   onComponentCountChange,
   onParameterChange,
   onCentroidChange,
-  onGaussian2DChange
+  onGaussian2DChange,
+  onGaussian2DCovarianceChange
 }: ParameterPanelProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -139,7 +141,7 @@ export default function ParameterPanel({
                       </div>
                     </div>
                     
-                    {/* Covariance matrix (read-only) */}
+                    {/* Covariance matrix (editable) */}
                     <div>
                       <label className="font-medium block mb-2 text-sm text-gray-900 dark:text-gray-100">
                         Covariance Matrix (Σ):
@@ -147,15 +149,36 @@ export default function ParameterPanel({
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="text-xs text-gray-600 dark:text-gray-400 block mb-1">σ₁₁:</label>
-                          <div className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white font-mono">
-                            {gaussian2d.sigma.xx.toFixed(4)}
-                          </div>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0.01"
+                            value={gaussian2d.sigma.xx.toFixed(4)}
+                            onChange={(e) => {
+                              const newValue = Math.max(0.01, parseFloat(e.target.value) || 0.01);
+                              onGaussian2DCovarianceChange?.({
+                                ...gaussian2d.sigma,
+                                xx: newValue
+                              });
+                            }}
+                            className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                          />
                         </div>
                         <div>
                           <label className="text-xs text-gray-600 dark:text-gray-400 block mb-1">σ₁₂:</label>
-                          <div className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white font-mono">
-                            {gaussian2d.sigma.xy.toFixed(4)}
-                          </div>
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={gaussian2d.sigma.xy.toFixed(4)}
+                            onChange={(e) => {
+                              const newValue = parseFloat(e.target.value) || 0;
+                              onGaussian2DCovarianceChange?.({
+                                ...gaussian2d.sigma,
+                                xy: newValue
+                              });
+                            }}
+                            className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                          />
                         </div>
                         <div>
                           <label className="text-xs text-gray-600 dark:text-gray-400 block mb-1">σ₂₁:</label>
@@ -165,9 +188,20 @@ export default function ParameterPanel({
                         </div>
                         <div>
                           <label className="text-xs text-gray-600 dark:text-gray-400 block mb-1">σ₂₂:</label>
-                          <div className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white font-mono">
-                            {gaussian2d.sigma.yy.toFixed(4)}
-                          </div>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0.01"
+                            value={gaussian2d.sigma.yy.toFixed(4)}
+                            onChange={(e) => {
+                              const newValue = Math.max(0.01, parseFloat(e.target.value) || 0.01);
+                              onGaussian2DCovarianceChange?.({
+                                ...gaussian2d.sigma,
+                                yy: newValue
+                              });
+                            }}
+                            className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                          />
                         </div>
                       </div>
                     </div>

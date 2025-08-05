@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { GaussianComponent, GaussianMixtureModel, GMMState, GMMHistoryStep } from '@/lib/gmm';
 import { KMeansAlgorithm, KMeansHistoryStep, KMeansCluster } from '@/lib/kmeans';
-import { Gaussian2D, Point2D, Gaussian2DAlgorithm, Gaussian2DHistoryStep } from '@/lib/gaussian2d';
+import { Gaussian2D, Point2D, Matrix2x2, Gaussian2DAlgorithm, Gaussian2DHistoryStep } from '@/lib/gaussian2d';
 import { AlgorithmMode } from '@/lib/algorithmTypes';
 import { generateSimpleSampleData, generateSimpleSampleData2D } from '@/lib/csvParser';
 import GMMChart from '@/components/GMMChart';
@@ -298,6 +298,21 @@ export default function Home() {
     setGaussian2d(updatedGaussian);
   };
 
+  const handleGaussian2DCovarianceChange = (newSigma: Matrix2x2) => {
+    if (!gaussian2d) return;
+    
+    const updatedGaussian: Gaussian2D = {
+      ...gaussian2d,
+      sigma: newSigma
+    };
+    
+    // Recalculate log-likelihood with new covariance
+    const gaussian2dAlg = new Gaussian2DAlgorithm(data as Point2D[]);
+    updatedGaussian.logLikelihood = gaussian2dAlg.calculateLogLikelihood(updatedGaussian);
+    
+    setGaussian2d(updatedGaussian);
+  };
+
   const handleRunToConvergence = async () => {
     setIsRunning(true);
     setConverged(false);
@@ -544,7 +559,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.3.1 - Made 2D Gaussian Controls panel collapsible
+                v3.3.2 - Made covariance matrix values editable in 2D Gaussian mode
               </div>
             </div>
             <ThemeToggle />
@@ -658,6 +673,7 @@ export default function Home() {
                 onParameterChange={handleParameterChange}
                 onCentroidChange={handleCentroidChange}
                 onGaussian2DChange={handleGaussian2DDrag}
+                onGaussian2DCovarianceChange={handleGaussian2DCovarianceChange}
               />
             )}
             
