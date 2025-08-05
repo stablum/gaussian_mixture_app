@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import LogLikelihoodIndicator from './LogLikelihoodIndicator';
+import { LogLikelihoodState } from '@/hooks/useLogLikelihoodUpdater';
 import { KMeansHistoryStep } from '@/lib/kmeans';
 
 interface KMeansControlsProps {
@@ -14,6 +16,7 @@ interface KMeansControlsProps {
   onRunToConvergence: () => void;
   onStop: () => void;
   inertia: number;
+  logLikelihoodState?: LogLikelihoodState;
 }
 
 export default function KMeansControls({
@@ -26,7 +29,8 @@ export default function KMeansControls({
   onReset,
   onRunToConvergence,
   onStop,
-  inertia
+  inertia,
+  logLikelihoodState
 }: KMeansControlsProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -105,16 +109,24 @@ export default function KMeansControls({
               <span className="ml-2">{currentStep} / {Math.max(totalSteps - 1, 0)}</span>
             </div>
             
-            <div>
-              <span className="font-medium">Inertia (WCSS):</span>
-              <span className="ml-2">{
-                isFinite(inertia) && inertia !== Infinity 
-                  ? inertia.toFixed(4) 
-                  : inertia === Infinity 
-                    ? '--' 
-                    : inertia.toString()
-              }</span>
-            </div>
+            {logLikelihoodState ? (
+              <LogLikelihoodIndicator 
+                value={inertia}
+                state={logLikelihoodState}
+                label="Inertia (WCSS)"
+              />
+            ) : (
+              <div>
+                <span className="font-medium">Inertia (WCSS):</span>
+                <span className="ml-2">{
+                  isFinite(inertia) && inertia !== Infinity 
+                    ? inertia.toFixed(4) 
+                    : inertia === Infinity 
+                      ? '--' 
+                      : inertia.toString()
+                }</span>
+              </div>
+            )}
             
             <div>
               <span className="font-medium">Status:</span>

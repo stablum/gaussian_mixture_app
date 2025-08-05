@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { Gaussian2D } from '@/lib/gaussian2d';
+import LogLikelihoodIndicator from './LogLikelihoodIndicator';
+import { LogLikelihoodState } from '@/hooks/useLogLikelihoodUpdater';
 
 interface Gaussian2DControlsProps {
   gaussian?: Gaussian2D | null;
@@ -10,6 +12,7 @@ interface Gaussian2DControlsProps {
   onReset: () => void;
   onStartGradientDescent: () => void;
   showGradientDescent?: boolean;
+  logLikelihoodState?: LogLikelihoodState;
 }
 
 export default function Gaussian2DControls({ 
@@ -18,7 +21,8 @@ export default function Gaussian2DControls({
   onFit, 
   onReset,
   onStartGradientDescent,
-  showGradientDescent = true
+  showGradientDescent = true,
+  logLikelihoodState
 }: Gaussian2DControlsProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -108,7 +112,16 @@ export default function Gaussian2DControls({
                   <span className="font-medium text-gray-700 dark:text-gray-300">Statistics:</span>
                   <div className="ml-2 text-gray-600 dark:text-gray-400">
                     <div>Det(Σ) = {(gaussian.sigma.xx * gaussian.sigma.yy - gaussian.sigma.xy * gaussian.sigma.xy).toFixed(6)}</div>
-                    <div>Log-likelihood = {gaussian.logLikelihood.toFixed(2)}</div>
+                    {logLikelihoodState ? (
+                      <LogLikelihoodIndicator 
+                        value={gaussian.logLikelihood}
+                        state={logLikelihoodState}
+                        label="Log-likelihood"
+                        className="mb-2"
+                      />
+                    ) : (
+                      <div>Log-likelihood = {gaussian.logLikelihood.toFixed(2)}</div>
+                    )}
                     <div>Correlation = {(gaussian.sigma.xy / Math.sqrt(gaussian.sigma.xx * gaussian.sigma.yy)).toFixed(3)}</div>
                   </div>
                 </div>

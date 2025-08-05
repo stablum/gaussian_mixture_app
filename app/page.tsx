@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useLogLikelihoodUpdater } from '@/hooks/useLogLikelihoodUpdater';
 import { GaussianComponent, GaussianMixtureModel, GMMState, GMMHistoryStep } from '@/lib/gmm';
 import { KMeansAlgorithm, KMeansHistoryStep, KMeansCluster } from '@/lib/kmeans';
 import { Gaussian2D, Point2D, Matrix2x2, Gaussian2DAlgorithm, Gaussian2DHistoryStep, Gaussian2DState } from '@/lib/gaussian2d';
@@ -63,6 +64,14 @@ export default function Home() {
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Log-likelihood updater hook
+  const { 
+    logLikelihoodState, 
+    scheduleLogLikelihoodUpdate, 
+    markAsStale, 
+    cleanup 
+  } = useLogLikelihoodUpdater();
+
   // Global error handler
   useEffect(() => {
     const handleGlobalError = (event: ErrorEvent) => {
@@ -79,8 +88,9 @@ export default function Home() {
     return () => {
       window.removeEventListener('error', handleGlobalError);
       window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+      cleanup(); // Clean up any pending log-likelihood calculations
     };
-  }, []);
+  }, [cleanup]);
   
   const [curveVisibility, setCurveVisibility] = useState({
     mixture: true,
@@ -221,6 +231,26 @@ export default function Home() {
       };
       setGmmHistory(newHistory);
     }
+
+    // Schedule log-likelihood update with debouncing
+    scheduleLogLikelihoodUpdate(
+      AlgorithmMode.GMM,
+      data as number[],
+      newComponents,
+      (newLogLikelihood) => {
+        if (gmmHistory.length > 0) {
+          setGmmHistory(prev => {
+            const updated = [...prev];
+            updated[currentStep] = {
+              ...updated[currentStep],
+              logLikelihood: newLogLikelihood
+            };
+            return updated;
+          });
+        }
+      },
+      500 // Debounce dragging with 500ms delay
+    );
   };
 
   const handleStepForward = () => {
@@ -302,11 +332,21 @@ export default function Home() {
       mu: newMu
     };
     
-    // Recalculate log-likelihood with new mean
-    const gaussian2dAlg = new Gaussian2DAlgorithm(data as Point2D[]);
-    updatedGaussian.logLikelihood = gaussian2dAlg.calculateLogLikelihood(updatedGaussian);
-    
     setGaussian2d(updatedGaussian);
+
+    // Schedule log-likelihood update with debouncing
+    scheduleLogLikelihoodUpdate(
+      AlgorithmMode.GAUSSIAN_2D,
+      data as Point2D[],
+      updatedGaussian,
+      (newLogLikelihood) => {
+        setGaussian2d(prev => prev ? {
+          ...prev,
+          logLikelihood: newLogLikelihood
+        } : prev);
+      },
+      300 // Shorter debounce for 2D dragging
+    );
   };
 
   const handleGaussian2DCovarianceChange = (newSigma: Matrix2x2) => {
@@ -317,11 +357,21 @@ export default function Home() {
       sigma: newSigma
     };
     
-    // Recalculate log-likelihood with new covariance
-    const gaussian2dAlg = new Gaussian2DAlgorithm(data as Point2D[]);
-    updatedGaussian.logLikelihood = gaussian2dAlg.calculateLogLikelihood(updatedGaussian);
-    
     setGaussian2d(updatedGaussian);
+
+    // Schedule log-likelihood update with debouncing
+    scheduleLogLikelihoodUpdate(
+      AlgorithmMode.GAUSSIAN_2D,
+      data as Point2D[],
+      updatedGaussian,
+      (newLogLikelihood) => {
+        setGaussian2d(prev => prev ? {
+          ...prev,
+          logLikelihood: newLogLikelihood
+        } : prev);
+      },
+      300
+    );
   };
 
   // Gradient descent handlers
@@ -692,6 +742,26 @@ export default function Home() {
       };
       setGmmHistory(newHistory);
     }
+
+    // Schedule log-likelihood update
+    scheduleLogLikelihoodUpdate(
+      AlgorithmMode.GMM,
+      data as number[],
+      newComponents,
+      (newLogLikelihood) => {
+        if (gmmHistory.length > 0) {
+          setGmmHistory(prev => {
+            const updated = [...prev];
+            updated[currentStep] = {
+              ...updated[currentStep],
+              logLikelihood: newLogLikelihood
+            };
+            return updated;
+          });
+        }
+      },
+      400 // Debounce parameter panel changes
+    );
   };
 
   const handleCentroidChange = (index: number, value: number) => {
@@ -712,6 +782,26 @@ export default function Home() {
       };
       setKmeansHistory(newHistory);
     }
+
+    // Schedule total distance update for K-means
+    scheduleLogLikelihoodUpdate(
+      AlgorithmMode.KMEANS,
+      data as number[],
+      newClusters,
+      (newTotalDistance) => {
+        if (kmeansHistory.length > 0) {
+          setKmeansHistory(prev => {
+            const updated = [...prev];
+            updated[currentStep] = {
+              ...updated[currentStep],
+              inertia: newTotalDistance
+            };
+            return updated;
+          });
+        }
+      },
+      400
+    );
   };
 
   const currentLogLikelihood = gmmHistory[currentStep]?.logLikelihood ?? -Infinity;
@@ -730,7 +820,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.4.4 - Enhanced 2D Gaussian hover functionality with probability density, Mahalanobis distance, and relative density calculations!
+                v3.5.0 - Smart log-likelihood updates with visual feedback! Real-time parameter changes now trigger debounced background calculations with stale/calculating indicators.
               </div>
             </div>
             <ThemeToggle />
@@ -772,6 +862,7 @@ export default function Home() {
                   onReset={handleReset}
                   onStartGradientDescent={handleStartGradientDescent}
                   showGradientDescent={true}
+                  logLikelihoodState={logLikelihoodState}
                 />
               ) : (
                 <GradientDescentControls
@@ -802,6 +893,7 @@ export default function Home() {
                 onRunToConvergence={handleRunToConvergence}
                 onStop={handleStop}
                 logLikelihood={currentLogLikelihood}
+                logLikelihoodState={logLikelihoodState}
               />
             ) : (
               <KMeansControls
@@ -815,6 +907,7 @@ export default function Home() {
                 onRunToConvergence={handleKMeansRunToConvergence}
                 onStop={handleKMeansStop}
                 inertia={kmeansHistory[currentStep]?.inertia || 0}
+                logLikelihoodState={logLikelihoodState}
               />
             )}
             

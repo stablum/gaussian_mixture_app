@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import LogLikelihoodIndicator from './LogLikelihoodIndicator';
+import { LogLikelihoodState } from '@/hooks/useLogLikelihoodUpdater';
 import { GMMHistoryStep } from '@/lib/gmm';
 
 interface EMControlsProps {
@@ -14,6 +16,7 @@ interface EMControlsProps {
   onRunToConvergence: () => void;
   onStop: () => void;
   logLikelihood: number;
+  logLikelihoodState?: LogLikelihoodState;
 }
 
 export default function EMControls({
@@ -26,7 +29,8 @@ export default function EMControls({
   onReset,
   onRunToConvergence,
   onStop,
-  logLikelihood
+  logLikelihood,
+  logLikelihoodState
 }: EMControlsProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -105,16 +109,24 @@ export default function EMControls({
           <span className="ml-2">{currentStep} / {Math.max(totalSteps - 1, 0)}</span>
         </div>
         
-        <div>
-          <span className="font-medium">Log-Likelihood:</span>
-          <span className="ml-2">{
-            isFinite(logLikelihood) && logLikelihood !== -Infinity 
-              ? logLikelihood.toFixed(4) 
-              : logLikelihood === -Infinity 
-                ? '--' 
-                : logLikelihood.toString()
-          }</span>
-        </div>
+        {logLikelihoodState ? (
+          <LogLikelihoodIndicator 
+            value={logLikelihood}
+            state={logLikelihoodState}
+            label="Log-Likelihood"
+          />
+        ) : (
+          <div>
+            <span className="font-medium">Log-Likelihood:</span>
+            <span className="ml-2">{
+              isFinite(logLikelihood) && logLikelihood !== -Infinity 
+                ? logLikelihood.toFixed(4) 
+                : logLikelihood === -Infinity 
+                  ? '--' 
+                  : logLikelihood.toString()
+            }</span>
+          </div>
+        )}
         
         <div>
           <span className="font-medium">Status:</span>
