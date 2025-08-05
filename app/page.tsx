@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { GaussianComponent, GaussianMixtureModel, GMMState, GMMHistoryStep } from '@/lib/gmm';
 import { KMeansAlgorithm, KMeansHistoryStep, KMeansCluster } from '@/lib/kmeans';
-import { Gaussian2D, Point2D, Matrix2x2, Gaussian2DAlgorithm, Gaussian2DHistoryStep } from '@/lib/gaussian2d';
+import { Gaussian2D, Point2D, Matrix2x2, Gaussian2DAlgorithm, Gaussian2DHistoryStep, Gaussian2DState } from '@/lib/gaussian2d';
 import { AlgorithmMode } from '@/lib/algorithmTypes';
 import { generateSimpleSampleData, generateSimpleSampleData2D } from '@/lib/csvParser';
 import GMMChart from '@/components/GMMChart';
@@ -12,6 +12,7 @@ import FileUpload from '@/components/FileUpload';
 import EMControls from '@/components/EMControls';
 import KMeansControls from '@/components/KMeansControls';
 import Gaussian2DControls from '@/components/Gaussian2DControls';
+import GradientDescentControls from '@/components/GradientDescentControls';
 import ParameterPanel from '@/components/ParameterPanel';
 import MathFormulasPanel from '@/components/MathFormulasPanel';
 import Gaussian2DFormulasPanel from '@/components/Gaussian2DFormulasPanel';
@@ -40,6 +41,12 @@ export default function Home() {
   // 2D Gaussian specific state
   const [gaussian2d, setGaussian2d] = useState<Gaussian2D | null>(null);
   const [gaussian2dHistory, setGaussian2dHistory] = useState<Gaussian2DHistoryStep[]>([]);
+  
+  // Gradient descent specific state
+  const [isGradientDescentMode, setIsGradientDescentMode] = useState(false);
+  const [gradientDescentState, setGradientDescentState] = useState<Gaussian2DState | null>(null);
+  const [gradientDescentStep, setGradientDescentStep] = useState(0);
+  const [learningRate, setLearningRate] = useState(0.01);
   
   // Hover info state (unified for all modes)
   const [hoverInfo, setHoverInfo] = useState<{
@@ -257,7 +264,11 @@ export default function Home() {
 
   const handleReset = () => {
     if (algorithmMode === AlgorithmMode.GAUSSIAN_2D) {
-      initializeGaussian2D(data as Point2D[]);
+      if (isGradientDescentMode) {
+        handleGradientDescentReset();
+      } else {
+        initializeGaussian2D(data as Point2D[]);
+      }
     } else if (algorithmMode === AlgorithmMode.GMM) {
       initializeGMM(data as number[], components.length);
     } else {
@@ -311,6 +322,166 @@ export default function Home() {
     updatedGaussian.logLikelihood = gaussian2dAlg.calculateLogLikelihood(updatedGaussian);
     
     setGaussian2d(updatedGaussian);
+  };
+
+  // Gradient descent handlers
+  const handleStartGradientDescent = () => {
+    if (algorithmMode !== AlgorithmMode.GAUSSIAN_2D || !data.length) return;
+    
+    setIsGradientDescentMode(true);
+    const gaussian2dAlg = new Gaussian2DAlgorithm(data as Point2D[]);
+    const initialGaussian = gaussian2d || gaussian2dAlg.initializeGaussian();
+    
+    const initialState: Gaussian2DState = {
+      gaussian: initialGaussian,
+      iteration: 0,
+      logLikelihood: initialGaussian.logLikelihood,
+      converged: false,
+      history: [{
+        gaussian: initialGaussian,
+        iteration: 0,
+        logLikelihood: initialGaussian.logLikelihood
+      }]
+    };
+    
+    setGradientDescentState(initialState);
+    setGradientDescentStep(0);
+    setGaussian2d(initialGaussian);
+    setCurrentStep(0);
+    setConverged(false);
+  };
+
+  const handleGradientDescentStepForward = () => {
+    if (!gradientDescentState || !data.length) return;
+    
+    const gaussian2dAlg = new Gaussian2DAlgorithm(data as Point2D[]);
+    const currentGaussian = gradientDescentState.history[gradientDescentStep]?.gaussian || gradientDescentState.gaussian;
+    
+    if (gradientDescentStep < gradientDescentState.history.length - 1) {
+      // Move to next existing step
+      const nextStep = gradientDescentStep + 1;
+      setGradientDescentStep(nextStep);
+      setCurrentStep(nextStep);
+      setGaussian2d(gradientDescentState.history[nextStep].gaussian);
+    } else {
+      // Compute new step
+      const result = gaussian2dAlg.singleGradientDescentStep(currentGaussian, learningRate);
+      const newIteration = gradientDescentState.iteration + 1;
+      
+      const newHistoryStep: Gaussian2DHistoryStep = {
+        gaussian: result.gaussian,
+        iteration: newIteration,
+        logLikelihood: result.logLikelihood
+      };
+      
+      const updatedState: Gaussian2DState = {
+        ...gradientDescentState,
+        gaussian: result.gaussian,
+        iteration: newIteration,
+        logLikelihood: result.logLikelihood,
+        history: [...gradientDescentState.history, newHistoryStep]
+      };
+      
+      setGradientDescentState(updatedState);
+      setGradientDescentStep(updatedState.history.length - 1);
+      setCurrentStep(updatedState.history.length - 1);
+      setGaussian2d(result.gaussian);
+      
+      // Check for convergence
+      if (gradientDescentState.history.length > 1) {
+        const prevLogLikelihood = gradientDescentState.history[gradientDescentState.history.length - 1].logLikelihood;
+        const logLikelihoodChange = Math.abs(result.logLikelihood - prevLogLikelihood);
+        if (logLikelihoodChange < 1e-6) {
+          setConverged(true);
+        }
+      }
+    }
+  };
+
+  const handleGradientDescentStepBackward = () => {
+    if (!gradientDescentState || gradientDescentStep <= 0) return;
+    
+    const prevStep = gradientDescentStep - 1;
+    setGradientDescentStep(prevStep);
+    setCurrentStep(prevStep);
+    setGaussian2d(gradientDescentState.history[prevStep].gaussian);
+    setConverged(false);
+  };
+
+  const handleGradientDescentReset = () => {
+    if (!data.length) return;
+    
+    const gaussian2dAlg = new Gaussian2DAlgorithm(data as Point2D[]);
+    const initialGaussian = gaussian2dAlg.initializeGaussian();
+    
+    const initialState: Gaussian2DState = {
+      gaussian: initialGaussian,
+      iteration: 0,
+      logLikelihood: initialGaussian.logLikelihood,
+      converged: false,
+      history: [{
+        gaussian: initialGaussian,
+        iteration: 0,
+        logLikelihood: initialGaussian.logLikelihood
+      }]
+    };
+    
+    setGradientDescentState(initialState);
+    setGradientDescentStep(0);
+    setGaussian2d(initialGaussian);
+    setCurrentStep(0);
+    setConverged(false);
+    setIsRunning(false);
+  };
+
+  const handleGradientDescentRunToConvergence = async () => {
+    if (!gradientDescentState || !data.length) return;
+    
+    setIsRunning(true);
+    const gaussian2dAlg = new Gaussian2DAlgorithm(data as Point2D[]);
+    const currentGaussian = gradientDescentState.history[gradientDescentStep]?.gaussian || gradientDescentState.gaussian;
+    
+    const result = await new Promise<Gaussian2DState>((resolve) => {
+      setTimeout(() => {
+        const state = gaussian2dAlg.fitWithGradientDescent(currentGaussian, learningRate);
+        resolve(state);
+      }, 100);
+    });
+    
+    // Merge existing history with new results
+    const mergedHistory = [
+      ...gradientDescentState.history.slice(0, gradientDescentStep + 1),
+      ...result.history.slice(1) // Skip the first step as it's the current state
+    ];
+    
+    const finalState: Gaussian2DState = {
+      ...result,
+      history: mergedHistory
+    };
+    
+    setGradientDescentState(finalState);
+    setGradientDescentStep(finalState.history.length - 1);
+    setCurrentStep(finalState.history.length - 1);
+    setGaussian2d(result.gaussian);
+    setConverged(result.converged);
+    setIsRunning(false);
+  };
+
+  const handleGradientDescentStop = () => {
+    setIsRunning(false);
+  };
+
+  const handleLearningRateChange = (rate: number) => {
+    setLearningRate(rate);
+  };
+
+  const handleExitGradientDescent = () => {
+    setIsGradientDescentMode(false);
+    setGradientDescentState(null);
+    setGradientDescentStep(0);
+    setCurrentStep(0);
+    setConverged(false);
+    setIsRunning(false);
   };
 
   const handleRunToConvergence = async () => {
@@ -559,7 +730,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.3.2 - Made covariance matrix values editable in 2D Gaussian mode
+                v3.4.0 - Added gradient descent fitting to 2D Gaussian mode with step-by-step controls
               </div>
             </div>
             <ThemeToggle />
@@ -593,12 +764,32 @@ export default function Home() {
             <FileUpload onDataLoad={handleDataLoad} />
             
             {algorithmMode === AlgorithmMode.GAUSSIAN_2D ? (
-              <Gaussian2DControls
-                gaussian={gaussian2d}
-                isRunning={isRunning}
-                onFit={handleGaussian2DFit}
-                onReset={handleReset}
-              />
+              !isGradientDescentMode ? (
+                <Gaussian2DControls
+                  gaussian={gaussian2d}
+                  isRunning={isRunning}
+                  onFit={handleGaussian2DFit}
+                  onReset={handleReset}
+                  onStartGradientDescent={handleStartGradientDescent}
+                  showGradientDescent={true}
+                />
+              ) : (
+                <GradientDescentControls
+                  currentStep={gradientDescentStep}
+                  totalSteps={gradientDescentState?.history.length || 1}
+                  isRunning={isRunning}
+                  converged={converged}
+                  onStepForward={handleGradientDescentStepForward}
+                  onStepBackward={handleGradientDescentStepBackward}
+                  onReset={handleGradientDescentReset}
+                  onRunToConvergence={handleGradientDescentRunToConvergence}
+                  onStop={handleGradientDescentStop}
+                  onExit={handleExitGradientDescent}
+                  logLikelihood={gradientDescentState?.history[gradientDescentStep]?.logLikelihood || 0}
+                  learningRate={learningRate}
+                  onLearningRateChange={handleLearningRateChange}
+                />
+              )
             ) : algorithmMode === AlgorithmMode.GMM ? (
               <EMControls
                 currentStep={currentStep}

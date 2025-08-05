@@ -22,12 +22,18 @@ export default function CurveVisibilityControls({
   const [isCollapsed, setIsCollapsed] = useState(false);
   
   const isKMeans = mode === AlgorithmMode.KMEANS;
+  const isGaussian2D = mode === AlgorithmMode.GAUSSIAN_2D;
   
   // Define controls based on algorithm mode
   const controls = isKMeans ? [
     { key: 'mixture' as const, label: 'Cluster Centroids', color: 'text-gray-900 dark:text-gray-100' },
     { key: 'components' as const, label: 'Cluster Boundaries', color: 'text-blue-600 dark:text-blue-400' },
     { key: 'dataPoints' as const, label: 'Data Points (Colored)', color: 'text-indigo-600 dark:text-indigo-400' }
+  ] : isGaussian2D ? [
+    { key: 'mixture' as const, label: 'Probability Density Heatmap', color: 'text-gray-900 dark:text-gray-100' },
+    { key: 'components' as const, label: 'Confidence Ellipses', color: 'text-blue-600 dark:text-blue-400' },
+    { key: 'posteriors' as const, label: 'Mean Point (μ)', color: 'text-green-600 dark:text-green-400' },
+    { key: 'dataPoints' as const, label: 'Data Points', color: 'text-indigo-600 dark:text-indigo-400' }
   ] : [
     { key: 'mixture' as const, label: 'Mixture Distribution', color: 'text-gray-900 dark:text-gray-100' },
     { key: 'components' as const, label: 'Component Densities', color: 'text-blue-600 dark:text-blue-400' },
@@ -39,11 +45,11 @@ export default function CurveVisibilityControls({
     <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors" style={{ padding: isCollapsed ? '8px 16px' : '16px' }}>
       <div className={`flex justify-between items-center ${isCollapsed ? 'mb-0' : 'mb-3'}`}>
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-          {isKMeans ? 'Visualization Options' : 'Chart Display'}
+          {isKMeans ? 'Visualization Options' : isGaussian2D ? '2D Chart Display' : 'Chart Display'}
         </h3>
         <div className="flex items-center gap-3">
           <div className="text-xs text-gray-500 dark:text-gray-400">
-            {isKMeans ? 'Toggle visualization elements' : 'Toggle curve visibility'}
+            {isKMeans ? 'Toggle visualization elements' : isGaussian2D ? 'Toggle 2D display elements' : 'Toggle curve visibility'}
           </div>
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
@@ -87,7 +93,9 @@ export default function CurveVisibilityControls({
               <strong>Teaching Tip:</strong> {
                 isKMeans 
                   ? 'Hide elements to focus on specific aspects of clustering during explanations'
-                  : 'Hide curves to focus on specific aspects during explanations'
+                  : isGaussian2D
+                    ? 'Hide elements to focus on specific aspects of 2D Gaussian fitting during explanations'
+                    : 'Hide curves to focus on specific aspects during explanations'
               }
             </p>
           </div>

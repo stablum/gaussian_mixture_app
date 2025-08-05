@@ -8,13 +8,17 @@ interface Gaussian2DControlsProps {
   isRunning: boolean;
   onFit: () => void;
   onReset: () => void;
+  onStartGradientDescent: () => void;
+  showGradientDescent?: boolean;
 }
 
 export default function Gaussian2DControls({ 
   gaussian,
   isRunning, 
   onFit, 
-  onReset 
+  onReset,
+  onStartGradientDescent,
+  showGradientDescent = true
 }: Gaussian2DControlsProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -44,23 +48,36 @@ export default function Gaussian2DControls({
       
       {!isCollapsed && (
         <div className="space-y-4">
-          {/* Fit button */}
-          <div className="flex gap-2">
-            <button
-              onClick={onFit}
-              disabled={isRunning}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors"
-            >
-              {isRunning ? 'Fitting...' : 'Fit Gaussian'}
-            </button>
-            
-            <button
-              onClick={onReset}
-              disabled={isRunning}
-              className="bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors"
-            >
-              Reset
-            </button>
+          {/* Fitting methods */}
+          <div className="space-y-2">
+            <h4 className="font-medium text-gray-900 dark:text-white text-sm">Fitting Methods</h4>
+            <div className="flex gap-2">
+              <button
+                onClick={onFit}
+                disabled={isRunning}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors"
+              >
+                {isRunning ? 'Fitting...' : 'Fit Gaussian (MLE)'}
+              </button>
+              
+              {showGradientDescent && (
+                <button
+                  onClick={onStartGradientDescent}
+                  disabled={isRunning}
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors"
+                >
+                  Gradient Descent
+                </button>
+              )}
+              
+              <button
+                onClick={onReset}
+                disabled={isRunning}
+                className="bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors"
+              >
+                Reset
+              </button>
+            </div>
           </div>
 
           {/* Statistics display */}
@@ -103,7 +120,8 @@ export default function Gaussian2DControls({
           <div className="text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 p-3 rounded">
             <p className="font-medium mb-1">Instructions:</p>
             <ul className="list-disc list-inside space-y-1">
-              <li>Click "Fit Gaussian" to estimate parameters from data</li>
+              <li><strong>Fit Gaussian (MLE):</strong> Instant analytical solution</li>
+              <li><strong>Gradient Descent:</strong> Iterative optimization with step-by-step controls</li>
               <li>Drag the mean point (μ) in the chart to adjust manually</li>
               <li>Hover over the chart to see probability density values</li>
               <li>Confidence ellipses show 1σ, 2σ, and 3σ regions</li>

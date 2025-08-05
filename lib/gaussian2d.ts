@@ -24,11 +24,23 @@ export interface Gaussian2DHistoryStep {
   logLikelihood: number;
 }
 
+export interface Gaussian2DState {
+  gaussian: Gaussian2D;
+  iteration: number;
+  logLikelihood: number;
+  converged: boolean;
+  history: Gaussian2DHistoryStep[];
+}
+
 export class Gaussian2DAlgorithm {
   private data: Point2D[];
+  private tolerance: number;
+  private maxIterations: number;
 
-  constructor(data: Point2D[]) {
+  constructor(data: Point2D[], tolerance: number = 1e-6, maxIterations: number = 100) {
     this.data = [...data];
+    this.tolerance = tolerance;
+    this.maxIterations = maxIterations;
   }
 
   // Calculate sample mean
@@ -269,5 +281,175 @@ export class Gaussian2DAlgorithm {
     }
 
     return points;
+  }
+
+  // Gradient descent methods for parameter fitting
+
+  // Calculate gradients of negative log-likelihood with respect to parameters
+  calculateGradients(gaussian: Gaussian2D): {
+    muGrad: Point2D;
+    sigmaGrad: Matrix2x2;
+  } {
+    const n = this.data.length;
+    if (n === 0) {
+      return {
+        muGrad: { x: 0, y: 0 },
+        sigmaGrad: { xx: 0, xy: 0, yy: 0 }
+      };
+    }
+
+    const sigmaInverse = this.calculateInverse(gaussian.sigma);
+    if (!sigmaInverse) {
+      return {
+        muGrad: { x: 0, y: 0 },
+        sigmaGrad: { xx: 0, xy: 0, yy: 0 }
+      };
+    }
+
+    let muGradX = 0, muGradY = 0;
+    let sigmaGradXX = 0, sigmaGradXY = 0, sigmaGradYY = 0;
+
+    for (const point of this.data) {
+      const dx = point.x - gaussian.mu.x;
+      const dy = point.y - gaussian.mu.y;
+
+      // Gradient w.r.t. mean (mu)
+      muGradX += sigmaInverse.xx * dx + sigmaInverse.xy * dy;
+      muGradY += sigmaInverse.xy * dx + sigmaInverse.yy * dy;
+
+      // For covariance gradients, we need the outer product and sigma inverse
+      const outerProd = {
+        xx: dx * dx,
+        xy: dx * dy,
+        yy: dy * dy
+      };
+
+      // Gradient w.r.t. covariance matrix elements
+      // d(-log L)/d(sigma_ij) = -0.5 * n * (sigma^-1)_ij + 0.5 * sum((x-mu)(x-mu)^T * sigma^-1)_ij * sigma^-1)
+      sigmaGradXX += -0.5 * sigmaInverse.xx + 0.5 * (
+        sigmaInverse.xx * outerProd.xx * sigmaInverse.xx +
+        sigmaInverse.xy * outerProd.xy * sigmaInverse.xx +
+        sigmaInverse.xx * outerProd.xy * sigmaInverse.xy +
+        sigmaInverse.xy * outerProd.yy * sigmaInverse.xy
+      );
+
+      sigmaGradXY += -0.5 * sigmaInverse.xy + 0.5 * (
+        sigmaInverse.xx * outerProd.xx * sigmaInverse.xy +
+        sigmaInverse.xy * outerProd.xy * sigmaInverse.xy +
+        sigmaInverse.xx * outerProd.xy * sigmaInverse.yy +
+        sigmaInverse.xy * outerProd.yy * sigmaInverse.yy
+      );
+
+      sigmaGradYY += -0.5 * sigmaInverse.yy + 0.5 * (
+        sigmaInverse.xy * outerProd.xx * sigmaInverse.xy +
+        sigmaInverse.yy * outerProd.xy * sigmaInverse.xy +
+        sigmaInverse.xy * outerProd.xy * sigmaInverse.yy +
+        sigmaInverse.yy * outerProd.yy * sigmaInverse.yy
+      );
+    }
+
+    return {
+      muGrad: { x: muGradX, y: muGradY },
+      sigmaGrad: { xx: sigmaGradXX, xy: sigmaGradXY, yy: sigmaGradYY }
+    };
+  }
+
+  // Perform one gradient descent step
+  gradientDescentStep(gaussian: Gaussian2D, learningRate: number = 0.01): Gaussian2D {
+    const gradients = this.calculateGradients(gaussian);
+    
+    // Update mean
+    const newMu: Point2D = {
+      x: gaussian.mu.x - learningRate * gradients.muGrad.x,
+      y: gaussian.mu.y - learningRate * gradients.muGrad.y
+    };
+
+    // Update covariance matrix
+    let newSigma: Matrix2x2 = {
+      xx: gaussian.sigma.xx - learningRate * gradients.sigmaGrad.xx,
+      xy: gaussian.sigma.xy - learningRate * gradients.sigmaGrad.xy,
+      yy: gaussian.sigma.yy - learningRate * gradients.sigmaGrad.yy
+    };
+
+    // Ensure covariance matrix remains positive definite
+    const det = newSigma.xx * newSigma.yy - newSigma.xy * newSigma.xy;
+    if (det <= 1e-6 || newSigma.xx <= 1e-6 || newSigma.yy <= 1e-6) {
+      // Add regularization
+      newSigma.xx = Math.max(newSigma.xx, 0.01);
+      newSigma.yy = Math.max(newSigma.yy, 0.01);
+      
+      // Ensure positive definite
+      const maxCorr = 0.99 * Math.sqrt(newSigma.xx * newSigma.yy);
+      newSigma.xy = Math.max(-maxCorr, Math.min(maxCorr, newSigma.xy));
+    }
+
+    const newGaussian: Gaussian2D = {
+      mu: newMu,
+      sigma: newSigma,
+      logLikelihood: 0
+    };
+
+    newGaussian.logLikelihood = this.calculateLogLikelihood(newGaussian);
+    return newGaussian;
+  }
+
+  // Fit using gradient descent with history tracking
+  fitWithGradientDescent(initialGaussian?: Gaussian2D, learningRate: number = 0.01): Gaussian2DState {
+    let gaussian = initialGaussian || this.initializeGaussian();
+    let iteration = 0;
+    let prevLogLikelihood = gaussian.logLikelihood;
+    
+    const history: Gaussian2DHistoryStep[] = [{
+      gaussian: JSON.parse(JSON.stringify(gaussian)),
+      iteration: 0,
+      logLikelihood: gaussian.logLikelihood
+    }];
+
+    while (iteration < this.maxIterations) {
+      const newGaussian = this.gradientDescentStep(gaussian, learningRate);
+      
+      iteration++;
+      const logLikelihoodChange = Math.abs(newGaussian.logLikelihood - prevLogLikelihood);
+      
+      history.push({
+        gaussian: JSON.parse(JSON.stringify(newGaussian)),
+        iteration,
+        logLikelihood: newGaussian.logLikelihood
+      });
+
+      // Check for convergence
+      if (logLikelihoodChange < this.tolerance) {
+        return {
+          gaussian: newGaussian,
+          iteration,
+          logLikelihood: newGaussian.logLikelihood,
+          converged: true,
+          history
+        };
+      }
+
+      prevLogLikelihood = gaussian.logLikelihood;
+      gaussian = newGaussian;
+    }
+
+    return {
+      gaussian,
+      iteration,
+      logLikelihood: gaussian.logLikelihood,
+      converged: false,
+      history
+    };
+  }
+
+  // Single gradient descent step for interactive stepping
+  singleGradientDescentStep(gaussian: Gaussian2D, learningRate: number = 0.01): {
+    gaussian: Gaussian2D;
+    logLikelihood: number;
+  } {
+    const newGaussian = this.gradientDescentStep(gaussian, learningRate);
+    return {
+      gaussian: newGaussian,
+      logLikelihood: newGaussian.logLikelihood
+    };
   }
 }
