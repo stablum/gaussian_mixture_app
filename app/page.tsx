@@ -838,7 +838,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.6.3 - CRITICAL FIX: Corrected gradient descent covariance matrix calculations. Off-diagonal gradients now properly account for symmetry constraint, enabling accurate fitting of correlated 2D Gaussian distributions.
+                v3.6.4 - STABILITY FIX: Added numerical stability controls for gradient descent. Adaptive learning rates, bounds checking, and improved regularization prevent covariance matrix explosion while maintaining mathematical accuracy.
               </div>
             </div>
             <ThemeToggle />

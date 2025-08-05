@@ -308,23 +308,41 @@ export class Gaussian2DAlgorithm {
       y: gaussian.mu.y + learningRate * gradients.muGrad.y
     };
 
+    // Use adaptive learning rate for covariance parameters to prevent instability
+    // The corrected gradients can be large, so scale them down for stability
+    const covarianceLearningRate = learningRate * 0.5; // More conservative for covariance
+    
     // Update covariance matrix - move in direction of positive log-likelihood gradient
     let newSigma: Matrix2x2 = {
-      xx: gaussian.sigma.xx + learningRate * gradients.sigmaGrad.xx,
-      xy: gaussian.sigma.xy + learningRate * gradients.sigmaGrad.xy,
-      yy: gaussian.sigma.yy + learningRate * gradients.sigmaGrad.yy
+      xx: gaussian.sigma.xx + covarianceLearningRate * gradients.sigmaGrad.xx,
+      xy: gaussian.sigma.xy + covarianceLearningRate * gradients.sigmaGrad.xy,
+      yy: gaussian.sigma.yy + covarianceLearningRate * gradients.sigmaGrad.yy
     };
+
+    // Add bounds to prevent extreme values
+    newSigma.xx = Math.max(0.01, Math.min(100, newSigma.xx));
+    newSigma.yy = Math.max(0.01, Math.min(100, newSigma.yy));
+    newSigma.xy = Math.max(-50, Math.min(50, newSigma.xy));
 
     // Ensure covariance matrix remains positive definite
     const det = newSigma.xx * newSigma.yy - newSigma.xy * newSigma.xy;
-    if (det <= 1e-6 || newSigma.xx <= 1e-6 || newSigma.yy <= 1e-6) {
-      // Add regularization
-      newSigma.xx = Math.max(newSigma.xx, 0.01);
-      newSigma.yy = Math.max(newSigma.yy, 0.01);
+    if (det <= 1e-6) {
+      // More aggressive regularization
+      newSigma.xx = Math.max(newSigma.xx, 0.1);
+      newSigma.yy = Math.max(newSigma.yy, 0.1);
       
-      // Ensure positive definite
-      const maxCorr = 0.99 * Math.sqrt(newSigma.xx * newSigma.yy);
+      // Ensure positive definite by constraining correlation
+      const maxCorr = 0.95 * Math.sqrt(newSigma.xx * newSigma.yy);
       newSigma.xy = Math.max(-maxCorr, Math.min(maxCorr, newSigma.xy));
+      
+      // Double-check determinant after regularization
+      const newDet = newSigma.xx * newSigma.yy - newSigma.xy * newSigma.xy;
+      if (newDet <= 1e-6) {
+        // Emergency fallback: reset to reasonable values
+        newSigma.xx = Math.max(newSigma.xx, 1.0);
+        newSigma.yy = Math.max(newSigma.yy, 1.0);
+        newSigma.xy = 0.5 * Math.sign(newSigma.xy) * Math.sqrt(newSigma.xx * newSigma.yy);
+      }
     }
 
     const newGaussian: Gaussian2D = {
