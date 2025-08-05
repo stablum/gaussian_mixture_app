@@ -10,6 +10,7 @@ import { generateSimpleSampleData, generateSimpleSampleData2D } from '@/lib/csvP
 import GMMChart from '@/components/GMMChart';
 import Chart2D from '@/components/Chart2D';
 import FileUpload from '@/components/FileUpload';
+import FileUpload2D from '@/components/FileUpload2D';
 import EMControls from '@/components/EMControls';
 import KMeansControls from '@/components/KMeansControls';
 import Gaussian2DControls from '@/components/Gaussian2DControls';
@@ -200,6 +201,23 @@ export default function Home() {
     } else {
       initializeKMeans(newData, clusters.length || 2);
     }
+  };
+
+  const handleDataLoad2D = (newData: Point2D[]) => {
+    if (algorithmMode !== AlgorithmMode.GAUSSIAN_2D) {
+      // Can't load 2D data into 1D modes, ignore or handle gracefully
+      return;
+    }
+    
+    setData(newData);
+    // Reset any existing Gaussian fitting
+    setGaussian2d(null);
+    setGaussian2dHistory([]);
+    setCurrentStep(0);
+    setConverged(false);
+    setIsGradientDescentMode(false);
+    setGradientDescentState(null);
+    setGradientDescentStep(0);
   };
 
   const handleComponentCountChange = (newCount: number) => {
@@ -820,7 +838,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.6.1 - Fixed 2D Chart Display controls: Now properly controls heatmap, confidence ellipses, and mean point independently with implemented probability density heatmap visualization.
+                v3.6.2 - Fixed Data Input panel for 2D Gaussian fitting: Added dedicated FileUpload2D component with 2D data generation presets and CSV upload support for x,y data.
               </div>
             </div>
             <ThemeToggle />
@@ -851,7 +869,11 @@ export default function Home() {
               onModeChange={handleModeChange}
             />
             
-            <FileUpload onDataLoad={handleDataLoad} />
+            {algorithmMode === AlgorithmMode.GAUSSIAN_2D ? (
+              <FileUpload2D onDataLoad={handleDataLoad2D} />
+            ) : (
+              <FileUpload onDataLoad={handleDataLoad} />
+            )}
             
             {algorithmMode === AlgorithmMode.GAUSSIAN_2D ? (
               !isGradientDescentMode ? (
