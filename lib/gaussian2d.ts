@@ -285,7 +285,7 @@ export class Gaussian2DAlgorithm {
 
   // Gradient descent methods for parameter fitting
 
-  // Calculate gradients of negative log-likelihood with respect to parameters
+  // Calculate gradients of positive log-likelihood with respect to parameters
   calculateGradients(gaussian: Gaussian2D): {
     muGrad: Point2D;
     sigmaGrad: Matrix2x2;
@@ -309,43 +309,39 @@ export class Gaussian2DAlgorithm {
     let muGradX = 0, muGradY = 0;
     let sigmaGradXX = 0, sigmaGradXY = 0, sigmaGradYY = 0;
 
+    // Initialize sigma gradients with the determinant term (flipped sign for positive log-likelihood)
+    sigmaGradXX = 0.5 * n * sigmaInverse.xx;
+    sigmaGradXY = 0.5 * n * sigmaInverse.xy;
+    sigmaGradYY = 0.5 * n * sigmaInverse.yy;
+
     for (const point of this.data) {
       const dx = point.x - gaussian.mu.x;
       const dy = point.y - gaussian.mu.y;
 
-      // Gradient w.r.t. mean (mu)
-      muGradX += sigmaInverse.xx * dx + sigmaInverse.xy * dy;
-      muGradY += sigmaInverse.xy * dx + sigmaInverse.yy * dy;
+      // Gradient w.r.t. mean (mu) - derivative of positive log-likelihood
+      muGradX -= sigmaInverse.xx * dx + sigmaInverse.xy * dy;
+      muGradY -= sigmaInverse.xy * dx + sigmaInverse.yy * dy;
 
-      // For covariance gradients, we need the outer product and sigma inverse
-      const outerProd = {
-        xx: dx * dx,
-        xy: dx * dy,
-        yy: dy * dy
-      };
+      // For covariance gradients, subtract the data term (flipped sign for positive log-likelihood)
+      // This is -0.5 * (x-mu)(x-mu)^T * sigma^-1 * sigma^-1
+      const mahalanobisGradXX = sigmaInverse.xx * dx * dx * sigmaInverse.xx + 
+                               sigmaInverse.xy * dx * dy * sigmaInverse.xx +
+                               sigmaInverse.xx * dy * dx * sigmaInverse.xy +
+                               sigmaInverse.xy * dy * dy * sigmaInverse.xy;
+      
+      const mahalanobisGradXY = sigmaInverse.xx * dx * dx * sigmaInverse.xy +
+                               sigmaInverse.xy * dx * dy * sigmaInverse.xy +
+                               sigmaInverse.xx * dy * dx * sigmaInverse.yy +
+                               sigmaInverse.xy * dy * dy * sigmaInverse.yy;
+      
+      const mahalanobisGradYY = sigmaInverse.xy * dx * dx * sigmaInverse.xy +
+                               sigmaInverse.yy * dx * dy * sigmaInverse.xy +
+                               sigmaInverse.xy * dy * dx * sigmaInverse.yy +
+                               sigmaInverse.yy * dy * dy * sigmaInverse.yy;
 
-      // Gradient w.r.t. covariance matrix elements
-      // d(-log L)/d(sigma_ij) = -0.5 * n * (sigma^-1)_ij + 0.5 * sum((x-mu)(x-mu)^T * sigma^-1)_ij * sigma^-1)
-      sigmaGradXX += -0.5 * sigmaInverse.xx + 0.5 * (
-        sigmaInverse.xx * outerProd.xx * sigmaInverse.xx +
-        sigmaInverse.xy * outerProd.xy * sigmaInverse.xx +
-        sigmaInverse.xx * outerProd.xy * sigmaInverse.xy +
-        sigmaInverse.xy * outerProd.yy * sigmaInverse.xy
-      );
-
-      sigmaGradXY += -0.5 * sigmaInverse.xy + 0.5 * (
-        sigmaInverse.xx * outerProd.xx * sigmaInverse.xy +
-        sigmaInverse.xy * outerProd.xy * sigmaInverse.xy +
-        sigmaInverse.xx * outerProd.xy * sigmaInverse.yy +
-        sigmaInverse.xy * outerProd.yy * sigmaInverse.yy
-      );
-
-      sigmaGradYY += -0.5 * sigmaInverse.yy + 0.5 * (
-        sigmaInverse.xy * outerProd.xx * sigmaInverse.xy +
-        sigmaInverse.yy * outerProd.xy * sigmaInverse.xy +
-        sigmaInverse.xy * outerProd.xy * sigmaInverse.yy +
-        sigmaInverse.yy * outerProd.yy * sigmaInverse.yy
-      );
+      sigmaGradXX -= 0.5 * mahalanobisGradXX;
+      sigmaGradXY -= 0.5 * mahalanobisGradXY;
+      sigmaGradYY -= 0.5 * mahalanobisGradYY;
     }
 
     return {
@@ -358,17 +354,17 @@ export class Gaussian2DAlgorithm {
   gradientDescentStep(gaussian: Gaussian2D, learningRate: number = 0.01): Gaussian2D {
     const gradients = this.calculateGradients(gaussian);
     
-    // Update mean
+    // Update mean - move in direction of positive log-likelihood gradient (gradient ascent)
     const newMu: Point2D = {
-      x: gaussian.mu.x - learningRate * gradients.muGrad.x,
-      y: gaussian.mu.y - learningRate * gradients.muGrad.y
+      x: gaussian.mu.x + learningRate * gradients.muGrad.x,
+      y: gaussian.mu.y + learningRate * gradients.muGrad.y
     };
 
-    // Update covariance matrix
+    // Update covariance matrix - move in direction of positive log-likelihood gradient
     let newSigma: Matrix2x2 = {
-      xx: gaussian.sigma.xx - learningRate * gradients.sigmaGrad.xx,
-      xy: gaussian.sigma.xy - learningRate * gradients.sigmaGrad.xy,
-      yy: gaussian.sigma.yy - learningRate * gradients.sigmaGrad.yy
+      xx: gaussian.sigma.xx + learningRate * gradients.sigmaGrad.xx,
+      xy: gaussian.sigma.xy + learningRate * gradients.sigmaGrad.xy,
+      yy: gaussian.sigma.yy + learningRate * gradients.sigmaGrad.yy
     };
 
     // Ensure covariance matrix remains positive definite

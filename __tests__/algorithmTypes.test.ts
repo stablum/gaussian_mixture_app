@@ -5,13 +5,15 @@ describe('Algorithm Types', () => {
     it('should have correct values', () => {
       expect(AlgorithmMode.GMM).toBe('gmm');
       expect(AlgorithmMode.KMEANS).toBe('kmeans');
+      expect(AlgorithmMode.GAUSSIAN_2D).toBe('gaussian_2d');
     });
 
     it('should have all expected modes', () => {
       const modes = Object.values(AlgorithmMode);
-      expect(modes).toHaveLength(2);
+      expect(modes).toHaveLength(3);
       expect(modes).toContain('gmm');
       expect(modes).toContain('kmeans');
+      expect(modes).toContain('gaussian_2d');
     });
   });
 
@@ -19,6 +21,7 @@ describe('Algorithm Types', () => {
     it('should have labels for all modes', () => {
       expect(ALGORITHM_LABELS[AlgorithmMode.GMM]).toBe('Gaussian Mixture Model');
       expect(ALGORITHM_LABELS[AlgorithmMode.KMEANS]).toBe('K-Means Clustering');
+      expect(ALGORITHM_LABELS[AlgorithmMode.GAUSSIAN_2D]).toBe('2D Gaussian Fitting');
     });
 
     it('should have labels for all enum values', () => {
@@ -34,6 +37,7 @@ describe('Algorithm Types', () => {
     it('should have descriptions for all modes', () => {
       expect(ALGORITHM_DESCRIPTIONS[AlgorithmMode.GMM]).toBe('Probabilistic model using Expectation-Maximization algorithm');
       expect(ALGORITHM_DESCRIPTIONS[AlgorithmMode.KMEANS]).toBe('Centroid-based clustering using iterative assignment and update');
+      expect(ALGORITHM_DESCRIPTIONS[AlgorithmMode.GAUSSIAN_2D]).toBe('Single bivariate Gaussian distribution fitted to 2D data points');
     });
 
     it('should have descriptions for all enum values', () => {
