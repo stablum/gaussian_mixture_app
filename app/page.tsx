@@ -3,14 +3,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { GaussianComponent, GaussianMixtureModel, GMMState, GMMHistoryStep } from '@/lib/gmm';
 import { KMeansAlgorithm, KMeansHistoryStep, KMeansCluster } from '@/lib/kmeans';
+import { Gaussian2D, Point2D, Gaussian2DAlgorithm, Gaussian2DHistoryStep } from '@/lib/gaussian2d';
 import { AlgorithmMode } from '@/lib/algorithmTypes';
-import { generateSimpleSampleData } from '@/lib/csvParser';
+import { generateSimpleSampleData, generateSimpleSampleData2D } from '@/lib/csvParser';
 import GMMChart from '@/components/GMMChart';
+import Chart2D from '@/components/Chart2D';
 import FileUpload from '@/components/FileUpload';
 import EMControls from '@/components/EMControls';
 import KMeansControls from '@/components/KMeansControls';
+import Gaussian2DControls from '@/components/Gaussian2DControls';
 import ParameterPanel from '@/components/ParameterPanel';
 import MathFormulasPanel from '@/components/MathFormulasPanel';
+import Gaussian2DFormulasPanel from '@/components/Gaussian2DFormulasPanel';
 import CurveVisibilityControls from '@/components/CurveVisibilityControls';
 import AlgorithmModeSwitch from '@/components/AlgorithmModeSwitch';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -20,7 +24,7 @@ export default function Home() {
   const [algorithmMode, setAlgorithmMode] = useState<AlgorithmMode>(AlgorithmMode.GMM);
   
   // Common state
-  const [data, setData] = useState<number[]>([]);
+  const [data, setData] = useState<number[] | Point2D[]>([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [converged, setConverged] = useState(false);
@@ -33,9 +37,13 @@ export default function Home() {
   const [clusters, setClusters] = useState<KMeansCluster[]>([]);
   const [kmeansHistory, setKmeansHistory] = useState<KMeansHistoryStep[]>([]);
   
-  // Hover info state (unified for both modes)
+  // 2D Gaussian specific state
+  const [gaussian2d, setGaussian2d] = useState<Gaussian2D | null>(null);
+  const [gaussian2dHistory, setGaussian2dHistory] = useState<Gaussian2DHistoryStep[]>([]);
+  
+  // Hover info state (unified for all modes)
   const [hoverInfo, setHoverInfo] = useState<{
-    x: number;
+    x: number | Point2D;
     probabilities?: {
       total: number;
       componentProbs: number[];
@@ -43,6 +51,7 @@ export default function Home() {
     };
     clusterDistances?: number[];
     nearestCluster?: number;
+    density?: number;
     error?: string;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -106,6 +115,23 @@ export default function Home() {
     setIsRunning(false);
   }, []);
 
+  const initializeGaussian2D = useCallback((newData: Point2D[]) => {
+    if (newData.length === 0) return;
+    
+    const gaussian2dAlg = new Gaussian2DAlgorithm(newData);
+    const initialGaussian = gaussian2dAlg.initializeGaussian();
+    
+    setGaussian2d(initialGaussian);
+    setGaussian2dHistory([{
+      gaussian: initialGaussian,
+      iteration: 0,
+      logLikelihood: initialGaussian.logLikelihood
+    }]);
+    setCurrentStep(0);
+    setConverged(false);
+    setIsRunning(false);
+  }, []);
+
   const handleModeChange = useCallback((newMode: AlgorithmMode) => {
     setAlgorithmMode(newMode);
     setCurrentStep(0);
@@ -113,12 +139,31 @@ export default function Home() {
     setIsRunning(false);
     setHoverInfo(null);
     
-    if (newMode === AlgorithmMode.KMEANS) {
-      initializeKMeans(data, components.length || 2);
-    } else {
-      initializeGMM(data, clusters.length || 2);
+    if (newMode === AlgorithmMode.GAUSSIAN_2D) {
+      // Switch to 2D data
+      const sampleData2D = generateSimpleSampleData2D(100);
+      setData(sampleData2D);
+      initializeGaussian2D(sampleData2D);
+    } else if (newMode === AlgorithmMode.KMEANS) {
+      // Switch to 1D data if coming from 2D mode
+      if (algorithmMode === AlgorithmMode.GAUSSIAN_2D) {
+        const sampleData1D = generateSimpleSampleData(100);
+        setData(sampleData1D);
+        initializeKMeans(sampleData1D, 2);
+      } else {
+        initializeKMeans(data as number[], components.length || 2);
+      }
+    } else { // GMM mode
+      // Switch to 1D data if coming from 2D mode
+      if (algorithmMode === AlgorithmMode.GAUSSIAN_2D) {
+        const sampleData1D = generateSimpleSampleData(100);
+        setData(sampleData1D);
+        initializeGMM(sampleData1D, 2);
+      } else {
+        initializeGMM(data as number[], clusters.length || 2);
+      }
     }
-  }, [data, components.length, clusters.length, initializeGMM, initializeKMeans]);
+  }, [algorithmMode, data, components.length, clusters.length, initializeGMM, initializeKMeans, initializeGaussian2D]);
 
   useEffect(() => {
     const sampleData = generateSimpleSampleData(100);
@@ -127,6 +172,11 @@ export default function Home() {
   }, [initializeGMM]);
 
   const handleDataLoad = (newData: number[]) => {
+    if (algorithmMode === AlgorithmMode.GAUSSIAN_2D) {
+      // Can't load 1D data into 2D mode, ignore or handle gracefully
+      return;
+    }
+    
     setData(newData);
     if (algorithmMode === AlgorithmMode.GMM) {
       initializeGMM(newData, components.length);
@@ -137,9 +187,9 @@ export default function Home() {
 
   const handleComponentCountChange = (newCount: number) => {
     if (algorithmMode === AlgorithmMode.GMM) {
-      initializeGMM(data, newCount);
+      initializeGMM(data as number[], newCount);
     } else {
-      initializeKMeans(data, newCount);
+      initializeKMeans(data as number[], newCount);
     }
   };
 
@@ -168,7 +218,7 @@ export default function Home() {
 
   const handleStepForward = () => {
     if (currentStep >= gmmHistory.length - 1 && !converged) {
-      const gmm = new GaussianMixtureModel(data, components.length);
+      const gmm = new GaussianMixtureModel(data as number[], components.length);
       const result = gmm.singleEMStep(components);
       
       
@@ -206,18 +256,53 @@ export default function Home() {
   };
 
   const handleReset = () => {
-    if (algorithmMode === AlgorithmMode.GMM) {
-      initializeGMM(data, components.length);
+    if (algorithmMode === AlgorithmMode.GAUSSIAN_2D) {
+      initializeGaussian2D(data as Point2D[]);
+    } else if (algorithmMode === AlgorithmMode.GMM) {
+      initializeGMM(data as number[], components.length);
     } else {
-      initializeKMeans(data, clusters.length);
+      initializeKMeans(data as number[], clusters.length);
     }
+  };
+
+  // 2D Gaussian handlers
+  const handleGaussian2DFit = () => {
+    if (algorithmMode !== AlgorithmMode.GAUSSIAN_2D || !data.length) return;
+    
+    setIsRunning(true);
+    const gaussian2dAlg = new Gaussian2DAlgorithm(data as Point2D[]);
+    const fittedGaussian = gaussian2dAlg.fitGaussian();
+    
+    setGaussian2d(fittedGaussian);
+    setGaussian2dHistory(prev => [...prev, {
+      gaussian: fittedGaussian,
+      iteration: prev.length,
+      logLikelihood: fittedGaussian.logLikelihood
+    }]);
+    setCurrentStep(prev => prev + 1);
+    setIsRunning(false);
+  };
+
+  const handleGaussian2DDrag = (newMu: Point2D) => {
+    if (!gaussian2d) return;
+    
+    const updatedGaussian: Gaussian2D = {
+      ...gaussian2d,
+      mu: newMu
+    };
+    
+    // Recalculate log-likelihood with new mean
+    const gaussian2dAlg = new Gaussian2DAlgorithm(data as Point2D[]);
+    updatedGaussian.logLikelihood = gaussian2dAlg.calculateLogLikelihood(updatedGaussian);
+    
+    setGaussian2d(updatedGaussian);
   };
 
   const handleRunToConvergence = async () => {
     setIsRunning(true);
     setConverged(false);
     
-    const gmm = new GaussianMixtureModel(data, components.length);
+    const gmm = new GaussianMixtureModel(data as number[], components.length);
     let currentComponents = JSON.parse(JSON.stringify(components));
     let iteration = currentStep;
     let prevLogLikelihood = gmmHistory[currentStep]?.logLikelihood ?? -Infinity;
@@ -271,7 +356,7 @@ export default function Home() {
         console.warn('No clusters available for K-means step forward');
         return;
       }
-      const kmeans = new KMeansAlgorithm(data, clusters.length);
+      const kmeans = new KMeansAlgorithm(data as number[], clusters.length);
       const currentCentroids = clusters.map(cluster => cluster.centroid);
       const result = kmeans.singleIteration(currentCentroids);
       result.iteration = currentStep + 1;
@@ -309,7 +394,7 @@ export default function Home() {
   };
 
   const handleKMeansReset = () => {
-    initializeKMeans(data, clusters.length);
+    initializeKMeans(data as number[], clusters.length);
   };
 
   const handleKMeansRunToConvergence = async () => {
@@ -322,7 +407,7 @@ export default function Home() {
       return;
     }
     
-    const kmeans = new KMeansAlgorithm(data, clusters.length);
+    const kmeans = new KMeansAlgorithm(data as number[], clusters.length);
     let currentCentroids = clusters.map(cluster => cluster.centroid);
     let iteration = currentStep;
     
@@ -367,7 +452,7 @@ export default function Home() {
     setIsRunning(false);
   };
 
-  const handleHover = (x: number, info: any) => {
+  const handleHover = (x: number | Point2D, info: any) => {
     try {
       if (info) {
         if (info.error) {
@@ -456,10 +541,10 @@ export default function Home() {
                 Machine Learning Algorithm Explorer
               </h1>
               <p className="text-gray-600 dark:text-gray-300">
-                Interactive tool for exploring 1D Gaussian mixture models and K-means clustering algorithms
+                Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.2.8 - Fixed K-means centroid dragging functionality
+                v3.3.0 - Added 2D Gaussian distribution fitting mode
               </div>
             </div>
             <ThemeToggle />
@@ -492,7 +577,14 @@ export default function Home() {
             
             <FileUpload onDataLoad={handleDataLoad} />
             
-            {algorithmMode === AlgorithmMode.GMM ? (
+            {algorithmMode === AlgorithmMode.GAUSSIAN_2D ? (
+              <Gaussian2DControls
+                gaussian={gaussian2d}
+                isRunning={isRunning}
+                onFit={handleGaussian2DFit}
+                onReset={handleReset}
+              />
+            ) : algorithmMode === AlgorithmMode.GMM ? (
               <EMControls
                 currentStep={currentStep}
                 totalSteps={gmmHistory.length}
@@ -520,19 +612,31 @@ export default function Home() {
               />
             )}
             
-            {data.length > 0 && (algorithmMode === AlgorithmMode.GMM ? components.length > 0 : clusters.length > 0) && (
-              <GMMChart
-                data={data}
-                components={algorithmMode === AlgorithmMode.GMM ? components : []}
-                clusters={algorithmMode === AlgorithmMode.KMEANS ? clusters : []}
-                mode={algorithmMode}
-                onComponentDrag={handleComponentDrag}
-                onCentroidDrag={handleCentroidChange}
-                onHover={handleHover}
-                width={800}
-                height={500}
-                curveVisibility={curveVisibility}
-              />
+            {data.length > 0 && (
+              algorithmMode === AlgorithmMode.GAUSSIAN_2D ? (
+                <Chart2D
+                  data={data as Point2D[]}
+                  gaussian={gaussian2d}
+                  onGaussianDrag={handleGaussian2DDrag}
+                  onHover={handleHover}
+                  width={800}
+                  height={600}
+                  curveVisibility={curveVisibility}
+                />
+              ) : (algorithmMode === AlgorithmMode.GMM ? components.length > 0 : clusters.length > 0) && (
+                <GMMChart
+                  data={data as number[]}
+                  components={algorithmMode === AlgorithmMode.GMM ? components : []}
+                  clusters={algorithmMode === AlgorithmMode.KMEANS ? clusters : []}
+                  mode={algorithmMode}
+                  onComponentDrag={handleComponentDrag}
+                  onCentroidDrag={handleCentroidChange}
+                  onHover={handleHover}
+                  width={800}
+                  height={500}
+                  curveVisibility={curveVisibility}
+                />
+              )
             )}
           </div>
           
@@ -543,19 +647,23 @@ export default function Home() {
               onVisibilityChange={handleVisibilityChange}
             />
             
-            {(algorithmMode === AlgorithmMode.GMM ? components.length > 0 : clusters.length > 0) && (
+            {(algorithmMode === AlgorithmMode.GAUSSIAN_2D ? gaussian2d : (algorithmMode === AlgorithmMode.GMM ? components.length > 0 : clusters.length > 0)) && (
               <ParameterPanel
                 mode={algorithmMode}
                 components={algorithmMode === AlgorithmMode.GMM ? components : undefined}
                 clusters={algorithmMode === AlgorithmMode.KMEANS ? clusters : undefined}
+                gaussian2d={algorithmMode === AlgorithmMode.GAUSSIAN_2D ? gaussian2d : undefined}
                 hoverInfo={hoverInfo}
                 onComponentCountChange={handleComponentCountChange}
                 onParameterChange={handleParameterChange}
                 onCentroidChange={handleCentroidChange}
+                onGaussian2DChange={handleGaussian2DDrag}
               />
             )}
             
-            {(algorithmMode === AlgorithmMode.GMM ? components.length > 0 : clusters.length > 0) && (
+            {algorithmMode === AlgorithmMode.GAUSSIAN_2D ? (
+              <Gaussian2DFormulasPanel />
+            ) : (algorithmMode === AlgorithmMode.GMM ? components.length > 0 : clusters.length > 0) && (
               <MathFormulasPanel 
                 componentCount={algorithmMode === AlgorithmMode.GMM ? components.length : clusters.length} 
                 mode={algorithmMode}

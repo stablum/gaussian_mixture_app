@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { GaussianComponent, GaussianMixtureModel } from '@/lib/gmm';
 import { KMeansCluster } from '@/lib/kmeans';
+import { Gaussian2D, Point2D } from '@/lib/gaussian2d';
 import { AlgorithmMode } from '@/lib/algorithmTypes';
 import { getComponentColor } from '@/lib/colors';
 
@@ -11,13 +12,16 @@ interface GMMChartProps {
   data: number[];
   components?: GaussianComponent[];
   clusters?: KMeansCluster[];
+  gaussian2d?: Gaussian2D;
   mode?: AlgorithmMode;
   onComponentDrag?: (index: number, newMu: number, newPi: number) => void;
   onCentroidDrag?: (index: number, newCentroid: number) => void;
-  onHover?: (x: number, info: { 
+  onGaussian2DDrag?: (newMu: Point2D, newSigma: { xx: number; xy: number; yy: number }) => void;
+  onHover?: (x: number | Point2D, info: { 
     probabilities?: { total: number, componentProbs: number[], posteriors: number[] };
     clusterDistances?: number[];
     nearestCluster?: number;
+    density?: number;
     error?: string;
   } | null) => void;
   width?: number;
@@ -34,9 +38,11 @@ export default function GMMChart({
   data, 
   components = [],
   clusters = [],
+  gaussian2d,
   mode = AlgorithmMode.GMM,
   onComponentDrag, 
   onCentroidDrag,
+  onGaussian2DDrag,
   onHover,
   width = 800, 
   height = 400,

@@ -1,3 +1,5 @@
+import { Point2D } from './gaussian2d';
+
 export function parseCSV(csvText: string): number[] {
   const lines = csvText.trim().split('\n');
   if (lines.length === 0) return [];
@@ -25,6 +27,35 @@ export function parseCSV(csvText: string): number[] {
   }
 
   return values;
+}
+
+export function parseCSV2D(csvText: string): Point2D[] {
+  const lines = csvText.trim().split('\n');
+  if (lines.length === 0) return [];
+
+  const firstLine = lines[0];
+  const hasHeader = isNaN(parseFloat(firstLine.split(',')[0].trim()));
+  
+  const dataLines = hasHeader ? lines.slice(1) : lines;
+  const points: Point2D[] = [];
+
+  for (const line of dataLines) {
+    const trimmedLine = line.trim();
+    if (!trimmedLine) continue;
+
+    const cells = trimmedLine.split(',');
+    
+    if (cells.length >= 2) {
+      const x = parseFloat(cells[0].trim());
+      const y = parseFloat(cells[1].trim());
+      
+      if (!isNaN(x) && isFinite(x) && !isNaN(y) && isFinite(y)) {
+        points.push({ x, y });
+      }
+    }
+  }
+
+  return points;
 }
 
 // Box-Muller transform for generating normal distribution
@@ -238,4 +269,98 @@ export function generateSampleDataWithInfo(config?: Partial<SampleDataConfig>): 
 // Backward compatibility
 export function generateSimpleSampleData(n: number = 100): number[] {
   return generateSampleData({ totalPoints: n });
+}
+
+// 2D Sample Data Generation
+export interface SampleData2DConfig {
+  totalPoints: number;
+  mean: Point2D;
+  covariance: {
+    xx: number;
+    xy: number;
+    yy: number;
+  };
+  preset?: 'circular' | 'elliptical' | 'correlated' | 'anticorrelated' | 'stretched' | 'custom';
+}
+
+// Generate 2D samples from multivariate normal distribution
+export function generateSampleData2D(config?: Partial<SampleData2DConfig>): Point2D[] {
+  const defaultConfig: SampleData2DConfig = {
+    totalPoints: 100,
+    mean: { x: 0, y: 0 },
+    covariance: {
+      xx: 1,
+      xy: 0,
+      yy: 1
+    }
+  };
+  
+  const finalConfig = { ...defaultConfig, ...config };
+  
+  // Apply preset configurations
+  if (finalConfig.preset) {
+    switch (finalConfig.preset) {
+      case 'circular':
+        finalConfig.mean = { x: 0, y: 0 };
+        finalConfig.covariance = { xx: 1, xy: 0, yy: 1 };
+        break;
+      case 'elliptical':
+        finalConfig.mean = { x: 0, y: 0 };
+        finalConfig.covariance = { xx: 4, xy: 0, yy: 1 };
+        break;
+      case 'correlated':
+        finalConfig.mean = { x: 0, y: 0 };
+        finalConfig.covariance = { xx: 2, xy: 1.2, yy: 2 };
+        break;
+      case 'anticorrelated':
+        finalConfig.mean = { x: 0, y: 0 };
+        finalConfig.covariance = { xx: 2, xy: -1.2, yy: 2 };
+        break;
+      case 'stretched':
+        finalConfig.mean = { x: 0, y: 0 };
+        finalConfig.covariance = { xx: 0.25, xy: 0, yy: 4 };
+        break;
+    }
+  }
+  
+  const points: Point2D[] = [];
+  
+  // Calculate Cholesky decomposition for sampling
+  const sigma = finalConfig.covariance;
+  const det = sigma.xx * sigma.yy - sigma.xy * sigma.xy;
+  
+  if (det <= 0) {
+    // Fallback to independent samples if covariance is not positive definite
+    for (let i = 0; i < finalConfig.totalPoints; i++) {
+      points.push({
+        x: normalRandom(finalConfig.mean.x, Math.sqrt(Math.abs(sigma.xx))),
+        y: normalRandom(finalConfig.mean.y, Math.sqrt(Math.abs(sigma.yy)))
+      });
+    }
+    return points;
+  }
+  
+  // Cholesky decomposition: L where Σ = L L^T
+  const L11 = Math.sqrt(sigma.xx);
+  const L21 = sigma.xy / L11;
+  const L22 = Math.sqrt(sigma.yy - L21 * L21);
+  
+  // Generate samples
+  for (let i = 0; i < finalConfig.totalPoints; i++) {
+    // Generate independent standard normal variables
+    const z1 = normalRandom(0, 1);
+    const z2 = normalRandom(0, 1);
+    
+    // Transform using Cholesky decomposition
+    const x = finalConfig.mean.x + L11 * z1;
+    const y = finalConfig.mean.y + L21 * z1 + L22 * z2;
+    
+    points.push({ x, y });
+  }
+  
+  return points;
+}
+
+export function generateSimpleSampleData2D(n: number = 100): Point2D[] {
+  return generateSampleData2D({ totalPoints: n, preset: 'correlated' });
 }
