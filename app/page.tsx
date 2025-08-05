@@ -820,7 +820,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.6.0 - Numerical code refactoring: Extracted common mathematical utilities and functions for improved code organization and reduced duplication in algorithms.
+                v3.6.1 - Fixed 2D Chart Display controls: Now properly controls heatmap, confidence ellipses, and mean point independently with implemented probability density heatmap visualization.
               </div>
             </div>
             <ThemeToggle />
