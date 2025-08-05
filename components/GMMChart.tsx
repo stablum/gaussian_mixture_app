@@ -7,6 +7,7 @@ import { KMeansCluster } from '@/lib/kmeans';
 import { Gaussian2D, Point2D } from '@/lib/gaussian2d';
 import { AlgorithmMode } from '@/lib/algorithmTypes';
 import { getComponentColor } from '@/lib/colors';
+import { isDarkMode, getThemeColor } from '@/lib/theme';
 
 interface GMMChartProps {
   data: number[];
@@ -69,7 +70,7 @@ export default function GMMChart({
     svg.selectAll('*').remove();
 
     // Check if dark mode is active
-    const isDarkMode = document.documentElement.classList.contains('dark');
+    const darkMode = isDarkMode();
 
     // Determine which mode we're in and what data to use
     const isKMeans = mode === AlgorithmMode.KMEANS;
@@ -184,8 +185,8 @@ export default function GMMChart({
       .attr('clip-path', 'url(#chart-clip)');
 
     // Axis colors based on theme
-    const axisColor = isDarkMode ? '#d1d5db' : '#374151';
-    const textColor = isDarkMode ? '#f3f4f6' : '#111827';
+    const axisColor = getThemeColor('axis');
+    const textColor = getThemeColor('text');
 
     g.append('g')
       .attr('transform', `translate(0,${chartHeight})`)
@@ -247,8 +248,8 @@ export default function GMMChart({
       .attr('transform', `translate(${chartWidth + 20}, 20)`);
 
     // Legend background with theme support
-    const legendBgColor = isDarkMode ? '#374151' : 'white';
-    const legendBorderColor = isDarkMode ? '#6b7280' : 'gray';
+    const legendBgColor = getThemeColor('legendBg');
+    const legendBorderColor = getThemeColor('legendBorder');
     
     legend.append('rect')
       .attr('x', -10)
@@ -262,7 +263,7 @@ export default function GMMChart({
       .attr('rx', 4);
 
     // Legend items with theme-aware colors and visibility indicators
-    const mixtureCurveColor = isDarkMode ? '#f3f4f6' : 'black';
+    const mixtureCurveColor = getThemeColor('mixtureCurve');
     const legendData = isKMeans ? [
       { 
         label: 'Cluster Centroids', 
@@ -334,8 +335,8 @@ export default function GMMChart({
       .attr('cx', -5)
       .attr('cy', 0)
       .attr('r', 4)
-      .attr('fill', d => d.visible ? (isDarkMode ? '#10b981' : '#059669') : 'transparent')
-      .attr('stroke', d => d.visible ? (isDarkMode ? '#10b981' : '#059669') : (isDarkMode ? '#6b7280' : '#9ca3af'))
+      .attr('fill', d => d.visible ? (darkMode ? '#10b981' : '#059669') : 'transparent')
+      .attr('stroke', d => d.visible ? (darkMode ? '#10b981' : '#059669') : (darkMode ? '#6b7280' : '#9ca3af'))
       .attr('stroke-width', 1.5);
 
     // Sample line
@@ -344,7 +345,7 @@ export default function GMMChart({
       .attr('x2', 25)
       .attr('y1', 0)
       .attr('y2', 0)
-      .attr('stroke', d => d.visible ? d.stroke : (isDarkMode ? '#6b7280' : '#9ca3af'))
+      .attr('stroke', d => d.visible ? d.stroke : (darkMode ? '#6b7280' : '#9ca3af'))
       .attr('stroke-width', d => d.strokeWidth)
       .attr('stroke-dasharray', d => d.dashArray === 'none' ? null : d.dashArray)
       .attr('opacity', d => d.visible ? 1 : 0.5);
@@ -354,7 +355,7 @@ export default function GMMChart({
       .attr('y', 0)
       .attr('dy', '0.35em')
       .style('font-size', '11px')
-      .style('fill', d => d.visible ? textColor : (isDarkMode ? '#6b7280' : '#9ca3af'))
+      .style('fill', d => d.visible ? textColor : (darkMode ? '#6b7280' : '#9ca3af'))
       .text(d => d.label);
 
     const line = d3.line<{x: number, y: number}>()
@@ -379,7 +380,7 @@ export default function GMMChart({
             .attr('x2', xScale(boundary))
             .attr('y1', 0)
             .attr('y2', chartHeight)
-            .attr('stroke', isDarkMode ? '#6b7280' : '#9ca3af')
+            .attr('stroke', darkMode ? '#6b7280' : '#9ca3af')
             .attr('stroke-width', 1)
             .attr('stroke-dasharray', '5,5')
             .attr('opacity', 0.7);

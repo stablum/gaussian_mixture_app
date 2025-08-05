@@ -820,7 +820,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.5.0 - Smart log-likelihood updates with visual feedback! Real-time parameter changes now trigger debounced background calculations with stale/calculating indicators.
+                v3.5.1 - Code refactoring: Extracted common UI components and utilities for better maintainability and reduced duplication.
               </div>
             </div>
             <ThemeToggle />

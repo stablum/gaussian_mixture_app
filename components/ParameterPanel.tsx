@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { GaussianComponent } from '@/lib/gmm';
 import { KMeansCluster } from '@/lib/kmeans';
 import { Gaussian2D, Point2D, Matrix2x2 } from '@/lib/gaussian2d';
 import { getComponentColor } from '@/lib/colors';
 import { AlgorithmMode, PARAMETER_NAMES } from '@/lib/algorithmTypes';
+import CollapsiblePanel from './ui/CollapsiblePanel';
+import FormInput, { FormLabel, ReadOnlyDisplay } from './ui/FormInput';
 
 interface ParameterPanelProps {
   mode?: AlgorithmMode;
@@ -45,63 +47,39 @@ export default function ParameterPanel({
   onGaussian2DChange,
   onGaussian2DCovarianceChange
 }: ParameterPanelProps) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
   const isKMeans = mode === AlgorithmMode.KMEANS;
   const isGaussian2D = mode === AlgorithmMode.GAUSSIAN_2D;
   const data = isKMeans ? clusters : (isGaussian2D ? null : components);
   const count = isGaussian2D ? 1 : (data?.length || 0);
-  const elementName = PARAMETER_NAMES[mode].element;
+
+  const title = isGaussian2D ? '2D Gaussian Parameters' : (isKMeans ? 'Cluster Parameters' : 'Component Parameters');
+
+  const headerContent = !isGaussian2D ? (
+    <div className="flex items-center gap-2">
+      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+        {isKMeans ? 'Clusters:' : 'Components:'}
+      </label>
+      <select
+        value={count}
+        onChange={(e) => onComponentCountChange(parseInt(e.target.value))}
+        className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
+      >
+        {[1, 2, 3, 4, 5].map(n => (
+          <option key={n} value={n}>{n}</option>
+        ))}
+      </select>
+    </div>
+  ) : null;
 
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors" style={{ padding: isCollapsed ? '8px 16px' : '16px' }}>
-      <div className={`flex justify-between items-center ${isCollapsed ? 'mb-0' : 'mb-4'}`}>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-          {isGaussian2D ? '2D Gaussian Parameters' : (isKMeans ? 'Cluster Parameters' : 'Component Parameters')}
-        </h3>
-        
-        <div className="flex items-center gap-3">
-          {!isGaussian2D && (
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {isKMeans ? 'Clusters:' : 'Components:'}
-              </label>
-              <select
-                value={count}
-                onChange={(e) => onComponentCountChange(parseInt(e.target.value))}
-                className="border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
-              >
-                {[1, 2, 3, 4, 5].map(n => (
-                  <option key={n} value={n}>{n}</option>
-                ))}
-              </select>
-            </div>
-          )}
-          <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-            title={isCollapsed ? "Expand panel" : "Collapse panel"}
-          >
-            <svg
-              className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform ${
-                isCollapsed ? 'rotate-180' : ''
-              }`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-        </div>
-      </div>
-      
-      {!isCollapsed && (
-        <>
-          <div className="space-y-4">
-            {isGaussian2D ? (
-              // 2D Gaussian display
-              gaussian2d && (
+    <CollapsiblePanel 
+      title={title}
+      headerExtra={headerContent}
+    >
+      <div className="space-y-4">
+        {isGaussian2D ? (
+          // 2D Gaussian display
+          gaussian2d && (
                 <div className="border border-gray-200 dark:border-gray-600 rounded p-3 bg-gray-50 dark:bg-gray-700 transition-colors"
                      style={{ borderLeftColor: getComponentColor(0), borderLeftWidth: '4px' }}>
                   <h4 className="font-medium mb-3" style={{ color: getComponentColor(0) }}>
@@ -116,29 +94,25 @@ export default function ParameterPanel({
                       </label>
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="text-xs text-gray-600 dark:text-gray-400 block mb-1">μₓ:</label>
-                          <input
-                            type="number"
+                          <FormLabel>μₓ:</FormLabel>
+                          <FormInput
                             step="0.1"
                             value={gaussian2d.mu.x.toFixed(3)}
-                            onChange={(e) => onGaussian2DChange?.({ 
-                              x: parseFloat(e.target.value) || 0, 
+                            onChange={(value) => onGaussian2DChange?.({ 
+                              x: parseFloat(value) || 0, 
                               y: gaussian2d.mu.y 
                             })}
-                            className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
                           />
                         </div>
                         <div>
-                          <label className="text-xs text-gray-600 dark:text-gray-400 block mb-1">μᵧ:</label>
-                          <input
-                            type="number"
+                          <FormLabel>μᵧ:</FormLabel>
+                          <FormInput
                             step="0.1"
                             value={gaussian2d.mu.y.toFixed(3)}
-                            onChange={(e) => onGaussian2DChange?.({ 
+                            onChange={(value) => onGaussian2DChange?.({ 
                               x: gaussian2d.mu.x, 
-                              y: parseFloat(e.target.value) || 0 
+                              y: parseFloat(value) || 0 
                             })}
-                            className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
                           />
                         </div>
                       </div>
@@ -185,9 +159,7 @@ export default function ParameterPanel({
                         </div>
                         <div>
                           <label className="text-xs text-gray-600 dark:text-gray-400 block mb-1">σ₂₁:</label>
-                          <div className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white font-mono">
-                            {gaussian2d.sigma.xy.toFixed(4)}
-                          </div>
+                                          <ReadOnlyDisplay value={gaussian2d.sigma.xy.toFixed(4)} />
                         </div>
                         <div>
                           <label className="text-xs text-gray-600 dark:text-gray-400 block mb-1">σ₂₂:</label>
@@ -466,8 +438,6 @@ export default function ParameterPanel({
               </>
             )}
           </div>
-        </>
-      )}
-    </div>
+    </CollapsiblePanel>
   );
 }

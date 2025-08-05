@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import 'katex/dist/katex.min.css';
 import { InlineMath, BlockMath } from 'react-katex';
+import CollapsiblePanel from './ui/CollapsiblePanel';
 
 interface KMeansFormulasPanelProps {
   clusterCount: number;
@@ -10,7 +11,6 @@ interface KMeansFormulasPanelProps {
 
 export default function KMeansFormulasPanel({ clusterCount }: KMeansFormulasPanelProps) {
   const [activeSection, setActiveSection] = useState<'algorithm' | 'objective' | 'metrics'>('algorithm');
-  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const sections = [
     { id: 'algorithm', label: 'Algorithm', icon: '🔄' },
@@ -155,58 +155,32 @@ export default function KMeansFormulasPanel({ clusterCount }: KMeansFormulasPane
   );
 
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors" style={{ padding: isCollapsed ? '8px 16px' : '16px' }}>
-      <div className={`flex justify-between items-center ${isCollapsed ? 'mb-0' : 'mb-4'}`}>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">K-Means Formulation</h3>
-        <div className="flex items-center gap-3">
-          <div className="text-xs text-gray-500 dark:text-gray-400">
-            k = {clusterCount} clusters
-          </div>
+    <CollapsiblePanel 
+      title="K-Means Formulation"
+      subtitle={`k = ${clusterCount} clusters`}
+    >
+      <nav className="flex border-b border-gray-200 dark:border-gray-600 mb-4">
+        {sections.map((section) => (
           <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-            title={isCollapsed ? "Expand panel" : "Collapse panel"}
+            key={section.id}
+            onClick={() => setActiveSection(section.id)}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              activeSection === section.id
+                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+            }`}
           >
-            <svg
-              className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform ${
-                isCollapsed ? 'rotate-180' : ''
-              }`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
+            <span className="mr-1">{section.icon}</span>
+            {section.label}
           </button>
-        </div>
-      </div>
-      
-      {!isCollapsed && (
-        <>
-          <nav className="flex border-b border-gray-200 dark:border-gray-600 mb-4">
-            {sections.map((section) => (
-              <button
-                key={section.id}
-                onClick={() => setActiveSection(section.id)}
-                className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                  activeSection === section.id
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                }`}
-              >
-                <span className="mr-1">{section.icon}</span>
-                {section.label}
-              </button>
-            ))}
-          </nav>
+        ))}
+      </nav>
 
-          <div className="overflow-y-auto max-h-96">
-            {activeSection === 'algorithm' && renderAlgorithmFormulas()}
-            {activeSection === 'objective' && renderObjectiveFormulas()}
-            {activeSection === 'metrics' && renderMetricsFormulas()}
-          </div>
-        </>
-      )}
-    </div>
+      <div className="overflow-y-auto max-h-96">
+        {activeSection === 'algorithm' && renderAlgorithmFormulas()}
+        {activeSection === 'objective' && renderObjectiveFormulas()}
+        {activeSection === 'metrics' && renderMetricsFormulas()}
+      </div>
+    </CollapsiblePanel>
   );
 }

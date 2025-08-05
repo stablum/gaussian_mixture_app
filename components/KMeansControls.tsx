@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import LogLikelihoodIndicator from './LogLikelihoodIndicator';
 import { LogLikelihoodState } from '@/hooks/useLogLikelihoodUpdater';
 import { KMeansHistoryStep } from '@/lib/kmeans';
+import CollapsiblePanel from './ui/CollapsiblePanel';
+import Button from './ui/Button';
 
 interface KMeansControlsProps {
   currentStep: number;
@@ -32,76 +34,55 @@ export default function KMeansControls({
   inertia,
   logLikelihoodState
 }: KMeansControlsProps) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg mb-4 transition-colors" style={{ padding: isCollapsed ? '8px 16px' : '16px' }}>
-      <div className={`flex justify-between items-center ${isCollapsed ? 'mb-0' : 'mb-4'}`}>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">K-Means Algorithm Controls</h3>
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-          title={isCollapsed ? "Expand panel" : "Collapse panel"}
+    <CollapsiblePanel title="K-Means Algorithm Controls" className="mb-4">
+      <div className="flex items-center gap-4 mb-4">
+        <Button
+          onClick={onStepBackward}
+          disabled={currentStep <= 0 || isRunning}
+          variant="secondary"
         >
-          <svg
-            className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform ${
-              isCollapsed ? 'rotate-180' : ''
-            }`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
+          ← Previous
+        </Button>
+        
+        <Button
+          onClick={onStepForward}
+          disabled={(currentStep >= totalSteps - 1 && converged) || isRunning}
+          variant="primary"
+        >
+          Next →
+        </Button>
+        
+        <div className="border-l border-gray-300 dark:border-gray-600 pl-4">
+          {!isRunning ? (
+            <Button
+              onClick={onRunToConvergence}
+              disabled={converged}
+              variant="success"
+              size="lg"
+            >
+              Run to Convergence
+            </Button>
+          ) : (
+            <Button
+              onClick={onStop}
+              variant="danger"
+              size="lg"
+            >
+              Stop
+            </Button>
+          )}
+        </div>
+        
+        <Button
+          onClick={onReset}
+          disabled={isRunning}
+          variant="warning"
+          size="lg"
+        >
+          Reset
+        </Button>
       </div>
-      
-      {!isCollapsed && (
-        <>
-          <div className="flex items-center gap-4 mb-4">
-            <button
-              onClick={onStepBackward}
-              disabled={currentStep <= 0 || isRunning}
-              className="px-3 py-2 bg-gray-500 dark:bg-gray-600 text-white rounded hover:bg-gray-600 dark:hover:bg-gray-700 disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:cursor-not-allowed transition-colors"
-            >
-              ← Previous
-            </button>
-            
-            <button
-              onClick={onStepForward}
-              disabled={(currentStep >= totalSteps - 1 && converged) || isRunning}
-              className="px-3 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:cursor-not-allowed transition-colors"
-            >
-              Next →
-            </button>
-            
-            <div className="border-l border-gray-300 dark:border-gray-600 pl-4">
-              {!isRunning ? (
-                <button
-                  onClick={onRunToConvergence}
-                  disabled={converged}
-                  className="px-4 py-2 bg-green-500 dark:bg-green-600 text-white rounded hover:bg-green-600 dark:hover:bg-green-700 disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:cursor-not-allowed transition-colors"
-                >
-                  Run to Convergence
-                </button>
-              ) : (
-                <button
-                  onClick={onStop}
-                  className="px-4 py-2 bg-red-500 dark:bg-red-600 text-white rounded hover:bg-red-600 dark:hover:bg-red-700 transition-colors"
-                >
-                  Stop
-                </button>
-              )}
-            </div>
-            
-            <button
-              onClick={onReset}
-              disabled={isRunning}
-              className="px-4 py-2 bg-orange-500 dark:bg-orange-600 text-white rounded hover:bg-orange-600 dark:hover:bg-orange-700 disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:cursor-not-allowed transition-colors"
-            >
-              Reset
-            </button>
-          </div>
           
           <div className="grid grid-cols-3 gap-4 text-sm text-gray-900 dark:text-gray-100">
             <div>
@@ -136,18 +117,16 @@ export default function KMeansControls({
             </div>
           </div>
           
-          {isRunning && (
-            <div className="mt-3">
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div 
-                  className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${Math.min((currentStep / (totalSteps || 1)) * 100, 100)}%` }}
-                />
-              </div>
-            </div>
-          )}
-        </>
+      {isRunning && (
+        <div className="mt-3">
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div 
+              className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${Math.min((currentStep / (totalSteps || 1)) * 100, 100)}%` }}
+            />
+          </div>
+        </div>
       )}
-    </div>
+    </CollapsiblePanel>
   );
 }
