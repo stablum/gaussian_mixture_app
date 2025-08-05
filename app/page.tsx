@@ -544,7 +544,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.3.0 - Added 2D Gaussian distribution fitting mode
+                v3.3.1 - Made 2D Gaussian Controls panel collapsible
               </div>
             </div>
             <ThemeToggle />
