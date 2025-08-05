@@ -565,13 +565,11 @@ export default function GMMChart({
     if (isKMeans) {
       // K-means centroid drag behavior
       const centroidDragBehavior = d3.drag<SVGRectElement, number>()
+        .container(g.node()!)
         .on('start', function(event, d) {
           const index = centroids.indexOf(d);
           setIsDragging(index);
           event.sourceEvent.stopPropagation();
-          
-          const [startX] = d3.pointer(event.sourceEvent, g.node());
-          setDragStart({ x: startX, initialMu: d });
           
           // Highlight the corresponding centroid line
           centroidVerticalLines.filter((lineData: number, lineIndex: number) => lineIndex === index)
@@ -581,13 +579,8 @@ export default function GMMChart({
         .on('drag', function(event, d) {
           const index = centroids.indexOf(d);
           
-          if (!dragStart) return;
-          
-          const [currentX] = d3.pointer(event.sourceEvent, g.node());
-          const deltaX = currentX - dragStart.x;
-          const deltaXInScale = xScale.invert(dragStart.x + deltaX) - xScale.invert(dragStart.x);
-          const newCentroid = dragStart.initialMu + deltaXInScale;
-          const newX = xScale(newCentroid);
+          const newCentroid = xScale.invert(event.x);
+          const newX = event.x;
           
           // Update centroid handle position
           d3.select(this)
@@ -610,7 +603,6 @@ export default function GMMChart({
         })
         .on('end', function(event) {
           setIsDragging(null);
-          setDragStart(null);
           event.sourceEvent.stopPropagation();
           
           // Restore normal centroid line appearance
