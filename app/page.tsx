@@ -859,7 +859,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.6.9 - FEATURE: Added convergence visualization charts to all algorithm control panels. Log-likelihood/inertia progression charts help visualize optimization behavior and convergence patterns during 'Run to Convergence' operations.
+                v3.6.10 - TESTS: Added comprehensive test coverage for convergence chart feature. Includes unit tests for ConvergenceChart component and integration tests for all algorithm control panels with convergence visualization.
               </div>
             </div>
             <ThemeToggle />
