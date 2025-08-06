@@ -140,30 +140,6 @@ export default function ConvergenceChart({
       .attr('stroke-width', 2)
       .attr('d', line);
 
-    // Add points
-    g.selectAll('.dot')
-      .data(data)
-      .enter().append('circle')
-      .attr('class', 'dot')
-      .attr('cx', d => xScale(d.iteration))
-      .attr('cy', d => yScale(d.value))
-      .attr('r', 3)
-      .attr('fill', mode === AlgorithmMode.KMEANS ? '#f59e0b' : '#3b82f6')
-      .style('opacity', 0.8)
-      .style('cursor', onIterationClick ? 'pointer' : 'default');
-
-    // Highlight current iteration
-    if (currentIteration >= 0 && currentIteration < data.length) {
-      g.append('circle')
-        .attr('cx', xScale(data[currentIteration].iteration))
-        .attr('cy', yScale(data[currentIteration].value))
-        .attr('r', 5)
-        .attr('fill', 'none')
-        .attr('stroke', '#ef4444')
-        .attr('stroke-width', 2)
-        .style('opacity', 0.9);
-    }
-
     // Add value labels on hover
     const tooltip = d3.select('body').append('div')
       .attr('class', 'convergence-tooltip')
@@ -176,45 +152,55 @@ export default function ConvergenceChart({
       .style('pointer-events', 'none')
       .style('opacity', 0);
 
-    g.selectAll('.dot')
-      .on('mouseover', function(event, d: any) {
-        // Highlight the point on hover
-        d3.select(this)
-          .transition()
-          .duration(150)
-          .attr('r', 4)
-          .style('opacity', 1);
-          
-        tooltip.transition().duration(200).style('opacity', .9);
-        const tooltipText = onIterationClick 
-          ? `Iteration: ${d.iteration}<br/>${getYAxisLabel()}: ${formatValue(d.value)}<br/><em>Click to navigate</em>`
-          : `Iteration: ${d.iteration}<br/>${getYAxisLabel()}: ${formatValue(d.value)}`;
-        tooltip.html(tooltipText)
-          .style('left', (event.pageX + 10) + 'px')
-          .style('top', (event.pageY - 28) + 'px');
-      })
-      .on('mouseout', function() {
-        // Reset point on mouse out (unless it's the current iteration)
-        const d = d3.select(this).datum() as any;
-        if (d.iteration !== data[currentIteration]?.iteration) {
-          d3.select(this)
+    // Add invisible click areas for each iteration (full height)
+    if (onIterationClick) {
+      g.selectAll('.click-area')
+        .data(data)
+        .enter().append('rect')
+        .attr('class', 'click-area')
+        .attr('x', d => xScale(d.iteration) - 8) // 16px wide click area centered on iteration
+        .attr('y', 0)
+        .attr('width', 16)
+        .attr('height', innerHeight)
+        .style('fill', 'transparent')
+        .style('cursor', 'pointer')
+        .on('mouseover', function(event, d: any) {
+          // Highlight the corresponding point on hover
+          g.selectAll('.dot')
+            .filter((dotData: any) => dotData.iteration === d.iteration)
             .transition()
             .duration(150)
-            .attr('r', 3)
-            .style('opacity', 0.8);
-        }
-        
-        tooltip.transition().duration(500).style('opacity', 0);
-      })
-      .on('click', function(event, d: any) {
-        if (onIterationClick) {
+            .attr('r', 4)
+            .style('opacity', 1);
+            
+          tooltip.transition().duration(200).style('opacity', .9);
+          const tooltipText = `Iteration: ${d.iteration}<br/>${getYAxisLabel()}: ${formatValue(d.value)}<br/><em>Click anywhere to navigate</em>`;
+          tooltip.html(tooltipText)
+            .style('left', (event.pageX + 10) + 'px')
+            .style('top', (event.pageY - 28) + 'px');
+        })
+        .on('mouseout', function(event, d: any) {
+          // Reset point on mouse out (unless it's the current iteration)
+          if (d.iteration !== data[currentIteration]?.iteration) {
+            g.selectAll('.dot')
+              .filter((dotData: any) => dotData.iteration === d.iteration)
+              .transition()
+              .duration(150)
+              .attr('r', 3)
+              .style('opacity', 0.8);
+          }
+          
+          tooltip.transition().duration(500).style('opacity', 0);
+        })
+        .on('click', function(event, d: any) {
           // Find the index of the clicked iteration in the data array
           const clickedIndex = data.findIndex(point => point.iteration === d.iteration);
           if (clickedIndex >= 0) {
             onIterationClick(clickedIndex);
             
-            // Visual feedback for the click
-            d3.select(this)
+            // Visual feedback - highlight the corresponding circle
+            g.selectAll('.dot')
+              .filter((dotData: any) => dotData.iteration === d.iteration)
               .transition()
               .duration(100)
               .attr('r', 5)
@@ -222,8 +208,63 @@ export default function ConvergenceChart({
               .duration(200)
               .attr('r', 4);
           }
-        }
-      });
+        });
+    } else {
+      // For non-clickable charts, add hover to circles directly
+      g.selectAll('.dot')
+        .style('pointer-events', 'auto')
+        .on('mouseover', function(event, d: any) {
+          // Highlight the point on hover
+          d3.select(this)
+            .transition()
+            .duration(150)
+            .attr('r', 4)
+            .style('opacity', 1);
+            
+          tooltip.transition().duration(200).style('opacity', .9);
+          const tooltipText = `Iteration: ${d.iteration}<br/>${getYAxisLabel()}: ${formatValue(d.value)}`;
+          tooltip.html(tooltipText)
+            .style('left', (event.pageX + 10) + 'px')
+            .style('top', (event.pageY - 28) + 'px');
+        })
+        .on('mouseout', function(event, d: any) {
+          // Reset point on mouse out (unless it's the current iteration)
+          if (d.iteration !== data[currentIteration]?.iteration) {
+            d3.select(this)
+              .transition()
+              .duration(150)
+              .attr('r', 3)
+              .style('opacity', 0.8);
+          }
+          
+          tooltip.transition().duration(500).style('opacity', 0);
+        });
+    }
+
+    // Add points
+    g.selectAll('.dot')
+      .data(data)
+      .enter().append('circle')
+      .attr('class', 'dot')
+      .attr('cx', d => xScale(d.iteration))
+      .attr('cy', d => yScale(d.value))
+      .attr('r', 3)
+      .attr('fill', mode === AlgorithmMode.KMEANS ? '#f59e0b' : '#3b82f6')
+      .style('opacity', 0.8)
+      .style('cursor', onIterationClick ? 'pointer' : 'default')
+      .style('pointer-events', 'none'); // Disable pointer events on circles since we handle clicks via invisible areas
+
+    // Highlight current iteration
+    if (currentIteration >= 0 && currentIteration < data.length) {
+      g.append('circle')
+        .attr('cx', xScale(data[currentIteration].iteration))
+        .attr('cy', yScale(data[currentIteration].value))
+        .attr('r', 5)
+        .attr('fill', 'none')
+        .attr('stroke', '#ef4444')
+        .attr('stroke-width', 2)
+        .style('opacity', 0.9);
+    }
 
     return () => {
       d3.select('body').selectAll('.convergence-tooltip').remove();

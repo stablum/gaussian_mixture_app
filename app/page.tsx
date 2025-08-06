@@ -885,7 +885,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.9.2 - CHART AUTO-SCALING: Charts now automatically adjust scope when parameters move outside visible area! Both 1D and 2D charts dynamically expand to show all component means, centroids, and Gaussian positions with intelligent padding.
+                v3.9.3 - CONVERGENCE CHART UX: Improved log-likelihood chart interaction! Click anywhere at any x-position (iteration) to navigate to that step, not just the precise circle. Much easier to use with 16px wide click areas spanning full chart height.
               </div>
             </div>
             <ThemeToggle />
