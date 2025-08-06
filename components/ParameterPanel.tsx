@@ -80,7 +80,7 @@ export default function ParameterPanel({
         {isGaussian2D ? (
           // 2D Gaussian display
           gaussian2d && (
-                <div className="border border-gray-200 dark:border-gray-600 rounded p-3 bg-gray-50 dark:bg-gray-700 transition-colors"
+                <div className="border border-gray-200 dark:border-gray-600 rounded p-3 bg-gray-50 dark:bg-gray-800 transition-colors"
                      style={{ borderLeftColor: getComponentColor(0), borderLeftWidth: '4px' }}>
                   <h4 className="font-medium mb-3" style={{ color: getComponentColor(0) }}>
                     2D Gaussian Distribution
@@ -138,7 +138,7 @@ export default function ParameterPanel({
                                 xx: newValue
                               });
                             }}
-                            className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                            className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
                           />
                         </div>
                         <div>
@@ -154,7 +154,7 @@ export default function ParameterPanel({
                                 xy: newValue
                               });
                             }}
-                            className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                            className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
                           />
                         </div>
                         <div>
@@ -175,7 +175,7 @@ export default function ParameterPanel({
                                 yy: newValue
                               });
                             }}
-                            className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                            className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
                           />
                         </div>
                       </div>
@@ -209,7 +209,7 @@ export default function ParameterPanel({
               clusters?.map((cluster, index) => (
                 <div 
                   key={index}
-                  className="border border-gray-200 dark:border-gray-600 rounded p-3 bg-gray-50 dark:bg-gray-700 transition-colors"
+                  className="border border-gray-200 dark:border-gray-600 rounded p-3 bg-gray-50 dark:bg-gray-800 transition-colors"
                   style={{ borderLeftColor: getComponentColor(index), borderLeftWidth: '4px' }}
                 >
                   <h4 className="font-medium mb-2" style={{ color: getComponentColor(index) }}>
@@ -224,20 +224,20 @@ export default function ParameterPanel({
                         step="0.1"
                         value={cluster.centroid.toFixed(3)}
                         onChange={(e) => onCentroidChange?.(index, parseFloat(e.target.value) || 0)}
-                        className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                        className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
                       />
                     </div>
                     
                     <div>
                       <label className="font-medium block mb-1">{PARAMETER_NAMES[mode].secondary}:</label>
-                      <div className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white font-mono">
+                      <div className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white font-mono">
                         {cluster.size}
                       </div>
                     </div>
                     
                     <div>
                       <label className="font-medium block mb-1">{PARAMETER_NAMES[mode].weight}:</label>
-                      <div className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white font-mono">
+                      <div className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white font-mono">
                         {cluster.points.length}
                       </div>
                     </div>
@@ -249,7 +249,7 @@ export default function ParameterPanel({
               components?.map((component, index) => (
                 <div 
                   key={index}
-                  className="border border-gray-200 dark:border-gray-600 rounded p-3 bg-gray-50 dark:bg-gray-700 transition-colors"
+                  className="border border-gray-200 dark:border-gray-600 rounded p-3 bg-gray-50 dark:bg-gray-800 transition-colors"
                   style={{ borderLeftColor: getComponentColor(index), borderLeftWidth: '4px' }}
                 >
                   <h4 className="font-medium mb-2" style={{ color: getComponentColor(index) }}>
@@ -264,7 +264,7 @@ export default function ParameterPanel({
                         step="0.1"
                         value={component.mu.toFixed(3)}
                         onChange={(e) => onParameterChange?.(index, 'mu', parseFloat(e.target.value) || 0)}
-                        className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                        className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
                       />
                     </div>
                     
@@ -276,7 +276,7 @@ export default function ParameterPanel({
                         min="0.01"
                         value={component.sigma.toFixed(3)}
                         onChange={(e) => onParameterChange?.(index, 'sigma', Math.max(0.01, parseFloat(e.target.value) || 0.01))}
-                        className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                        className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
                       />
                     </div>
                     
@@ -289,7 +289,7 @@ export default function ParameterPanel({
                         max="0.99"
                         value={component.pi.toFixed(3)}
                         onChange={(e) => onParameterChange?.(index, 'pi', Math.max(0.01, Math.min(0.99, parseFloat(e.target.value) || 0.01)))}
-                        className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                        className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
                       />
                     </div>
                   </div>

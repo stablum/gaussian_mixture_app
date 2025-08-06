@@ -22,7 +22,7 @@ export default function KMeansFormulasPanel({ clusterCount }: KMeansFormulasPane
     <div className="space-y-4">
       <div>
         <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">K-Means Algorithm</h4>
-        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
           <div className="min-w-max">
             <BlockMath math="C = \{C_1, C_2, \ldots, C_k\}" />
           </div>
@@ -34,7 +34,7 @@ export default function KMeansFormulasPanel({ clusterCount }: KMeansFormulasPane
 
       <div>
         <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Assignment Step</h4>
-        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
           <div className="min-w-max">
             <BlockMath math="C_j^{(t+1)} = \{x_i : \|x_i - \mu_j^{(t)}\| \leq \|x_i - \mu_l^{(t)}\| \text{ for all } l\}" />
           </div>
@@ -46,7 +46,7 @@ export default function KMeansFormulasPanel({ clusterCount }: KMeansFormulasPane
 
       <div>
         <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Update Step</h4>
-        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
           <div className="min-w-max">
             <BlockMath math="\mu_j^{(t+1)} = \frac{1}{|C_j^{(t+1)}|} \sum_{x_i \in C_j^{(t+1)}} x_i" />
           </div>
@@ -62,7 +62,7 @@ export default function KMeansFormulasPanel({ clusterCount }: KMeansFormulasPane
     <div className="space-y-4">
       <div>
         <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Within-Cluster Sum of Squares (WCSS)</h4>
-        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
           <div className="min-w-max">
             <BlockMath math="J = \sum_{j=1}^{k} \sum_{x_i \in C_j} \|x_i - \mu_j\|^2" />
           </div>
@@ -74,7 +74,7 @@ export default function KMeansFormulasPanel({ clusterCount }: KMeansFormulasPane
 
       <div>
         <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">1D Simplified Form</h4>
-        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
           <div className="min-w-max">
             <BlockMath math="J = \sum_{j=1}^{k} \sum_{x_i \in C_j} (x_i - \mu_j)^2" />
           </div>
@@ -86,7 +86,7 @@ export default function KMeansFormulasPanel({ clusterCount }: KMeansFormulasPane
 
       <div>
         <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Convergence Condition</h4>
-        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
           <div className="min-w-max space-y-2">
             <BlockMath math="\|\mu_j^{(t+1)} - \mu_j^{(t)}\| < \epsilon \quad \forall j" />
             <div className="text-center text-xs text-gray-600 dark:text-gray-400">or</div>
@@ -104,7 +104,7 @@ export default function KMeansFormulasPanel({ clusterCount }: KMeansFormulasPane
     <div className="space-y-4">
       <div>
         <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Cluster Assignment</h4>
-        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
           <div className="min-w-max">
             <BlockMath math="c_i = \arg\min_j \|x_i - \mu_j\|" />
           </div>
@@ -116,7 +116,7 @@ export default function KMeansFormulasPanel({ clusterCount }: KMeansFormulasPane
 
       <div>
         <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Cluster Size</h4>
-        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
           <div className="min-w-max">
             <BlockMath math="n_j = |C_j| = \sum_{i=1}^{n} \mathbb{I}(c_i = j)" />
           </div>
@@ -128,7 +128,7 @@ export default function KMeansFormulasPanel({ clusterCount }: KMeansFormulasPane
 
       <div>
         <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Distance to Centroid</h4>
-        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
           <div className="min-w-max">
             <BlockMath math="d_{ij} = |x_i - \mu_j|" />
           </div>
@@ -140,7 +140,7 @@ export default function KMeansFormulasPanel({ clusterCount }: KMeansFormulasPane
 
       <div>
         <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Properties</h4>
-        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
           <div className="min-w-max space-y-2">
             <BlockMath math="\sum_{j=1}^{k} n_j = n" />
             <BlockMath math="C_i \cap C_j = \emptyset \quad \text{for } i \neq j" />

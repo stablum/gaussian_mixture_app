@@ -27,7 +27,7 @@ export default function Gaussian2DControls({
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg mb-4 transition-colors" style={{ padding: isCollapsed ? '8px 16px' : '16px' }}>
+    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg mb-4 transition-colors" style={{ padding: isCollapsed ? '8px 16px' : '16px' }}>
       <div className={`flex justify-between items-center ${isCollapsed ? 'mb-0' : 'mb-4'}`}>
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
           2D Gaussian Controls
@@ -86,7 +86,7 @@ export default function Gaussian2DControls({
 
           {/* Statistics display */}
           {gaussian && (
-            <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded">
+            <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded">
               <h4 className="font-medium text-gray-900 dark:text-white mb-2">Fitted Parameters</h4>
               
               <div className="space-y-2 text-sm">
@@ -130,7 +130,7 @@ export default function Gaussian2DControls({
           )}
 
           {/* Instructions */}
-          <div className="text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 p-3 rounded">
+          <div className="text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-3 rounded">
             <p className="font-medium mb-1">Instructions:</p>
             <ul className="list-disc list-inside space-y-1">
               <li><strong>Fit Gaussian (MLE):</strong> Instant analytical solution</li>

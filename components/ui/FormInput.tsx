@@ -25,8 +25,8 @@ export default function FormInput({
   className = '',
   placeholder
 }: FormInputProps) {
-  const baseClasses = "w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors";
-  const disabledClasses = disabled ? "bg-gray-100 dark:bg-gray-600 cursor-not-allowed" : "";
+  const baseClasses = "w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors";
+  const disabledClasses = disabled ? "bg-gray-100 dark:bg-gray-700 cursor-not-allowed" : "";
   
   return (
     <input
@@ -63,7 +63,7 @@ interface ReadOnlyDisplayProps {
 
 export function ReadOnlyDisplay({ value, className = '' }: ReadOnlyDisplayProps) {
   return (
-    <div className={`w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white font-mono ${className}`}>
+    <div className={`w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white font-mono ${className}`}>
       {value}
     </div>
   );

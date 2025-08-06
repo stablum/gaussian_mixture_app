@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { AlgorithmMode } from '@/lib/algorithmTypes';
+import Switch from '@/components/ui/Switch';
 
 interface CurveVisibilityControlsProps {
   mode?: AlgorithmMode;
@@ -12,6 +13,22 @@ interface CurveVisibilityControlsProps {
     dataPoints: boolean;
   };
   onVisibilityChange: (key: keyof CurveVisibilityControlsProps['visibility'], value: boolean) => void;
+}
+
+// Helper function to get switch color based on control type and mode
+function getControlColor(controlKey: string, mode: AlgorithmMode): 'blue' | 'green' | 'purple' | 'red' {
+  switch (controlKey) {
+    case 'mixture':
+      return 'blue';
+    case 'components':
+      return 'purple';
+    case 'posteriors':
+      return 'green';
+    case 'dataPoints':
+      return 'red';
+    default:
+      return 'blue';
+  }
 }
 
 export default function CurveVisibilityControls({ 
@@ -42,11 +59,17 @@ export default function CurveVisibilityControls({
   ];
 
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors" style={{ padding: isCollapsed ? '8px 16px' : '16px' }}>
+    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors" style={{ padding: isCollapsed ? '8px 16px' : '16px' }}>
       <div className={`flex justify-between items-center ${isCollapsed ? 'mb-0' : 'mb-3'}`}>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-          {isKMeans ? 'Visualization Options' : isGaussian2D ? '2D Chart Display' : 'Chart Display'}
-        </h3>
+        <button 
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="flex-1 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md p-1 -m-1 transition-colors"
+          title={isCollapsed ? "Expand panel" : "Collapse panel"}
+        >
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            {isKMeans ? 'Visualization Options' : isGaussian2D ? '2D Chart Display' : 'Chart Display'}
+          </h3>
+        </button>
         <div className="flex items-center gap-3">
           <div className="text-xs text-gray-500 dark:text-gray-400">
             {isKMeans ? 'Toggle visualization elements' : isGaussian2D ? 'Toggle 2D display elements' : 'Toggle curve visibility'}
@@ -72,19 +95,22 @@ export default function CurveVisibilityControls({
       
       {!isCollapsed && (
         <>
-          <div className="space-y-2">
+          <div className="space-y-4">
             {controls.map((control) => (
-              <label key={control.key} className="flex items-center space-x-3 cursor-pointer">
-                <input
-                  type="checkbox"
+              <div key={control.key} className="flex items-center justify-between py-1">
+                <div className="flex items-center">
+                  <span className={`text-sm font-medium ${control.color}`}>
+                    {control.label}
+                  </span>
+                </div>
+                <Switch
+                  id={`visibility-${control.key}`}
                   checked={visibility[control.key]}
-                  onChange={(e) => onVisibilityChange(control.key, e.target.checked)}
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                  onChange={(checked) => onVisibilityChange(control.key, checked)}
+                  size="md"
+                  color={getControlColor(control.key, mode)}
                 />
-                <span className={`text-sm font-medium ${control.color}`}>
-                  {control.label}
-                </span>
-              </label>
+              </div>
             ))}
           </div>
           

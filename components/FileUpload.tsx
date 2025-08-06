@@ -79,7 +79,7 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg mb-4 transition-colors" style={{ padding: isCollapsed ? '8px 16px' : '16px' }}>
+    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg mb-4 transition-colors" style={{ padding: isCollapsed ? '8px 16px' : '16px' }}>
       <div className={`flex justify-between items-center ${isCollapsed ? 'mb-0' : 'mb-4'}`}>
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Data Input</h3>
         <button
@@ -130,7 +130,7 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
           </button>
           <button
             onClick={() => setShowAdvanced(!showAdvanced)}
-            className="px-3 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors text-sm"
+            className="px-3 py-2 bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors text-sm"
           >
             {showAdvanced ? '▲' : '▼'} Options
           </button>
@@ -138,7 +138,7 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
       </div>
 
       {showAdvanced && (
-        <div className="border-t dark:border-gray-600 pt-4 space-y-4 bg-gray-50 dark:bg-gray-700 -mx-4 -mb-4 px-4 pb-4 rounded-b-lg transition-colors">
+        <div className="border-t dark:border-gray-600 pt-4 space-y-4 bg-gray-50 dark:bg-gray-800 -mx-4 -mb-4 px-4 pb-4 rounded-b-lg transition-colors">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -150,7 +150,7 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
                 max="1000"
                 value={sampleConfig.totalPoints}
                 onChange={(e) => setSampleConfig({...sampleConfig, totalPoints: parseInt(e.target.value)})}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-colors"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors"
               />
             </div>
             
@@ -161,7 +161,7 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
               <select
                 value={sampleConfig.preset}
                 onChange={(e) => setSampleConfig({...sampleConfig, preset: e.target.value as any})}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-colors"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors"
               >
                 {Object.entries(presetDescriptions).map(([key, desc]) => (
                   <option key={key} value={key}>{key} - {desc}</option>
@@ -186,7 +186,7 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
               
               <div className="space-y-2">
                 {customComponents.map((comp, index) => (
-                  <div key={index} className="flex gap-2 items-center p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 transition-colors">
+                  <div key={index} className="flex gap-2 items-center p-2 bg-white dark:bg-gray-900 rounded border border-gray-200 dark:border-gray-600 transition-colors">
                     <div className="flex-1">
                       <label className="text-xs text-gray-600 dark:text-gray-400">Mean</label>
                       <input
@@ -248,7 +248,7 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
           <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-300 mb-3">Generated Distribution Details</h4>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 transition-colors">
+            <div className="bg-white dark:bg-gray-900 p-3 rounded border border-gray-200 dark:border-gray-600 transition-colors">
               <h5 className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Data Statistics</h5>
               <div className="space-y-1 text-xs text-gray-900 dark:text-gray-100">
                 <div className="flex justify-between">
@@ -270,7 +270,7 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 transition-colors">
+            <div className="bg-white dark:bg-gray-900 p-3 rounded border border-gray-200 dark:border-gray-600 transition-colors">
               <h5 className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Distribution Configuration</h5>
               <div className="space-y-1 text-xs text-gray-900 dark:text-gray-100">
                 <div className="flex justify-between">
@@ -285,11 +285,11 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 transition-colors">
+          <div className="bg-white dark:bg-gray-900 p-3 rounded border border-gray-200 dark:border-gray-600 transition-colors">
             <h5 className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Component Details</h5>
             <div className="space-y-2">
               {generatedInfo.actualConfig.components.map((comp, index) => (
-                <div key={index} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700 rounded text-xs transition-colors">
+                <div key={index} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-800 rounded text-xs transition-colors">
                   <div className="flex gap-4 text-gray-900 dark:text-gray-100">
                     <span><strong>Component {index + 1}:</strong></span>
                     <span>μ = {comp.mean.toFixed(2)}</span>

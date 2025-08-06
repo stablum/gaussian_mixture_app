@@ -21,7 +21,7 @@ export default function Gaussian2DFormulasPanel() {
         <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
           Multivariate Gaussian Probability Density Function
         </h4>
-        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
           <div className="min-w-max">
             <BlockMath math="f(\mathbf{x}) = \frac{1}{(2\pi)^{k/2} |\mathbf{\Sigma}|^{1/2}} \exp\left(-\frac{1}{2}(\mathbf{x} - \boldsymbol{\mu})^T \mathbf{\Sigma}^{-1} (\mathbf{x} - \boldsymbol{\mu})\right)" />
           </div>
@@ -36,7 +36,7 @@ export default function Gaussian2DFormulasPanel() {
         <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
           Mahalanobis Distance
         </h4>
-        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
           <div className="min-w-max">
             <BlockMath math="d^2(\mathbf{x}, \boldsymbol{\mu}) = (\mathbf{x} - \boldsymbol{\mu})^T \mathbf{\Sigma}^{-1} (\mathbf{x} - \boldsymbol{\mu})" />
           </div>
@@ -51,7 +51,7 @@ export default function Gaussian2DFormulasPanel() {
         <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
           Confidence Ellipses
         </h4>
-        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
           <div className="min-w-max">
             <BlockMath math="(\mathbf{x} - \boldsymbol{\mu})^T \mathbf{\Sigma}^{-1} (\mathbf{x} - \boldsymbol{\mu}) = c^2" />
           </div>
@@ -68,7 +68,7 @@ export default function Gaussian2DFormulasPanel() {
         <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
           2×2 Matrix Operations
         </h4>
-        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
           <div className="space-y-3">
             <div>
               <p className="text-xs font-medium mb-1 text-gray-900 dark:text-gray-100">Determinant:</p>
@@ -127,7 +127,7 @@ export default function Gaussian2DFormulasPanel() {
         <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
           Log-Likelihood
         </h4>
-        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
           <div className="min-w-max">
             <BlockMath math="\ell(\boldsymbol{\mu}, \mathbf{\Sigma}) = \sum_{i=1}^{N} \log f(\mathbf{x}_i)" />
             <BlockMath math="= -\frac{N}{2} \log(2\pi) - \frac{1}{2} \log|\mathbf{\Sigma}| - \frac{1}{2} \sum_{i=1}^{N} d^2(\mathbf{x}_i, \boldsymbol{\mu})" />
@@ -143,7 +143,7 @@ export default function Gaussian2DFormulasPanel() {
         <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
           Correlation Coefficient
         </h4>
-        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
           <div className="min-w-max">
             <BlockMath math="\rho = \frac{\sigma_{12}}{\sqrt{\sigma_{11} \sigma_{22}}}" />
           </div>
@@ -220,7 +220,7 @@ export default function Gaussian2DFormulasPanel() {
         <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
           Positive Definiteness
         </h4>
-        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
           <div className="text-xs space-y-2">
             <div><strong>Constraint:</strong> <InlineMath math="|\mathbf{\Sigma}| > 0" /></div>
             <div><strong>Correlation bound:</strong> <InlineMath math="|\rho| < 1" /></div>
@@ -239,14 +239,14 @@ export default function Gaussian2DFormulasPanel() {
       subtitle="Multivariate normal distribution theory"
     >
       {/* Section tabs */}
-      <div className="flex space-x-1 mb-4 bg-gray-100 dark:bg-gray-700 p-1 rounded transition-colors">
+      <div className="flex space-x-1 mb-4 bg-gray-100 dark:bg-gray-800 p-1 rounded transition-colors">
         {sections.map((section) => (
           <button
             key={section.id}
             onClick={() => setActiveSection(section.id)}
             className={`flex-1 px-3 py-2 text-sm font-medium rounded transition-colors ${
               activeSection === section.id
-                ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
+                ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
                 : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100'
             }`}
           >

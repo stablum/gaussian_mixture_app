@@ -809,7 +809,7 @@ export default function GMMChart({
   }, [data, components, clusters, mode, onComponentDrag, onCentroidDrag, onHover, width, height, isDragging, curveVisibility, dragStart]);
 
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4 transition-colors">
+    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg p-4 transition-colors">
       <svg
         ref={svgRef}
         width={width}

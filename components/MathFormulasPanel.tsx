@@ -29,7 +29,7 @@ export default function MathFormulasPanel({ componentCount, mode = AlgorithmMode
     <div className="space-y-4">
       <div>
         <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Gaussian Mixture Model</h4>
-        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
           <div className="min-w-max">
             <BlockMath math="p(x) = \sum_{k=1}^{K} \pi_k \mathcal{N}(x | \mu_k, \sigma_k^2)" />
           </div>
@@ -41,7 +41,7 @@ export default function MathFormulasPanel({ componentCount, mode = AlgorithmMode
 
       <div>
         <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Gaussian Component</h4>
-        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
           <div className="min-w-max">
             <BlockMath math="\mathcal{N}(x | \mu_k, \sigma_k^2) = \frac{1}{\sqrt{2\pi\sigma_k^2}} \exp\left(-\frac{(x-\mu_k)^2}{2\sigma_k^2}\right)" />
           </div>
@@ -53,7 +53,7 @@ export default function MathFormulasPanel({ componentCount, mode = AlgorithmMode
 
       <div>
         <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Constraints</h4>
-        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
           <div className="min-w-max space-y-2">
             <BlockMath math="\sum_{k=1}^{K} \pi_k = 1" />
             <BlockMath math="\pi_k \geq 0 \quad \forall k \in \{1, 2, \ldots, K\}" />
@@ -70,7 +70,7 @@ export default function MathFormulasPanel({ componentCount, mode = AlgorithmMode
     <div className="space-y-4">
       <div>
         <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Log-Likelihood</h4>
-        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
           <div className="min-w-max">
             <BlockMath math="\mathcal{L}(\theta) = \sum_{i=1}^{N} \log p(x_i | \theta)" />
           </div>
@@ -136,7 +136,7 @@ export default function MathFormulasPanel({ componentCount, mode = AlgorithmMode
     <div className="space-y-4">
       <div>
         <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Posterior Probability</h4>
-        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
           <div className="min-w-max">
             <BlockMath math="p(z_k = 1 | x) = \frac{p(x | z_k = 1) p(z_k = 1)}{p(x)} = \frac{\pi_k \mathcal{N}(x | \mu_k, \sigma_k^2)}{\sum_{j=1}^{K} \pi_j \mathcal{N}(x | \mu_j, \sigma_j^2)}" />
           </div>
@@ -148,7 +148,7 @@ export default function MathFormulasPanel({ componentCount, mode = AlgorithmMode
 
       <div>
         <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Bayes' Theorem Components</h4>
-        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600 space-y-2 transition-colors">
+        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 space-y-2 transition-colors">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
               <p className="font-medium text-gray-900 dark:text-gray-100">Prior:</p>
@@ -180,7 +180,7 @@ export default function MathFormulasPanel({ componentCount, mode = AlgorithmMode
 
       <div>
         <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Properties</h4>
-        <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
+        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto transition-colors">
           <div className="min-w-max space-y-2">
             <BlockMath math="\sum_{k=1}^{K} p(z_k = 1 | x) = 1" />
             <BlockMath math="0 \leq p(z_k = 1 | x) \leq 1 \quad \forall k \in \{1, 2, \ldots, K\}" />
@@ -196,14 +196,14 @@ export default function MathFormulasPanel({ componentCount, mode = AlgorithmMode
       subtitle={`K = ${componentCount} components`}
     >
       {/* Section tabs */}
-      <div className="flex space-x-1 mb-4 bg-gray-100 dark:bg-gray-700 p-1 rounded transition-colors">
+      <div className="flex space-x-1 mb-4 bg-gray-100 dark:bg-gray-800 p-1 rounded transition-colors">
         {sections.map((section) => (
           <button
             key={section.id}
             onClick={() => setActiveSection(section.id)}
             className={`flex-1 px-3 py-2 text-sm font-medium rounded transition-colors ${
               activeSection === section.id
-                ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
+                ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
                 : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100'
             }`}
           >

@@ -235,11 +235,17 @@ export default function ConvergenceChart({
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors">
+    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors">
       <div className="flex justify-between items-center p-3 border-b border-gray-200 dark:border-gray-600">
-        <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
-          {getTitle()}
-        </h4>
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="flex-1 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md p-1 -m-1 transition-colors"
+          title={isCollapsed ? "Show convergence chart" : "Hide convergence chart"}
+        >
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
+            {getTitle()}
+          </h4>
+        </button>
         <div className="flex items-center gap-2">
           {!isCollapsed && data.length > 0 && (
             <span className="text-xs text-gray-500 dark:text-gray-400">

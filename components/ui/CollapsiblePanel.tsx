@@ -22,17 +22,23 @@ export default function CollapsiblePanel({
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
 
   return (
-    <div className={`bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors ${className}`} 
+    <div className={`bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors ${className}`} 
          style={{ padding: isCollapsed ? '8px 16px' : '16px' }}>
       <div className={`flex justify-between items-center ${isCollapsed ? 'mb-0' : 'mb-4'}`}>
-        <div className="flex items-center gap-3">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
-          {subtitle && (
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              {subtitle}
-            </div>
-          )}
-        </div>
+        <button 
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="flex-1 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md p-1 -m-1 transition-colors"
+          title={isCollapsed ? "Expand panel" : "Collapse panel"}
+        >
+          <div className="flex items-center gap-3">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
+            {subtitle && (
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                {subtitle}
+              </div>
+            )}
+          </div>
+        </button>
         
         <div className="flex items-center gap-3">
           {headerExtra}

@@ -14,7 +14,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-gray-50 dark:bg-gray-900 transition-colors">
+      <body className="bg-gray-50 dark:bg-slate-900 transition-colors">
         <ThemeProvider>
           {children}
         </ThemeProvider>

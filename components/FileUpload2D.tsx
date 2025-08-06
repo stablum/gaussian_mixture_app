@@ -69,7 +69,7 @@ export default function FileUpload2D({ onDataLoad }: FileUpload2DProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg mb-4 transition-colors" style={{ padding: isCollapsed ? '8px 16px' : '16px' }}>
+    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg mb-4 transition-colors" style={{ padding: isCollapsed ? '8px 16px' : '16px' }}>
       <div className={`flex justify-between items-center ${isCollapsed ? 'mb-0' : 'mb-4'}`}>
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">2D Data Input</h3>
         <button
@@ -120,7 +120,7 @@ export default function FileUpload2D({ onDataLoad }: FileUpload2DProps) {
               </button>
               <button
                 onClick={() => setShowAdvanced(!showAdvanced)}
-                className="px-3 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors text-sm"
+                className="px-3 py-2 bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors text-sm"
               >
                 {showAdvanced ? '▲' : '▼'} Options
               </button>
@@ -128,7 +128,7 @@ export default function FileUpload2D({ onDataLoad }: FileUpload2DProps) {
           </div>
 
           {showAdvanced && (
-            <div className="border-t dark:border-gray-600 pt-4 space-y-4 bg-gray-50 dark:bg-gray-700 -mx-4 -mb-4 px-4 pb-4 rounded-b-lg transition-colors">
+            <div className="border-t dark:border-gray-600 pt-4 space-y-4 bg-gray-50 dark:bg-gray-800 -mx-4 -mb-4 px-4 pb-4 rounded-b-lg transition-colors">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -140,7 +140,7 @@ export default function FileUpload2D({ onDataLoad }: FileUpload2DProps) {
                     max="1000"
                     value={sampleConfig.totalPoints}
                     onChange={(e) => setSampleConfig({...sampleConfig, totalPoints: parseInt(e.target.value)})}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-colors"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors"
                   />
                 </div>
                 
@@ -151,7 +151,7 @@ export default function FileUpload2D({ onDataLoad }: FileUpload2DProps) {
                   <select
                     value={sampleConfig.preset}
                     onChange={(e) => setSampleConfig({...sampleConfig, preset: e.target.value as any})}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-colors"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors"
                   >
                     {Object.entries(presetDescriptions).map(([key, desc]) => (
                       <option key={key} value={key}>{key} - {desc}</option>
