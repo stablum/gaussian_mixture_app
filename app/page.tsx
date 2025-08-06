@@ -885,7 +885,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.9.0 - CODE REFACTORING: Major refactoring eliminating code duplication with new abstraction components. Created TabbedFormulaPanel and AlgorithmControlsBase for better maintainability. All panels now consistently use CollapsiblePanel for unified behavior. Comprehensive unit tests added for new components.
+                v3.9.1 - INPUT FIX: Fixed parameter input typing issues! You can now type negative numbers like '-1.0' and decimals like '1.5' without interruption. New NumericInput component handles intermediate states properly and only updates on valid values or blur/Enter.
               </div>
             </div>
             <ThemeToggle />

@@ -8,6 +8,7 @@ import { getComponentColor } from '@/lib/colors';
 import { AlgorithmMode, PARAMETER_NAMES } from '@/lib/algorithmTypes';
 import CollapsiblePanel from './ui/CollapsiblePanel';
 import FormInput, { FormLabel, ReadOnlyDisplay } from './ui/FormInput';
+import NumericInput from './ui/NumericInput';
 
 interface ParameterPanelProps {
   mode?: AlgorithmMode;
@@ -95,24 +96,26 @@ export default function ParameterPanel({
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <FormLabel>μₓ:</FormLabel>
-                          <FormInput
-                            step="0.1"
-                            value={gaussian2d.mu.x.toFixed(3)}
+                          <NumericInput
+                            value={gaussian2d.mu.x}
                             onChange={(value) => onGaussian2DChange?.({ 
-                              x: parseFloat(value) || 0, 
+                              x: value, 
                               y: gaussian2d.mu.y 
                             })}
+                            step={0.1}
+                            decimalPlaces={3}
                           />
                         </div>
                         <div>
                           <FormLabel>μᵧ:</FormLabel>
-                          <FormInput
-                            step="0.1"
-                            value={gaussian2d.mu.y.toFixed(3)}
+                          <NumericInput
+                            value={gaussian2d.mu.y}
                             onChange={(value) => onGaussian2DChange?.({ 
                               x: gaussian2d.mu.x, 
-                              y: parseFloat(value) || 0 
+                              y: value 
                             })}
+                            step={0.1}
+                            decimalPlaces={3}
                           />
                         </div>
                       </div>
@@ -126,35 +129,27 @@ export default function ParameterPanel({
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="text-xs text-gray-600 dark:text-gray-400 block mb-1">σ₁₁:</label>
-                          <input
-                            type="number"
-                            step="0.01"
-                            min="0.01"
-                            value={gaussian2d.sigma.xx.toFixed(4)}
-                            onChange={(e) => {
-                              const newValue = Math.max(0.01, parseFloat(e.target.value) || 0.01);
-                              onGaussian2DCovarianceChange?.({
-                                ...gaussian2d.sigma,
-                                xx: newValue
-                              });
-                            }}
-                            className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                          <NumericInput
+                            value={gaussian2d.sigma.xx}
+                            onChange={(value) => onGaussian2DCovarianceChange?.({
+                              ...gaussian2d.sigma,
+                              xx: value
+                            })}
+                            step={0.01}
+                            min={0.01}
+                            decimalPlaces={4}
                           />
                         </div>
                         <div>
                           <label className="text-xs text-gray-600 dark:text-gray-400 block mb-1">σ₁₂:</label>
-                          <input
-                            type="number"
-                            step="0.01"
-                            value={gaussian2d.sigma.xy.toFixed(4)}
-                            onChange={(e) => {
-                              const newValue = parseFloat(e.target.value) || 0;
-                              onGaussian2DCovarianceChange?.({
-                                ...gaussian2d.sigma,
-                                xy: newValue
-                              });
-                            }}
-                            className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                          <NumericInput
+                            value={gaussian2d.sigma.xy}
+                            onChange={(value) => onGaussian2DCovarianceChange?.({
+                              ...gaussian2d.sigma,
+                              xy: value
+                            })}
+                            step={0.01}
+                            decimalPlaces={4}
                           />
                         </div>
                         <div>
@@ -163,19 +158,15 @@ export default function ParameterPanel({
                         </div>
                         <div>
                           <label className="text-xs text-gray-600 dark:text-gray-400 block mb-1">σ₂₂:</label>
-                          <input
-                            type="number"
-                            step="0.01"
-                            min="0.01"
-                            value={gaussian2d.sigma.yy.toFixed(4)}
-                            onChange={(e) => {
-                              const newValue = Math.max(0.01, parseFloat(e.target.value) || 0.01);
-                              onGaussian2DCovarianceChange?.({
-                                ...gaussian2d.sigma,
-                                yy: newValue
-                              });
-                            }}
-                            className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                          <NumericInput
+                            value={gaussian2d.sigma.yy}
+                            onChange={(value) => onGaussian2DCovarianceChange?.({
+                              ...gaussian2d.sigma,
+                              yy: value
+                            })}
+                            step={0.01}
+                            min={0.01}
+                            decimalPlaces={4}
                           />
                         </div>
                       </div>
@@ -219,12 +210,11 @@ export default function ParameterPanel({
                   <div className="grid grid-cols-3 gap-3 text-sm text-gray-900 dark:text-gray-100">
                     <div>
                       <label className="font-medium block mb-1">{PARAMETER_NAMES[mode].primary}:</label>
-                      <input
-                        type="number"
-                        step="0.1"
-                        value={cluster.centroid.toFixed(3)}
-                        onChange={(e) => onCentroidChange?.(index, parseFloat(e.target.value) || 0)}
-                        className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                      <NumericInput
+                        value={cluster.centroid}
+                        onChange={(value) => onCentroidChange?.(index, value)}
+                        step={0.1}
+                        decimalPlaces={3}
                       />
                     </div>
                     
@@ -259,37 +249,34 @@ export default function ParameterPanel({
                   <div className="grid grid-cols-3 gap-3 text-sm text-gray-900 dark:text-gray-100">
                     <div>
                       <label className="font-medium block mb-1">μ (Mean):</label>
-                      <input
-                        type="number"
-                        step="0.1"
-                        value={component.mu.toFixed(3)}
-                        onChange={(e) => onParameterChange?.(index, 'mu', parseFloat(e.target.value) || 0)}
-                        className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                      <NumericInput
+                        value={component.mu}
+                        onChange={(value) => onParameterChange?.(index, 'mu', value)}
+                        step={0.1}
+                        decimalPlaces={3}
                       />
                     </div>
                     
                     <div>
                       <label className="font-medium block mb-1">σ (Std):</label>
-                      <input
-                        type="number"
-                        step="0.1"
-                        min="0.01"
-                        value={component.sigma.toFixed(3)}
-                        onChange={(e) => onParameterChange?.(index, 'sigma', Math.max(0.01, parseFloat(e.target.value) || 0.01))}
-                        className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                      <NumericInput
+                        value={component.sigma}
+                        onChange={(value) => onParameterChange?.(index, 'sigma', value)}
+                        step={0.1}
+                        min={0.01}
+                        decimalPlaces={3}
                       />
                     </div>
                     
                     <div>
                       <label className="font-medium block mb-1">π (Weight):</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0.01"
-                        max="0.99"
-                        value={component.pi.toFixed(3)}
-                        onChange={(e) => onParameterChange?.(index, 'pi', Math.max(0.01, Math.min(0.99, parseFloat(e.target.value) || 0.01)))}
-                        className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                      <NumericInput
+                        value={component.pi}
+                        onChange={(value) => onParameterChange?.(index, 'pi', value)}
+                        step={0.01}
+                        min={0.01}
+                        max={0.99}
+                        decimalPlaces={3}
                       />
                     </div>
                   </div>
