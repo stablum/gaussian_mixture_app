@@ -2,8 +2,10 @@
 
 import React from 'react';
 import LogLikelihoodIndicator from './LogLikelihoodIndicator';
+import ConvergenceChart from './ConvergenceChart';
 import { LogLikelihoodState } from '@/hooks/useLogLikelihoodUpdater';
 import { GMMHistoryStep } from '@/lib/gmm';
+import { AlgorithmMode } from '@/lib/algorithmTypes';
 import CollapsiblePanel from './ui/CollapsiblePanel';
 import Button from './ui/Button';
 
@@ -19,6 +21,7 @@ interface EMControlsProps {
   onStop: () => void;
   logLikelihood: number;
   logLikelihoodState?: LogLikelihoodState;
+  gmmHistory?: GMMHistoryStep[];
 }
 
 export default function EMControls({
@@ -32,8 +35,15 @@ export default function EMControls({
   onRunToConvergence,
   onStop,
   logLikelihood,
-  logLikelihoodState
+  logLikelihoodState,
+  gmmHistory = []
 }: EMControlsProps) {
+  // Prepare convergence data
+  const convergenceData = gmmHistory.map(step => ({
+    iteration: step.iteration,
+    value: step.logLikelihood
+  }));
+
   return (
     <CollapsiblePanel title="EM Algorithm Controls" className="mb-4">
       <div className="flex items-center gap-4 mb-4">
@@ -125,6 +135,18 @@ export default function EMControls({
               style={{ width: `${Math.min((currentStep / (totalSteps || 1)) * 100, 100)}%` }}
             />
           </div>
+        </div>
+      )}
+      
+      {convergenceData.length > 1 && (
+        <div className="mt-4">
+          <ConvergenceChart
+            data={convergenceData}
+            mode={AlgorithmMode.GMM}
+            currentIteration={currentStep}
+            width={400}
+            height={180}
+          />
         </div>
       )}
     </CollapsiblePanel>

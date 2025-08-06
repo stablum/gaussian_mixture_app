@@ -2,8 +2,10 @@
 
 import React from 'react';
 import LogLikelihoodIndicator from './LogLikelihoodIndicator';
+import ConvergenceChart from './ConvergenceChart';
 import { LogLikelihoodState } from '@/hooks/useLogLikelihoodUpdater';
 import { KMeansHistoryStep } from '@/lib/kmeans';
+import { AlgorithmMode } from '@/lib/algorithmTypes';
 import CollapsiblePanel from './ui/CollapsiblePanel';
 import Button from './ui/Button';
 
@@ -19,6 +21,7 @@ interface KMeansControlsProps {
   onStop: () => void;
   inertia: number;
   logLikelihoodState?: LogLikelihoodState;
+  kmeansHistory?: KMeansHistoryStep[];
 }
 
 export default function KMeansControls({
@@ -32,8 +35,15 @@ export default function KMeansControls({
   onRunToConvergence,
   onStop,
   inertia,
-  logLikelihoodState
+  logLikelihoodState,
+  kmeansHistory = []
 }: KMeansControlsProps) {
+  // Prepare convergence data
+  const convergenceData = kmeansHistory.map(step => ({
+    iteration: step.iteration,
+    value: step.inertia || 0
+  }));
+
   return (
     <CollapsiblePanel title="K-Means Algorithm Controls" className="mb-4">
       <div className="flex items-center gap-4 mb-4">
@@ -125,6 +135,18 @@ export default function KMeansControls({
               style={{ width: `${Math.min((currentStep / (totalSteps || 1)) * 100, 100)}%` }}
             />
           </div>
+        </div>
+      )}
+      
+      {convergenceData.length > 1 && (
+        <div className="mt-4">
+          <ConvergenceChart
+            data={convergenceData}
+            mode={AlgorithmMode.KMEANS}
+            currentIteration={currentStep}
+            width={400}
+            height={180}
+          />
         </div>
       )}
     </CollapsiblePanel>

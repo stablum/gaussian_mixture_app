@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
+import ConvergenceChart from './ConvergenceChart';
 import { Gaussian2DHistoryStep } from '@/lib/gaussian2d';
+import { AlgorithmMode } from '@/lib/algorithmTypes';
 
 interface GradientDescentControlsProps {
   currentStep: number;
@@ -17,6 +19,7 @@ interface GradientDescentControlsProps {
   logLikelihood: number;
   learningRate: number;
   onLearningRateChange: (rate: number) => void;
+  gradientDescentHistory?: Gaussian2DHistoryStep[];
 }
 
 export default function GradientDescentControls({
@@ -32,9 +35,16 @@ export default function GradientDescentControls({
   onExit,
   logLikelihood,
   learningRate,
-  onLearningRateChange
+  onLearningRateChange,
+  gradientDescentHistory = []
 }: GradientDescentControlsProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  // Prepare convergence data
+  const convergenceData = gradientDescentHistory.map(step => ({
+    iteration: step.iteration,
+    value: step.logLikelihood
+  }));
 
   return (
     <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg mb-4 transition-colors" style={{ padding: isCollapsed ? '8px 16px' : '16px' }}>
@@ -170,6 +180,18 @@ export default function GradientDescentControls({
                   style={{ width: `${Math.min((currentStep / (totalSteps || 1)) * 100, 100)}%` }}
                 />
               </div>
+            </div>
+          )}
+          
+          {convergenceData.length > 1 && (
+            <div className="mt-4">
+              <ConvergenceChart
+                data={convergenceData}
+                mode={AlgorithmMode.GAUSSIAN_2D}
+                currentIteration={currentStep}
+                width={400}
+                height={180}
+              />
             </div>
           )}
         </>

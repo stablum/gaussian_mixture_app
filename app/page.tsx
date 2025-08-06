@@ -859,7 +859,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.6.8 - TESTS: Fixed Jest configuration for D3.js ES modules and component test contexts. All 252 unit tests now pass, resolving D3 module import errors and theme context mocking.
+                v3.6.9 - FEATURE: Added convergence visualization charts to all algorithm control panels. Log-likelihood/inertia progression charts help visualize optimization behavior and convergence patterns during 'Run to Convergence' operations.
               </div>
             </div>
             <ThemeToggle />
@@ -922,6 +922,7 @@ export default function Home() {
                   logLikelihood={gradientDescentState?.history[gradientDescentStep]?.logLikelihood || 0}
                   learningRate={learningRate}
                   onLearningRateChange={handleLearningRateChange}
+                  gradientDescentHistory={gradientDescentState?.history || []}
                 />
               )
             ) : algorithmMode === AlgorithmMode.GMM ? (
@@ -937,6 +938,7 @@ export default function Home() {
                 onStop={handleStop}
                 logLikelihood={currentLogLikelihood}
                 logLikelihoodState={logLikelihoodState}
+                gmmHistory={gmmHistory}
               />
             ) : (
               <KMeansControls
@@ -951,6 +953,7 @@ export default function Home() {
                 onStop={handleKMeansStop}
                 inertia={kmeansHistory[currentStep]?.inertia || 0}
                 logLikelihoodState={logLikelihoodState}
+                kmeansHistory={kmeansHistory}
               />
             )}
             
