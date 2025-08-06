@@ -885,7 +885,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.6.10 - TESTS: Added comprehensive test coverage for convergence chart feature. Includes unit tests for ConvergenceChart component and integration tests for all algorithm control panels with convergence visualization.
+                v3.7.0 - INTERACTIVE CHARTS: Added click navigation to convergence charts! Click on any point in the convergence progression charts to jump directly to that iteration. Works across all algorithm modes (GMM, K-means, 2D Gaussian). Enhanced user experience with visual feedback and tooltips.
               </div>
             </div>
             <ThemeToggle />
