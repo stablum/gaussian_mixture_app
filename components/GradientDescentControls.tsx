@@ -16,6 +16,7 @@ interface GradientDescentControlsProps {
   onRunToConvergence: () => void;
   onStop: () => void;
   onExit?: () => void;
+  onNavigateToStep?: (step: number) => void;
   logLikelihood: number;
   learningRate: number;
   onLearningRateChange: (rate: number) => void;
@@ -33,6 +34,7 @@ export default function GradientDescentControls({
   onRunToConvergence,
   onStop,
   onExit,
+  onNavigateToStep,
   logLikelihood,
   learningRate,
   onLearningRateChange,
@@ -191,6 +193,7 @@ export default function GradientDescentControls({
                 currentIteration={currentStep}
                 width={400}
                 height={180}
+                onIterationClick={onNavigateToStep}
               />
             </div>
           )}

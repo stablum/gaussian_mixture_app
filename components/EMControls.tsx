@@ -19,6 +19,7 @@ interface EMControlsProps {
   onReset: () => void;
   onRunToConvergence: () => void;
   onStop: () => void;
+  onNavigateToStep?: (step: number) => void;
   logLikelihood: number;
   logLikelihoodState?: LogLikelihoodState;
   gmmHistory?: GMMHistoryStep[];
@@ -34,6 +35,7 @@ export default function EMControls({
   onReset,
   onRunToConvergence,
   onStop,
+  onNavigateToStep,
   logLikelihood,
   logLikelihoodState,
   gmmHistory = []
@@ -146,6 +148,7 @@ export default function EMControls({
             currentIteration={currentStep}
             width={400}
             height={180}
+            onIterationClick={onNavigateToStep}
           />
         </div>
       )}

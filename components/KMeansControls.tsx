@@ -19,6 +19,7 @@ interface KMeansControlsProps {
   onReset: () => void;
   onRunToConvergence: () => void;
   onStop: () => void;
+  onNavigateToStep?: (step: number) => void;
   inertia: number;
   logLikelihoodState?: LogLikelihoodState;
   kmeansHistory?: KMeansHistoryStep[];
@@ -34,6 +35,7 @@ export default function KMeansControls({
   onReset,
   onRunToConvergence,
   onStop,
+  onNavigateToStep,
   inertia,
   logLikelihoodState,
   kmeansHistory = []
@@ -146,6 +148,7 @@ export default function KMeansControls({
             currentIteration={currentStep}
             width={400}
             height={180}
+            onIterationClick={onNavigateToStep}
           />
         </div>
       )}

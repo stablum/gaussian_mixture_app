@@ -13,6 +13,7 @@ interface ConvergenceChartProps {
   width?: number;
   height?: number;
   currentIteration?: number;
+  onIterationClick?: (iteration: number) => void;
 }
 
 export default function ConvergenceChart({ 
@@ -20,7 +21,8 @@ export default function ConvergenceChart({
   mode, 
   width = 400, 
   height = 200, 
-  currentIteration = 0 
+  currentIteration = 0,
+  onIterationClick
 }: ConvergenceChartProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [isCollapsed, setIsCollapsed] = useState(true);
@@ -147,7 +149,8 @@ export default function ConvergenceChart({
       .attr('cy', d => yScale(d.value))
       .attr('r', 3)
       .attr('fill', mode === AlgorithmMode.KMEANS ? '#f59e0b' : '#3b82f6')
-      .style('opacity', 0.8);
+      .style('opacity', 0.8)
+      .style('cursor', onIterationClick ? 'pointer' : 'default');
 
     // Highlight current iteration
     if (currentIteration >= 0 && currentIteration < data.length) {
@@ -175,19 +178,57 @@ export default function ConvergenceChart({
 
     g.selectAll('.dot')
       .on('mouseover', function(event, d: any) {
+        // Highlight the point on hover
+        d3.select(this)
+          .transition()
+          .duration(150)
+          .attr('r', 4)
+          .style('opacity', 1);
+          
         tooltip.transition().duration(200).style('opacity', .9);
-        tooltip.html(`Iteration: ${d.iteration}<br/>${getYAxisLabel()}: ${formatValue(d.value)}`)
+        const tooltipText = onIterationClick 
+          ? `Iteration: ${d.iteration}<br/>${getYAxisLabel()}: ${formatValue(d.value)}<br/><em>Click to navigate</em>`
+          : `Iteration: ${d.iteration}<br/>${getYAxisLabel()}: ${formatValue(d.value)}`;
+        tooltip.html(tooltipText)
           .style('left', (event.pageX + 10) + 'px')
           .style('top', (event.pageY - 28) + 'px');
       })
       .on('mouseout', function() {
+        // Reset point on mouse out (unless it's the current iteration)
+        const d = d3.select(this).datum() as any;
+        if (d.iteration !== data[currentIteration]?.iteration) {
+          d3.select(this)
+            .transition()
+            .duration(150)
+            .attr('r', 3)
+            .style('opacity', 0.8);
+        }
+        
         tooltip.transition().duration(500).style('opacity', 0);
+      })
+      .on('click', function(event, d: any) {
+        if (onIterationClick) {
+          // Find the index of the clicked iteration in the data array
+          const clickedIndex = data.findIndex(point => point.iteration === d.iteration);
+          if (clickedIndex >= 0) {
+            onIterationClick(clickedIndex);
+            
+            // Visual feedback for the click
+            d3.select(this)
+              .transition()
+              .duration(100)
+              .attr('r', 5)
+              .transition()
+              .duration(200)
+              .attr('r', 4);
+          }
+        }
       });
 
     return () => {
       d3.select('body').selectAll('.convergence-tooltip').remove();
     };
-  }, [data, width, height, currentIteration, mode, isCollapsed]);
+  }, [data, width, height, currentIteration, mode, isCollapsed, onIterationClick]);
 
   if (data.length === 0) {
     return null;

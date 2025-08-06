@@ -665,6 +665,32 @@ export default function Home() {
     }
   };
 
+  // Navigation handlers for chart click functionality
+  const handleNavigateToGMMStep = (step: number) => {
+    if (step >= 0 && step < gmmHistory.length) {
+      setCurrentStep(step);
+      setComponents(JSON.parse(JSON.stringify(gmmHistory[step].components)));
+    }
+  };
+
+  const handleNavigateToKMeansStep = (step: number) => {
+    if (step >= 0 && step < kmeansHistory.length) {
+      setCurrentStep(step);
+      setClusters(JSON.parse(JSON.stringify(kmeansHistory[step].clusters)));
+    }
+  };
+
+  const handleNavigateToGradientDescentStep = (step: number) => {
+    if (gradientDescentState && step >= 0 && step < gradientDescentState.history.length) {
+      setGradientDescentStep(step);
+      setCurrentStep(step);
+      const stepData = gradientDescentState.history[step];
+      if (stepData && stepData.gaussian) {
+        setGaussian2d(stepData.gaussian);
+      }
+    }
+  };
+
   const handleKMeansReset = () => {
     initializeKMeans(data as number[], clusters.length);
   };
@@ -919,6 +945,7 @@ export default function Home() {
                   onRunToConvergence={handleGradientDescentRunToConvergence}
                   onStop={handleGradientDescentStop}
                   onExit={handleExitGradientDescent}
+                  onNavigateToStep={handleNavigateToGradientDescentStep}
                   logLikelihood={gradientDescentState?.history[gradientDescentStep]?.logLikelihood || 0}
                   learningRate={learningRate}
                   onLearningRateChange={handleLearningRateChange}
@@ -936,6 +963,7 @@ export default function Home() {
                 onReset={handleReset}
                 onRunToConvergence={handleRunToConvergence}
                 onStop={handleStop}
+                onNavigateToStep={handleNavigateToGMMStep}
                 logLikelihood={currentLogLikelihood}
                 logLikelihoodState={logLikelihoodState}
                 gmmHistory={gmmHistory}
@@ -951,6 +979,7 @@ export default function Home() {
                 onReset={handleKMeansReset}
                 onRunToConvergence={handleKMeansRunToConvergence}
                 onStop={handleKMeansStop}
+                onNavigateToStep={handleNavigateToKMeansStep}
                 inertia={kmeansHistory[currentStep]?.inertia || 0}
                 logLikelihoodState={logLikelihoodState}
                 kmeansHistory={kmeansHistory}

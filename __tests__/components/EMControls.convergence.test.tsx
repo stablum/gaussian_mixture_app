@@ -8,12 +8,20 @@ import { GMMHistoryStep } from '@/lib/gmm';
 
 // Mock the ConvergenceChart component to focus on integration testing
 jest.mock('@/components/ConvergenceChart', () => {
-  return function MockConvergenceChart({ data, mode, currentIteration }: any) {
+  return function MockConvergenceChart({ data, mode, currentIteration, onIterationClick }: any) {
     return (
       <div data-testid="convergence-chart">
         <div data-testid="chart-data">{JSON.stringify(data)}</div>
         <div data-testid="chart-mode">{mode}</div>
         <div data-testid="chart-current-iteration">{currentIteration}</div>
+        {onIterationClick && (
+          <button 
+            data-testid="chart-click-handler"
+            onClick={() => onIterationClick(1)}
+          >
+            Navigate to iteration 1
+          </button>
+        )}
       </div>
     );
   };
@@ -262,6 +270,76 @@ describe('EMControls with Convergence Chart Integration', () => {
       expect(() => {
         render(<EMControls {...defaultProps} gmmHistory={malformedHistory} />);
       }).not.toThrow();
+    });
+  });
+
+  describe('Chart Click Navigation', () => {
+    it('should render chart click handler when onNavigateToStep is provided', () => {
+      const mockOnNavigateToStep = jest.fn();
+      
+      render(
+        <EMControls 
+          {...defaultProps} 
+          onNavigateToStep={mockOnNavigateToStep}
+        />
+      );
+
+      expect(screen.getByTestId('convergence-chart')).toBeInTheDocument();
+      expect(screen.getByTestId('chart-click-handler')).toBeInTheDocument();
+    });
+
+    it('should not render chart click handler when onNavigateToStep is not provided', () => {
+      render(<EMControls {...defaultProps} />);
+
+      expect(screen.getByTestId('convergence-chart')).toBeInTheDocument();
+      expect(screen.queryByTestId('chart-click-handler')).not.toBeInTheDocument();
+    });
+
+    it('should call onNavigateToStep when chart point is clicked', async () => {
+      const mockOnNavigateToStep = jest.fn();
+      const user = userEvent.setup();
+      
+      render(
+        <EMControls 
+          {...defaultProps} 
+          onNavigateToStep={mockOnNavigateToStep}
+        />
+      );
+
+      const clickHandler = screen.getByTestId('chart-click-handler');
+      await user.click(clickHandler);
+
+      expect(mockOnNavigateToStep).toHaveBeenCalledWith(1);
+    });
+
+    it('should handle navigation while EM algorithm is running', () => {
+      const mockOnNavigateToStep = jest.fn();
+      
+      render(
+        <EMControls 
+          {...defaultProps} 
+          isRunning={true}
+          onNavigateToStep={mockOnNavigateToStep}
+        />
+      );
+
+      // Chart should still be interactive even when algorithm is running
+      expect(screen.getByTestId('chart-click-handler')).toBeInTheDocument();
+      expect(mockOnNavigateToStep).toBeDefined();
+    });
+
+    it('should pass correct onIterationClick prop to ConvergenceChart', () => {
+      const mockOnNavigateToStep = jest.fn();
+      
+      render(
+        <EMControls 
+          {...defaultProps} 
+          onNavigateToStep={mockOnNavigateToStep}
+        />
+      );
+
+      // The mock ConvergenceChart should render the click handler
+      expect(screen.getByTestId('chart-click-handler')).toBeInTheDocument();
     });
   });
 });
