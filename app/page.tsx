@@ -885,7 +885,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.7.0 - INTERACTIVE CHARTS: Added click navigation to convergence charts! Click on any point in the convergence progression charts to jump directly to that iteration. Works across all algorithm modes (GMM, K-means, 2D Gaussian). Enhanced user experience with visual feedback and tooltips.
+                v3.8.0 - MODERN UI: Replaced checkboxes with beautiful slide switches! Panel titles are now clickable to expand/collapse. Much darker theme for better contrast and reduced eye strain. Enhanced user experience with colored switches and improved accessibility.
               </div>
             </div>
             <ThemeToggle />
