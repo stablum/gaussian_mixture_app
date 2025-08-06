@@ -55,14 +55,35 @@ export default function Chart2D({
     // Check if dark mode is active
     const isDarkMode = document.documentElement.classList.contains('dark');
 
-    // Calculate data extent with some padding
-    const xExtent = d3.extent(data, d => d.x) as [number, number];
-    const yExtent = d3.extent(data, d => d.y) as [number, number];
+    // Calculate domain including data points and Gaussian mean position
+    const xValues = data.map(d => d.x);
+    const yValues = data.map(d => d.y);
+    
+    // Include Gaussian mean position if available
+    if (gaussian) {
+      xValues.push(gaussian.mu.x);
+      yValues.push(gaussian.mu.y);
+    }
+    
+    const xExtent = d3.extent(xValues) as [number, number];
+    const yExtent = d3.extent(yValues) as [number, number];
     
     const xRange = xExtent[1] - xExtent[0];
     const yRange = yExtent[1] - yExtent[0];
-    const xPadding = Math.max(0.1, xRange * 0.1);
-    const yPadding = Math.max(0.1, yRange * 0.1);
+    
+    // Handle edge cases for very small ranges or identical values
+    let xPadding, yPadding;
+    if (xRange < 0.01) {
+      xPadding = 1; // Fixed padding for very small or zero range
+    } else {
+      xPadding = Math.max(0.5, xRange * 0.15);
+    }
+    
+    if (yRange < 0.01) {
+      yPadding = 1; // Fixed padding for very small or zero range  
+    } else {
+      yPadding = Math.max(0.5, yRange * 0.15);
+    }
 
     const xScale = d3.scaleLinear()
       .domain([xExtent[0] - xPadding, xExtent[1] + xPadding])

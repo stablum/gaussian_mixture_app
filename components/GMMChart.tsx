@@ -76,10 +76,42 @@ export default function GMMChart({
     const isKMeans = mode === AlgorithmMode.KMEANS;
     const elementCount = isKMeans ? clusters.length : components.length;
 
+    // Calculate domain including data points and component/cluster positions
     const dataExtent = d3.extent(data) as [number, number];
-    const dataRange = dataExtent[1] - dataExtent[0];
-    const xMin = dataExtent[0] - dataRange * 0.1;
-    const xMax = dataExtent[1] + dataRange * 0.1;
+    
+    // Collect all parameter positions that should be visible
+    let allValues = [...data];
+    
+    if (isKMeans && clusters.length > 0) {
+      // Include cluster centroids
+      const centroids = clusters
+        .map(cluster => cluster.centroid)
+        .filter(centroid => centroid !== undefined && !isNaN(centroid));
+      allValues.push(...centroids);
+    } else if (!isKMeans && components.length > 0) {
+      // Include GMM component means
+      const componentMeans = components
+        .map(comp => comp.mu)
+        .filter(mu => mu !== undefined && !isNaN(mu));
+      allValues.push(...componentMeans);
+    }
+    
+    // Calculate extended domain to ensure all parameters are visible
+    const fullExtent = d3.extent(allValues) as [number, number];
+    const fullRange = fullExtent[1] - fullExtent[0];
+    
+    // Handle edge cases: very small range or identical values
+    let padding;
+    if (fullRange < 0.01) {
+      // When all values are very close or identical, use a fixed padding
+      padding = 2;
+    } else {
+      // Normal case: use proportional padding with minimum
+      padding = Math.max(fullRange * 0.15, 0.5);
+    }
+    
+    const xMin = fullExtent[0] - padding;
+    const xMax = fullExtent[1] + padding;
 
     const xScale = d3.scaleLinear()
       .domain([xMin, xMax])

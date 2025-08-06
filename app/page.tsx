@@ -885,7 +885,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.9.1 - INPUT FIX: Fixed parameter input typing issues! You can now type negative numbers like '-1.0' and decimals like '1.5' without interruption. New NumericInput component handles intermediate states properly and only updates on valid values or blur/Enter.
+                v3.9.2 - CHART AUTO-SCALING: Charts now automatically adjust scope when parameters move outside visible area! Both 1D and 2D charts dynamically expand to show all component means, centroids, and Gaussian positions with intelligent padding.
               </div>
             </div>
             <ThemeToggle />
