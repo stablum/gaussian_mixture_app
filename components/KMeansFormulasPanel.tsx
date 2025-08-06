@@ -1,22 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import 'katex/dist/katex.min.css';
 import { InlineMath, BlockMath } from 'react-katex';
-import CollapsiblePanel from './ui/CollapsiblePanel';
+import TabbedFormulaPanel from './ui/TabbedFormulaPanel';
+import type { FormulaSection } from './ui/TabbedFormulaPanel';
 
 interface KMeansFormulasPanelProps {
   clusterCount: number;
 }
 
 export default function KMeansFormulasPanel({ clusterCount }: KMeansFormulasPanelProps) {
-  const [activeSection, setActiveSection] = useState<'algorithm' | 'objective' | 'metrics'>('algorithm');
-
-  const sections = [
-    { id: 'algorithm', label: 'Algorithm', icon: '🔄' },
-    { id: 'objective', label: 'Objective Function', icon: '🎯' },
-    { id: 'metrics', label: 'Evaluation Metrics', icon: '📊' }
-  ] as const;
 
   const renderAlgorithmFormulas = () => (
     <div className="space-y-4">
@@ -154,33 +148,20 @@ export default function KMeansFormulasPanel({ clusterCount }: KMeansFormulasPane
     </div>
   );
 
+  const sections: FormulaSection[] = [
+    { id: 'algorithm', label: 'Algorithm', icon: '🔄', content: renderAlgorithmFormulas() },
+    { id: 'objective', label: 'Objective Function', icon: '🎯', content: renderObjectiveFormulas() },
+    { id: 'metrics', label: 'Evaluation Metrics', icon: '📊', content: renderMetricsFormulas() }
+  ];
+
   return (
-    <CollapsiblePanel 
+    <TabbedFormulaPanel
       title="K-Means Formulation"
       subtitle={`k = ${clusterCount} clusters`}
-    >
-      <nav className="flex border-b border-gray-200 dark:border-gray-600 mb-4">
-        {sections.map((section) => (
-          <button
-            key={section.id}
-            onClick={() => setActiveSection(section.id)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-              activeSection === section.id
-                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-            }`}
-          >
-            <span className="mr-1">{section.icon}</span>
-            {section.label}
-          </button>
-        ))}
-      </nav>
-
-      <div className="overflow-y-auto max-h-96">
-        {activeSection === 'algorithm' && renderAlgorithmFormulas()}
-        {activeSection === 'objective' && renderObjectiveFormulas()}
-        {activeSection === 'metrics' && renderMetricsFormulas()}
-      </div>
-    </CollapsiblePanel>
+      sections={sections}
+      defaultSection="algorithm"
+      tabStyle="underline"
+      maxHeight="24rem"
+    />
   );
 }

@@ -1,18 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import 'katex/dist/katex.min.css';
 import { InlineMath, BlockMath } from 'react-katex';
-import CollapsiblePanel from './ui/CollapsiblePanel';
+import TabbedFormulaPanel from './ui/TabbedFormulaPanel';
+import type { FormulaSection } from './ui/TabbedFormulaPanel';
 
 export default function Gaussian2DFormulasPanel() {
-  const [activeSection, setActiveSection] = useState<'distribution' | 'mle' | 'gradients'>('distribution');
-
-  const sections = [
-    { id: 'distribution', label: 'Distribution', icon: '📊' },
-    { id: 'mle', label: 'MLE & Stats', icon: '🎯' },
-    { id: 'gradients', label: 'Optimization', icon: '📈' }
-  ] as const;
 
   const renderDistributionFormulas = () => (
     <div className="space-y-4">
@@ -233,42 +227,27 @@ export default function Gaussian2DFormulasPanel() {
     </div>
   );
 
+  const sections: FormulaSection[] = [
+    { id: 'distribution', label: 'Distribution', icon: '📊', content: renderDistributionFormulas() },
+    { id: 'mle', label: 'MLE & Stats', icon: '🎯', content: renderMLEFormulas() },
+    { id: 'gradients', label: 'Optimization', icon: '📈', content: renderGradientFormulas() }
+  ];
+
   return (
-    <CollapsiblePanel 
+    <TabbedFormulaPanel
       title="2D Gaussian Mathematical Formulas"
       subtitle="Multivariate normal distribution theory"
-    >
-      {/* Section tabs */}
-      <div className="flex space-x-1 mb-4 bg-gray-100 dark:bg-gray-800 p-1 rounded transition-colors">
-        {sections.map((section) => (
-          <button
-            key={section.id}
-            onClick={() => setActiveSection(section.id)}
-            className={`flex-1 px-3 py-2 text-sm font-medium rounded transition-colors ${
-              activeSection === section.id
-                ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
-                : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100'
-            }`}
-          >
-            <span className="mr-1">{section.icon}</span>
-            {section.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Content */}
-      <div className="min-h-[400px]">
-        {activeSection === 'distribution' && renderDistributionFormulas()}
-        {activeSection === 'mle' && renderMLEFormulas()}
-        {activeSection === 'gradients' && renderGradientFormulas()}
-      </div>
-
-      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600 text-xs text-gray-600 dark:text-gray-400 transition-colors">
-        <p><strong>Interactive:</strong> Hover over the chart to see probability density and distance values!</p>
-        <div className="mt-2">
-          Mathematical notation follows Bishop's "Pattern Recognition and Machine Learning" (2006)
+      sections={sections}
+      defaultSection="distribution"
+      tabStyle="pills"
+      footer={
+        <div>
+          <p><strong>Interactive:</strong> Hover over the chart to see probability density and distance values!</p>
+          <div className="mt-2">
+            Mathematical notation follows Bishop's "Pattern Recognition and Machine Learning" (2006)
+          </div>
         </div>
-      </div>
-    </CollapsiblePanel>
+      }
+    />
   );
 }

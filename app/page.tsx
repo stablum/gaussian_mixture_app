@@ -873,7 +873,7 @@ export default function Home() {
   
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-6 transition-colors">
+    <div className="min-h-screen bg-gray-50 dark:bg-black p-6 transition-colors">
       <div className="max-w-7xl mx-auto">
         <header className="mb-6">
           <div className="flex justify-between items-start mb-4">
@@ -885,7 +885,7 @@ export default function Home() {
                 Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.8.0 - MODERN UI: Replaced checkboxes with beautiful slide switches! Panel titles are now clickable to expand/collapse. Much darker theme for better contrast and reduced eye strain. Enhanced user experience with colored switches and improved accessibility.
+                v3.9.0 - CODE REFACTORING: Major refactoring eliminating code duplication with new abstraction components. Created TabbedFormulaPanel and AlgorithmControlsBase for better maintainability. All panels now consistently use CollapsiblePanel for unified behavior. Comprehensive unit tests added for new components.
               </div>
             </div>
             <ThemeToggle />

@@ -3,6 +3,7 @@
 import React, { useRef, useState } from 'react';
 import { parseCSV2D, generateSampleData2D, SampleData2DConfig } from '@/lib/csvParser';
 import { Point2D } from '@/lib/gaussian2d';
+import CollapsiblePanel from './ui/CollapsiblePanel';
 
 interface FileUpload2DProps {
   onDataLoad: (data: Point2D[]) => void;
@@ -11,7 +12,6 @@ interface FileUpload2DProps {
 export default function FileUpload2D({ onDataLoad }: FileUpload2DProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const [sampleConfig, setSampleConfig] = useState<Partial<SampleData2DConfig>>({
     totalPoints: 100,
     preset: 'correlated'
@@ -69,29 +69,10 @@ export default function FileUpload2D({ onDataLoad }: FileUpload2DProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg mb-4 transition-colors" style={{ padding: isCollapsed ? '8px 16px' : '16px' }}>
-      <div className={`flex justify-between items-center ${isCollapsed ? 'mb-0' : 'mb-4'}`}>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">2D Data Input</h3>
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-          title={isCollapsed ? "Expand panel" : "Collapse panel"}
-        >
-          <svg
-            className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform ${
-              isCollapsed ? 'rotate-180' : ''
-            }`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-      </div>
-      
-      {!isCollapsed && (
-        <>
+    <CollapsiblePanel 
+      title="2D Data Input"
+      className="mb-4"
+    >
           <div className="flex gap-4 items-center mb-4">
             <div>
               <input
@@ -240,8 +221,6 @@ export default function FileUpload2D({ onDataLoad }: FileUpload2DProps) {
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
             Upload a CSV file with 2D data (x,y format) or generate sample 2D data from various multivariate normal distributions.
           </p>
-        </>
-      )}
-    </div>
+    </CollapsiblePanel>
   );
 }

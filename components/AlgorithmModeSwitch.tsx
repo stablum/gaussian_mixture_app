@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { AlgorithmMode, ALGORITHM_LABELS, ALGORITHM_DESCRIPTIONS } from '@/lib/algorithmTypes';
+import CollapsiblePanel from './ui/CollapsiblePanel';
 
 interface AlgorithmModeSwitchProps {
   currentMode: AlgorithmMode;
@@ -9,39 +10,12 @@ interface AlgorithmModeSwitchProps {
 }
 
 export default function AlgorithmModeSwitch({ currentMode, onModeChange }: AlgorithmModeSwitchProps) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg mb-4 transition-colors" style={{ padding: isCollapsed ? '8px 16px' : '16px' }}>
-      <div className={`flex justify-between items-center ${isCollapsed ? 'mb-0' : 'mb-3'}`}>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Algorithm Mode</h3>
-        <div className="flex items-center gap-3">
-          {isCollapsed && (
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              {ALGORITHM_LABELS[currentMode]}
-            </span>
-          )}
-          <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-            title={isCollapsed ? "Expand panel" : "Collapse panel"}
-          >
-            <svg
-              className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform ${
-                isCollapsed ? 'rotate-180' : ''
-              }`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-        </div>
-      </div>
-      
-      {!isCollapsed && (
-        <>
+    <CollapsiblePanel 
+      title="Algorithm Mode"
+      subtitle={ALGORITHM_LABELS[currentMode]}
+      className="mb-4"
+    >
           <div className="flex gap-3">
             {Object.values(AlgorithmMode).map((mode) => (
               <button
@@ -68,8 +42,6 @@ export default function AlgorithmModeSwitch({ currentMode, onModeChange }: Algor
           <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
             <strong>Current:</strong> {ALGORITHM_LABELS[currentMode]}
           </div>
-        </>
-      )}
-    </div>
+    </CollapsiblePanel>
   );
 }

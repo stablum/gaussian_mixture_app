@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Gaussian2D } from '@/lib/gaussian2d';
 import LogLikelihoodIndicator from './LogLikelihoodIndicator';
 import { LogLikelihoodState } from '@/hooks/useLogLikelihoodUpdater';
+import CollapsiblePanel from './ui/CollapsiblePanel';
 
 interface Gaussian2DControlsProps {
   gaussian?: Gaussian2D | null;
@@ -24,33 +25,11 @@ export default function Gaussian2DControls({
   showGradientDescent = true,
   logLikelihoodState
 }: Gaussian2DControlsProps) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg mb-4 transition-colors" style={{ padding: isCollapsed ? '8px 16px' : '16px' }}>
-      <div className={`flex justify-between items-center ${isCollapsed ? 'mb-0' : 'mb-4'}`}>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-          2D Gaussian Controls
-        </h3>
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-          title={isCollapsed ? "Expand panel" : "Collapse panel"}
-        >
-          <svg
-            className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform ${
-              isCollapsed ? 'rotate-180' : ''
-            }`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-      </div>
-      
-      {!isCollapsed && (
+    <CollapsiblePanel 
+      title="2D Gaussian Controls"
+      className="mb-4"
+    >
         <div className="space-y-4">
           {/* Fitting methods */}
           <div className="space-y-2">
@@ -141,7 +120,6 @@ export default function Gaussian2DControls({
             </ul>
           </div>
         </div>
-      )}
-    </div>
+    </CollapsiblePanel>
   );
 }

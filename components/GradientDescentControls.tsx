@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import ConvergenceChart from './ConvergenceChart';
 import { Gaussian2DHistoryStep } from '@/lib/gaussian2d';
 import { AlgorithmMode } from '@/lib/algorithmTypes';
+import CollapsiblePanel from './ui/CollapsiblePanel';
 
 interface GradientDescentControlsProps {
   currentStep: number;
@@ -40,8 +41,6 @@ export default function GradientDescentControls({
   onLearningRateChange,
   gradientDescentHistory = []
 }: GradientDescentControlsProps) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
   // Prepare convergence data
   const convergenceData = gradientDescentHistory.map(step => ({
     iteration: step.iteration,
@@ -49,35 +48,10 @@ export default function GradientDescentControls({
   }));
 
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg mb-4 transition-colors" style={{ padding: isCollapsed ? '8px 16px' : '16px' }}>
-      <div className={`flex justify-between items-center ${isCollapsed ? 'mb-0' : 'mb-4'}`}>
-        <button 
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="flex-1 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md p-1 -m-1 transition-colors"
-          title={isCollapsed ? "Expand panel" : "Collapse panel"}
-        >
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Gradient Descent Controls</h3>
-        </button>
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-          title={isCollapsed ? "Expand panel" : "Collapse panel"}
-        >
-          <svg
-            className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform ${
-              isCollapsed ? 'rotate-180' : ''
-            }`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-      </div>
-      
-      {!isCollapsed && (
-        <>
+    <CollapsiblePanel 
+      title="Gradient Descent Controls"
+      className="mb-4"
+    >
           {/* Learning Rate Control */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -203,8 +177,6 @@ export default function GradientDescentControls({
               />
             </div>
           )}
-        </>
-      )}
-    </div>
+    </CollapsiblePanel>
   );
 }
