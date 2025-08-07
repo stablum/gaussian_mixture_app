@@ -885,7 +885,7 @@ export default function Home() {
                 Interactive tool for exploring 2D Gaussian fitting, K-means clustering, and 1D Gaussian mixture models
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.11.1 - HOVER FIX: Fixed 2D Gaussian hover functionality - now shows query point info even before Gaussian is fitted. Cursor position and placeholders display immediately on chart hover.
+                v3.11.2 - HOVER FIX: Improved 2D Gaussian hover robustness - fixed z-index ordering and event propagation issues that prevented hover from working properly. Hover circle now more visible with white outline.
               </div>
             </div>
             <ThemeToggle />

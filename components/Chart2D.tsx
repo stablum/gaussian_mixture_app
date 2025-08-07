@@ -252,8 +252,9 @@ export default function Chart2D({
         if (onGaussianDrag) {
           const dragBehavior = d3.drag<SVGCircleElement, unknown>()
             .container(g.node()!)
-            .on('start', function() {
+            .on('start', function(event) {
               setIsDragging(true);
+              event.sourceEvent.stopPropagation(); // Prevent interference with hover
             })
             .on('drag', function(event) {
               const newMu: Point2D = {
@@ -273,8 +274,9 @@ export default function Chart2D({
               
               onGaussianDrag(newMu);
             })
-            .on('end', function() {
+            .on('end', function(event) {
               setIsDragging(false);
+              event.sourceEvent.stopPropagation(); // Prevent interference with hover
             });
 
           meanHandle.call(dragBehavior);
@@ -405,16 +407,19 @@ export default function Chart2D({
 
     // Add hover functionality
     if (onHover) {
-      const hoverRect = g.insert('rect', ':first-child')
+      const hoverRect = g.append('rect') // Changed from insert to append to be on top
         .attr('width', chartWidth)
         .attr('height', chartHeight)
         .attr('fill', 'none')
         .attr('pointer-events', 'all')
-        .style('cursor', 'crosshair');
+        .style('cursor', 'crosshair')
+        .style('z-index', '1000'); // Ensure it's on top
 
       const hoverCircle = g.append('circle')
-        .attr('r', 3)
+        .attr('r', 5) // Slightly larger to be more visible
         .attr('fill', 'red')
+        .attr('stroke', 'white')
+        .attr('stroke-width', 2)
         .attr('opacity', 0);
 
       hoverRect
@@ -426,6 +431,7 @@ export default function Chart2D({
             x: xScale.invert(mouseX),
             y: yScale.invert(mouseY)
           };
+          
           
           hoverCircle
             .attr('cx', mouseX)
