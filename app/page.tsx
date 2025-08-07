@@ -752,15 +752,19 @@ export default function Home() {
 
   const handleHover = (x: number | Point2D, info: any) => {
     try {
+      console.log('Page: handleHover called with:', { x, info, mode: algorithmMode });
       if (info) {
         if (info.error) {
+          console.log('Page: Setting error:', info.error);
           setError(info.error);
           setHoverInfo(null);
         } else {
+          console.log('Page: Setting hoverInfo:', { x, ...info });
           setHoverInfo({ x, ...info });
           setError(null); // Clear any previous errors
         }
       } else {
+        console.log('Page: Clearing hoverInfo');
         setHoverInfo(null);
         setError(null);
       }
@@ -885,7 +889,7 @@ export default function Home() {
                 Interactive tool for exploring 2D Gaussian fitting, K-means clustering, and 1D Gaussian mixture models
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.11.3 - HOVER FIX: Fixed 2D Gaussian hover display panel - ParameterPanel now shows hover information immediately when in 2D mode with helpful placeholder messages. Improved null safety and user experience.
+                v3.11.4 - DEBUG: Added comprehensive debug logging to trace 2D hover events. Console logs will show mouse events, coordinate calculations, and data flow. Use browser dev tools console to see debug output.
               </div>
             </div>
             <ThemeToggle />

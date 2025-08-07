@@ -407,6 +407,7 @@ export default function Chart2D({
 
     // Add hover functionality
     if (onHover) {
+      console.log('Chart2D: Setting up hover functionality. onHover type:', typeof onHover);
       const hoverRect = g.append('rect') // Changed from insert to append to be on top
         .attr('width', chartWidth)
         .attr('height', chartHeight)
@@ -414,6 +415,8 @@ export default function Chart2D({
         .attr('pointer-events', 'all')
         .style('cursor', 'crosshair')
         .style('z-index', '1000'); // Ensure it's on top
+      
+      console.log('Chart2D: Hover rect created with dimensions:', { chartWidth, chartHeight });
 
       const hoverCircle = g.append('circle')
         .attr('r', 5) // Slightly larger to be more visible
@@ -424,6 +427,7 @@ export default function Chart2D({
 
       hoverRect
         .on('mousemove', function(event) {
+          console.log('Chart2D: Mouse move detected. isDragging:', isDragging);
           if (isDragging) return;
           
           const [mouseX, mouseY] = d3.pointer(event);
@@ -432,6 +436,7 @@ export default function Chart2D({
             y: yScale.invert(mouseY)
           };
           
+          console.log('Chart2D: Calculated point:', point, 'mouse coords:', { mouseX, mouseY });
           
           hoverCircle
             .attr('cx', mouseX)
@@ -456,6 +461,7 @@ export default function Chart2D({
                 mahalanobisDistance = Math.sqrt(Math.max(0, mahalanobisSq));
               }
               
+              console.log('Chart2D: Calling onHover with Gaussian data:', { point, density, mahalanobisDistance });
               onHover(point, { 
                 density, 
                 mahalanobisDistance,
@@ -467,6 +473,7 @@ export default function Chart2D({
             }
           } else {
             // Show basic position information even without fitted Gaussian
+            console.log('Chart2D: Calling onHover without Gaussian, point:', point);
             onHover(point, { 
               density: undefined,
               mahalanobisDistance: undefined,
