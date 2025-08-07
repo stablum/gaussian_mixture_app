@@ -885,7 +885,7 @@ export default function Home() {
                 Interactive tool for exploring 2D Gaussian fitting, K-means clustering, and 1D Gaussian mixture models
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.11.0 - CODE REFACTORING: Abstracted FileUpload components using DRY principles. Created FileUploadBase generic component to eliminate code duplication between 1D and 2D upload components.
+                v3.11.1 - HOVER FIX: Fixed 2D Gaussian hover functionality - now shows query point info even before Gaussian is fitted. Cursor position and placeholders display immediately on chart hover.
               </div>
             </div>
             <ThemeToggle />

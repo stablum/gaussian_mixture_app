@@ -460,7 +460,12 @@ export default function Chart2D({
               onHover(point, { error: 'Failed to calculate density' });
             }
           } else {
-            onHover(point, null);
+            // Show basic position information even without fitted Gaussian
+            onHover(point, { 
+              density: undefined,
+              mahalanobisDistance: undefined,
+              euclideanDistance: undefined
+            });
           }
         })
         .on('mouseleave', function() {

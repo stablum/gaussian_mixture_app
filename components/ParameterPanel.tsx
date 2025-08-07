@@ -295,29 +295,46 @@ export default function ParameterPanel({
               </h4>
               
               <div className="space-y-2 text-sm text-gray-900 dark:text-gray-100">
-                {isGaussian2D && hoverInfo.density !== undefined ? (
+                {isGaussian2D ? (
                   // 2D Gaussian hover info
                   <>
-                    <div>
-                      <span className="font-medium">Probability Density:</span>
-                      <span className="ml-2 font-mono">{hoverInfo.density.toFixed(6)}</span>
-                    </div>
+                    {hoverInfo.density !== undefined ? (
+                      <div>
+                        <span className="font-medium">Probability Density:</span>
+                        <span className="ml-2 font-mono">{hoverInfo.density.toFixed(6)}</span>
+                      </div>
+                    ) : (
+                      <div>
+                        <span className="font-medium">Probability Density:</span>
+                        <span className="ml-2 font-mono text-gray-500 dark:text-gray-400">Fit Gaussian first</span>
+                      </div>
+                    )}
                     
-                    {hoverInfo.euclideanDistance !== undefined && (
+                    {hoverInfo.euclideanDistance !== undefined ? (
                       <div>
                         <span className="font-medium">Euclidean Distance:</span>
                         <span className="ml-2 font-mono">{hoverInfo.euclideanDistance.toFixed(3)}</span>
                       </div>
+                    ) : gaussian2d && (
+                      <div>
+                        <span className="font-medium">Euclidean Distance:</span>
+                        <span className="ml-2 font-mono text-gray-500 dark:text-gray-400">Fit Gaussian first</span>
+                      </div>
                     )}
                     
-                    {hoverInfo.mahalanobisDistance !== undefined && (
+                    {hoverInfo.mahalanobisDistance !== undefined ? (
                       <div>
                         <span className="font-medium">Mahalanobis Distance:</span>
                         <span className="ml-2 font-mono">{hoverInfo.mahalanobisDistance.toFixed(3)}</span>
                       </div>
+                    ) : gaussian2d && (
+                      <div>
+                        <span className="font-medium">Mahalanobis Distance:</span>
+                        <span className="ml-2 font-mono text-gray-500 dark:text-gray-400">Fit Gaussian first</span>
+                      </div>
                     )}
                     
-                    {gaussian2d && (
+                    {gaussian2d && hoverInfo.density !== undefined && (
                       <>
                         <div>
                           <span className="font-medium">Relative Density:</span>
@@ -336,6 +353,14 @@ export default function ParameterPanel({
                           Mahalanobis distance accounts for correlation and scale
                         </div>
                       </>
+                    )}
+                    
+                    {!gaussian2d && (
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                        Fit a Gaussian distribution to see density and distance calculations.
+                        <br />
+                        Generate 2D sample data first, then click "Fit Gaussian (MLE)".
+                      </div>
                     )}
                   </>
                 ) : isKMeans && hoverInfo.clusterDistances && Array.isArray(hoverInfo.clusterDistances) && hoverInfo.clusterDistances.length > 0 ? (
