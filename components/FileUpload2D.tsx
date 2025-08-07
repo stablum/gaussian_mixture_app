@@ -4,6 +4,7 @@ import React, { useRef, useState } from 'react';
 import { parseCSV2D, generateSampleData2D, SampleData2DConfig } from '@/lib/csvParser';
 import { Point2D } from '@/lib/gaussian2d';
 import CollapsiblePanel from './ui/CollapsiblePanel';
+import Button from './ui/Button';
 
 interface FileUpload2DProps {
   onDataLoad: (data: Point2D[]) => void;
@@ -82,29 +83,32 @@ export default function FileUpload2D({ onDataLoad }: FileUpload2DProps) {
                 onChange={handleFileUpload}
                 className="hidden"
               />
-              <button
+              <Button
                 onClick={() => fileInputRef.current?.click()}
-                className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors"
+                variant="primary"
+                size="lg"
               >
                 Upload 2D CSV File
-              </button>
+              </Button>
             </div>
             
             <span className="text-gray-500 dark:text-gray-400">or</span>
             
             <div className="flex gap-2">
-              <button
+              <Button
                 onClick={handleGenerateSample}
-                className="px-4 py-2 bg-green-500 dark:bg-green-600 text-white rounded hover:bg-green-600 dark:hover:bg-green-700 transition-colors"
+                variant="success"
+                size="lg"
               >
                 Generate 2D Sample Data
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => setShowAdvanced(!showAdvanced)}
-                className="px-3 py-2 bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors text-sm"
+                variant="gray"
+                size="sm"
               >
                 {showAdvanced ? '▲' : '▼'} Options
-              </button>
+              </Button>
             </div>
           </div>
 

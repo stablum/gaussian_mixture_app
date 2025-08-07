@@ -19,7 +19,7 @@ interface ConvergenceChartProps {
 export default function ConvergenceChart({ 
   data, 
   mode, 
-  width = 400, 
+  width = 600, 
   height = 200, 
   currentIteration = 0,
   onIterationClick
@@ -316,8 +316,9 @@ export default function ConvergenceChart({
         <div className="p-3">
           <svg 
             ref={svgRef} 
-            width={width} 
+            width="100%" 
             height={height}
+            viewBox={`0 0 ${width} ${height}`}
             className="w-full max-w-full text-gray-600 dark:text-gray-400"
           />
           <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">

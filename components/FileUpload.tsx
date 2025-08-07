@@ -3,6 +3,8 @@
 import React, { useRef, useState } from 'react';
 import { parseCSV, generateSampleData, generateSampleDataWithInfo, SampleDataConfig, GeneratedDataInfo } from '@/lib/csvParser';
 import CollapsiblePanel from './ui/CollapsiblePanel';
+import Button from './ui/Button';
+import FormInput, { FormLabel } from './ui/FormInput';
 
 interface FileUploadProps {
   onDataLoad: (data: number[]) => void;
@@ -92,29 +94,32 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
             onChange={handleFileUpload}
             className="hidden"
           />
-          <button
+          <Button
             onClick={() => fileInputRef.current?.click()}
-            className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors"
+            variant="primary"
+            size="lg"
           >
             Upload CSV File
-          </button>
+          </Button>
         </div>
         
         <span className="text-gray-500 dark:text-gray-400">or</span>
         
         <div className="flex gap-2">
-          <button
+          <Button
             onClick={handleGenerateSample}
-            className="px-4 py-2 bg-green-500 dark:bg-green-600 text-white rounded hover:bg-green-600 dark:hover:bg-green-700 transition-colors"
+            variant="success"
+            size="lg"
           >
             Generate Sample Data
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setShowAdvanced(!showAdvanced)}
-            className="px-3 py-2 bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors text-sm"
+            variant="gray"
+            size="sm"
           >
             {showAdvanced ? '▲' : '▼'} Options
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -122,32 +127,29 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
         <div className="border-t dark:border-gray-600 pt-4 space-y-4 bg-gray-50 dark:bg-gray-800 -mx-4 -mb-4 px-4 pb-4 rounded-b-lg transition-colors">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Number of Data Points
-              </label>
-              <input
+              <FormLabel>Number of Data Points</FormLabel>
+              <FormInput
                 type="number"
                 min="10"
                 max="1000"
-                value={sampleConfig.totalPoints}
-                onChange={(e) => setSampleConfig({...sampleConfig, totalPoints: parseInt(e.target.value)})}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors"
+                value={sampleConfig.totalPoints || 100}
+                onChange={(value) => setSampleConfig({...sampleConfig, totalPoints: parseInt(value)})}
+                size="md"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Distribution Preset
-              </label>
-              <select
-                value={sampleConfig.preset}
-                onChange={(e) => setSampleConfig({...sampleConfig, preset: e.target.value as any})}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors"
+              <FormLabel>Distribution Preset</FormLabel>
+              <FormInput
+                type="select"
+                value={sampleConfig.preset || 'bimodal'}
+                onChange={(value) => setSampleConfig({...sampleConfig, preset: value as any})}
+                size="md"
               >
                 {Object.entries(presetDescriptions).map(([key, desc]) => (
                   <option key={key} value={key}>{key} - {desc}</option>
                 ))}
-              </select>
+              </FormInput>
             </div>
           </div>
 
@@ -157,56 +159,60 @@ export default function FileUpload({ onDataLoad }: FileUploadProps) {
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Custom Components
                 </label>
-                <button
+                <Button
                   onClick={addCustomComponent}
-                  className="px-2 py-1 bg-blue-500 dark:bg-blue-600 text-white text-xs rounded hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors"
+                  variant="primary"
+                  size="sm"
+                  className="text-xs"
                 >
                   + Add Component
-                </button>
+                </Button>
               </div>
               
               <div className="space-y-2">
                 {customComponents.map((comp, index) => (
                   <div key={index} className="flex gap-2 items-center p-2 bg-white dark:bg-gray-900 rounded border border-gray-200 dark:border-gray-600 transition-colors">
                     <div className="flex-1">
-                      <label className="text-xs text-gray-600 dark:text-gray-400">Mean</label>
-                      <input
+                      <FormLabel size="xs">Mean</FormLabel>
+                      <FormInput
                         type="number"
                         step="0.1"
                         value={comp.mean}
-                        onChange={(e) => updateCustomComponent(index, 'mean', parseFloat(e.target.value))}
-                        className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
+                        onChange={(value) => updateCustomComponent(index, 'mean', parseFloat(value))}
+                        size="sm"
                       />
                     </div>
                     <div className="flex-1">
-                      <label className="text-xs text-gray-600 dark:text-gray-400">Std Dev</label>
-                      <input
+                      <FormLabel size="xs">Std Dev</FormLabel>
+                      <FormInput
                         type="number"
                         step="0.1"
                         min="0.1"
                         value={comp.stdDev}
-                        onChange={(e) => updateCustomComponent(index, 'stdDev', parseFloat(e.target.value))}
-                        className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
+                        onChange={(value) => updateCustomComponent(index, 'stdDev', parseFloat(value))}
+                        size="sm"
                       />
                     </div>
                     <div className="flex-1">
-                      <label className="text-xs text-gray-600 dark:text-gray-400">Weight</label>
-                      <input
+                      <FormLabel size="xs">Weight</FormLabel>
+                      <FormInput
                         type="number"
                         step="0.1"
                         min="0.1"
                         value={comp.weight}
-                        onChange={(e) => updateCustomComponent(index, 'weight', parseFloat(e.target.value))}
-                        className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
+                        onChange={(value) => updateCustomComponent(index, 'weight', parseFloat(value))}
+                        size="sm"
                       />
                     </div>
                     {customComponents.length > 1 && (
-                      <button
+                      <Button
                         onClick={() => removeCustomComponent(index)}
-                        className="px-2 py-1 bg-red-500 dark:bg-red-600 text-white text-xs rounded hover:bg-red-600 dark:hover:bg-red-700 transition-colors"
+                        variant="danger"
+                        size="sm"
+                        className="text-xs"
                       >
                         ×
-                      </button>
+                      </Button>
                     )}
                   </div>
                 ))}

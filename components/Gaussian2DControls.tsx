@@ -5,6 +5,7 @@ import { Gaussian2D } from '@/lib/gaussian2d';
 import LogLikelihoodIndicator from './LogLikelihoodIndicator';
 import { LogLikelihoodState } from '@/hooks/useLogLikelihoodUpdater';
 import CollapsiblePanel from './ui/CollapsiblePanel';
+import Button from './ui/Button';
 
 interface Gaussian2DControlsProps {
   gaussian?: Gaussian2D | null;
@@ -35,31 +36,37 @@ export default function Gaussian2DControls({
           <div className="space-y-2">
             <h4 className="font-medium text-gray-900 dark:text-white text-sm">Fitting Methods</h4>
             <div className="flex gap-2">
-              <button
+              <Button
                 onClick={onFit}
                 disabled={isRunning}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors"
+                variant="primary"
+                size="lg"
+                className="flex-1 font-medium"
               >
                 {isRunning ? 'Fitting...' : 'Fit Gaussian (MLE)'}
-              </button>
+              </Button>
               
               {showGradientDescent && (
-                <button
+                <Button
                   onClick={onStartGradientDescent}
                   disabled={isRunning}
-                  className="flex-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors"
+                  variant="purple"
+                  size="lg"
+                  className="flex-1 font-medium"
                 >
                   Gradient Descent
-                </button>
+                </Button>
               )}
               
-              <button
+              <Button
                 onClick={onReset}
                 disabled={isRunning}
-                className="bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors"
+                variant="secondary"
+                size="lg"
+                className="font-medium"
               >
                 Reset
-              </button>
+              </Button>
             </div>
           </div>
 

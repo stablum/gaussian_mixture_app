@@ -1,9 +1,9 @@
 // Algorithm mode types and enums
 
 export enum AlgorithmMode {
-  GMM = 'gmm',
-  KMEANS = 'kmeans',
-  GAUSSIAN_2D = 'gaussian_2d'
+  GAUSSIAN_2D = 'gaussian_2d',
+  KMEANS = 'kmeans', 
+  GMM = 'gmm'
 }
 
 export interface AlgorithmConfig {
@@ -12,24 +12,24 @@ export interface AlgorithmConfig {
 }
 
 export const ALGORITHM_LABELS = {
-  [AlgorithmMode.GMM]: 'Gaussian Mixture Model',
+  [AlgorithmMode.GAUSSIAN_2D]: '2D Gaussian Fitting',
   [AlgorithmMode.KMEANS]: 'K-Means Clustering',
-  [AlgorithmMode.GAUSSIAN_2D]: '2D Gaussian Fitting'
+  [AlgorithmMode.GMM]: '1D Gaussian Mixture Model'
 } as const;
 
 export const ALGORITHM_DESCRIPTIONS = {
-  [AlgorithmMode.GMM]: 'Probabilistic model using Expectation-Maximization algorithm',
+  [AlgorithmMode.GAUSSIAN_2D]: 'Single bivariate Gaussian distribution fitted to 2D data points',
   [AlgorithmMode.KMEANS]: 'Centroid-based clustering using iterative assignment and update',
-  [AlgorithmMode.GAUSSIAN_2D]: 'Single bivariate Gaussian distribution fitted to 2D data points'
+  [AlgorithmMode.GMM]: 'Probabilistic model using Expectation-Maximization algorithm'
 } as const;
 
 // Parameter names for each mode
 export const PARAMETER_NAMES = {
-  [AlgorithmMode.GMM]: {
+  [AlgorithmMode.GAUSSIAN_2D]: {
     primary: 'μ (Mean)',
-    secondary: 'σ (Std Dev)', 
-    weight: 'π (Weight)',
-    element: 'Component'
+    secondary: 'Σ (Covariance)',
+    weight: 'Density',
+    element: 'Gaussian'
   },
   [AlgorithmMode.KMEANS]: {
     primary: 'Centroid',
@@ -37,10 +37,10 @@ export const PARAMETER_NAMES = {
     weight: 'Points',
     element: 'Cluster'
   },
-  [AlgorithmMode.GAUSSIAN_2D]: {
+  [AlgorithmMode.GMM]: {
     primary: 'μ (Mean)',
-    secondary: 'Σ (Covariance)',
-    weight: 'Density',
-    element: 'Gaussian'
+    secondary: 'σ (Std Dev)', 
+    weight: 'π (Weight)',
+    element: 'Component'
   }
 } as const;

@@ -24,7 +24,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 
 export default function Home() {
   // Algorithm mode state
-  const [algorithmMode, setAlgorithmMode] = useState<AlgorithmMode>(AlgorithmMode.GMM);
+  const [algorithmMode, setAlgorithmMode] = useState<AlgorithmMode>(AlgorithmMode.GAUSSIAN_2D);
   
   // Common state
   const [data, setData] = useState<number[] | Point2D[]>([]);
@@ -882,10 +882,10 @@ export default function Home() {
                 Machine Learning Algorithm Explorer
               </h1>
               <p className="text-gray-600 dark:text-gray-300">
-                Interactive tool for exploring 1D Gaussian mixture models, K-means clustering, and 2D Gaussian fitting
+                Interactive tool for exploring 2D Gaussian fitting, K-means clustering, and 1D Gaussian mixture models
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.9.3 - CONVERGENCE CHART UX: Improved log-likelihood chart interaction! Click anywhere at any x-position (iteration) to navigate to that step, not just the precise circle. Much easier to use with 16px wide click areas spanning full chart height.
+                v3.10.0 - MODE REORGANIZATION: Algorithms now ordered by complexity - 2D Gaussian fitting (simplest) → K-means clustering → 1D Gaussian Mixture Models (most complex). GMM renamed to "1D Gaussian Mixture Model" for clarity.
               </div>
             </div>
             <ThemeToggle />

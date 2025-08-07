@@ -163,7 +163,6 @@ export default function AlgorithmControlsBase({
             data={convergenceData}
             mode={mode}
             currentIteration={currentStep}
-            width={400}
             height={180}
             onIterationClick={onNavigateToStep}
           />
