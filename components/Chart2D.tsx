@@ -39,7 +39,6 @@ export default function Chart2D({
     dataPoints: true
   }
 }: Chart2DProps) {
-  console.log('Chart2D render - data:', data?.length, 'gaussian:', !!gaussian, 'onHover:', !!onHover);
   const svgRef = useRef<SVGSVGElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -408,7 +407,6 @@ export default function Chart2D({
 
     // Add hover functionality
     if (onHover) {
-      console.log('Chart2D: Setting up hover functionality, onHover is:', typeof onHover);
       const hoverRect = g.append('rect') // Changed from insert to append to be on top
         .attr('width', chartWidth)
         .attr('height', chartHeight)
@@ -426,7 +424,6 @@ export default function Chart2D({
 
       hoverRect
         .on('mousemove', function(event) {
-          console.log('Chart2D: Mouse move event triggered, isDragging:', isDragging);
           if (isDragging) return;
           
           const [mouseX, mouseY] = d3.pointer(event);
@@ -435,7 +432,6 @@ export default function Chart2D({
             y: yScale.invert(mouseY)
           };
           
-          console.log('Chart2D: Calculated hover point:', point);
           
           hoverCircle
             .attr('cx', mouseX)
@@ -460,7 +456,6 @@ export default function Chart2D({
                 mahalanobisDistance = Math.sqrt(Math.max(0, mahalanobisSq));
               }
               
-              console.log('Chart2D: Calling onHover with Gaussian data:', { density, mahalanobisDistance });
               onHover(point, { 
                 density, 
                 mahalanobisDistance,
@@ -472,7 +467,6 @@ export default function Chart2D({
             }
           } else {
             // Show basic position information even without fitted Gaussian
-            console.log('Chart2D: Calling onHover without Gaussian, point:', point);
             onHover(point, { 
               density: undefined,
               mahalanobisDistance: undefined,

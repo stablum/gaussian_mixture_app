@@ -285,24 +285,23 @@ export default function ParameterPanel({
             )}
           </div>
           
-          {(()=>{
-            console.log('ParameterPanel render - hoverInfo:', hoverInfo, 'mode:', mode, 'isGaussian2D:', isGaussian2D);
-            return null;
-          })()}
-          {hoverInfo && (
+          {(hoverInfo || isGaussian2D) && (
             <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
               <h4 className="font-medium mb-2 text-gray-900 dark:text-white">
-                {isGaussian2D && typeof hoverInfo.x === 'object' ? 
-                  `Query at (${hoverInfo.x.x.toFixed(3)}, ${hoverInfo.x.y.toFixed(3)})` :
-                  `Query at x = ${typeof hoverInfo.x === 'number' ? hoverInfo.x.toFixed(3) : '0.000'}`
-                }
+                {isGaussian2D ? (
+                  hoverInfo && typeof hoverInfo.x === 'object' ? 
+                    `Query at (${hoverInfo.x.x.toFixed(3)}, ${hoverInfo.x.y.toFixed(3)})` :
+                    `Query Point (hover over chart to see coordinates)`
+                ) : (
+                  `Query at x = ${typeof hoverInfo?.x === 'number' ? hoverInfo.x.toFixed(3) : '0.000'}`
+                )}
               </h4>
               
               <div className="space-y-2 text-sm text-gray-900 dark:text-gray-100">
                 {isGaussian2D ? (
                   // 2D Gaussian hover info
                   <>
-                    {hoverInfo.density !== undefined ? (
+                    {hoverInfo?.density !== undefined ? (
                       <div>
                         <span className="font-medium">Probability Density:</span>
                         <span className="ml-2 font-mono">{hoverInfo.density.toFixed(6)}</span>
@@ -310,35 +309,35 @@ export default function ParameterPanel({
                     ) : (
                       <div>
                         <span className="font-medium">Probability Density:</span>
-                        <span className="ml-2 font-mono text-gray-500 dark:text-gray-400">Fit Gaussian first</span>
+                        <span className="ml-2 font-mono text-gray-500 dark:text-gray-400">Hover over chart to see density</span>
                       </div>
                     )}
                     
-                    {hoverInfo.euclideanDistance !== undefined ? (
+                    {hoverInfo?.euclideanDistance !== undefined ? (
                       <div>
                         <span className="font-medium">Euclidean Distance:</span>
                         <span className="ml-2 font-mono">{hoverInfo.euclideanDistance.toFixed(3)}</span>
                       </div>
-                    ) : gaussian2d && (
+                    ) : (
                       <div>
                         <span className="font-medium">Euclidean Distance:</span>
-                        <span className="ml-2 font-mono text-gray-500 dark:text-gray-400">Fit Gaussian first</span>
+                        <span className="ml-2 font-mono text-gray-500 dark:text-gray-400">Hover over chart to see distance</span>
                       </div>
                     )}
                     
-                    {hoverInfo.mahalanobisDistance !== undefined ? (
+                    {hoverInfo?.mahalanobisDistance !== undefined ? (
                       <div>
                         <span className="font-medium">Mahalanobis Distance:</span>
                         <span className="ml-2 font-mono">{hoverInfo.mahalanobisDistance.toFixed(3)}</span>
                       </div>
-                    ) : gaussian2d && (
+                    ) : (
                       <div>
                         <span className="font-medium">Mahalanobis Distance:</span>
                         <span className="ml-2 font-mono text-gray-500 dark:text-gray-400">Fit Gaussian first</span>
                       </div>
                     )}
                     
-                    {gaussian2d && hoverInfo.density !== undefined && (
+                    {gaussian2d && hoverInfo?.density !== undefined && (
                       <>
                         <div>
                           <span className="font-medium">Relative Density:</span>
@@ -346,7 +345,7 @@ export default function ParameterPanel({
                             {(() => {
                               const det = gaussian2d.sigma.xx * gaussian2d.sigma.yy - gaussian2d.sigma.xy * gaussian2d.sigma.xy;
                               const maxDensity = 1 / (2 * Math.PI * Math.sqrt(det));
-                              return (hoverInfo.density / maxDensity).toFixed(4);
+                              return (hoverInfo!.density / maxDensity).toFixed(4);
                             })()}
                           </span>
                         </div>
@@ -367,20 +366,20 @@ export default function ParameterPanel({
                       </div>
                     )}
                   </>
-                ) : isKMeans && hoverInfo.clusterDistances && Array.isArray(hoverInfo.clusterDistances) && hoverInfo.clusterDistances.length > 0 ? (
+                ) : isKMeans && hoverInfo?.clusterDistances && Array.isArray(hoverInfo.clusterDistances) && hoverInfo.clusterDistances.length > 0 ? (
                   // K-means hover info
                   <>
                     <div>
                       <span className="font-medium">Nearest Cluster:</span>
-                      <span className="ml-2 font-mono" style={{ color: getComponentColor(hoverInfo.nearestCluster || 0) }}>
-                        Cluster {(hoverInfo.nearestCluster || 0) + 1}
+                      <span className="ml-2 font-mono" style={{ color: getComponentColor(hoverInfo?.nearestCluster || 0) }}>
+                        Cluster {(hoverInfo?.nearestCluster || 0) + 1}
                       </span>
                     </div>
                     
                     <div>
                       <span className="font-medium">Distances to Centroids:</span>
                       <div className="mt-1 space-y-1">
-                        {hoverInfo.clusterDistances.map((distance, index) => (
+                        {hoverInfo.clusterDistances?.map((distance, index) => (
                           <div key={index} className="flex justify-between">
                             <span style={{ color: getComponentColor(index) }}>Cluster {index + 1}:</span>
                             <span className="font-mono">{distance.toFixed(4)}</span>
@@ -389,19 +388,19 @@ export default function ParameterPanel({
                       </div>
                     </div>
                   </>
-                ) : hoverInfo.probabilities ? (
+                ) : hoverInfo?.probabilities ? (
                   // GMM hover info
                   <>
                     <div>
                       <span className="font-medium">Total Probability:</span>
-                      <span className="ml-2 font-mono">{hoverInfo.probabilities.total.toFixed(4)}</span>
+                      <span className="ml-2 font-mono">{hoverInfo.probabilities?.total.toFixed(4)}</span>
                     </div>
                     
                     <div>
                       <span className="font-medium">Component Probabilities:</span>
                       <div className="mt-1 space-y-1">
-                        {hoverInfo.probabilities.componentProbs && Array.isArray(hoverInfo.probabilities.componentProbs) ? 
-                          hoverInfo.probabilities.componentProbs.map((prob, index) => (
+                        {hoverInfo.probabilities?.componentProbs && Array.isArray(hoverInfo.probabilities.componentProbs) ? 
+                          hoverInfo.probabilities.componentProbs?.map((prob, index) => (
                             <div key={index} className="flex justify-between">
                               <span style={{ color: getComponentColor(index) }}>Component {index + 1}:</span>
                               <span className="font-mono">{prob.toFixed(4)}</span>
@@ -414,8 +413,8 @@ export default function ParameterPanel({
                     <div>
                       <span className="font-medium">Posterior Probabilities:</span>
                       <div className="mt-1 space-y-1">
-                        {hoverInfo.probabilities.posteriors && Array.isArray(hoverInfo.probabilities.posteriors) ? 
-                          hoverInfo.probabilities.posteriors.map((posterior, index) => (
+                        {hoverInfo.probabilities?.posteriors && Array.isArray(hoverInfo.probabilities.posteriors) ? 
+                          hoverInfo.probabilities.posteriors?.map((posterior, index) => (
                             <div key={index} className="flex justify-between">
                               <span style={{ color: getComponentColor(index) }}>P(Component {index + 1} | x):</span>
                               <span className="font-mono">{posterior.toFixed(4)}</span>
@@ -427,8 +426,8 @@ export default function ParameterPanel({
                     
                     <div className="text-xs text-gray-600 dark:text-gray-400 mt-2">
                       Posterior probabilities sum to: {
-                        hoverInfo.probabilities.posteriors && Array.isArray(hoverInfo.probabilities.posteriors) ? 
-                          hoverInfo.probabilities.posteriors.reduce((sum, p) => sum + p, 0).toFixed(4) :
+                        hoverInfo.probabilities?.posteriors && Array.isArray(hoverInfo.probabilities.posteriors) ? 
+                          hoverInfo.probabilities.posteriors?.reduce((sum, p) => sum + p, 0).toFixed(4) :
                           '0.0000'
                       }
                     </div>
