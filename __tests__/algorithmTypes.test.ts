@@ -19,7 +19,7 @@ describe('Algorithm Types', () => {
 
   describe('ALGORITHM_LABELS', () => {
     it('should have labels for all modes', () => {
-      expect(ALGORITHM_LABELS[AlgorithmMode.GMM]).toBe('Gaussian Mixture Model');
+      expect(ALGORITHM_LABELS[AlgorithmMode.GMM]).toBe('1D Gaussian Mixture Model');
       expect(ALGORITHM_LABELS[AlgorithmMode.KMEANS]).toBe('K-Means Clustering');
       expect(ALGORITHM_LABELS[AlgorithmMode.GAUSSIAN_2D]).toBe('2D Gaussian Fitting');
     });
