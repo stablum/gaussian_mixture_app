@@ -752,15 +752,19 @@ export default function Home() {
 
   const handleHover = (x: number | Point2D, info: any) => {
     try {
+      console.log('Page handleHover called with:', { x, info, algorithmMode });
       if (info) {
         if (info.error) {
+          console.log('Setting error:', info.error);
           setError(info.error);
           setHoverInfo(null);
         } else {
+          console.log('Setting hoverInfo:', { x, ...info });
           setHoverInfo({ x, ...info });
           setError(null); // Clear any previous errors
         }
       } else {
+        console.log('Clearing hoverInfo');
         setHoverInfo(null);
         setError(null);
       }
@@ -986,6 +990,10 @@ export default function Home() {
               />
             )}
             
+            {(()=>{
+              console.log('Chart render decision - data.length:', data.length, 'algorithmMode:', algorithmMode, 'is2D:', algorithmMode === AlgorithmMode.GAUSSIAN_2D);
+              return null;
+            })()}
             {data.length > 0 && (
               algorithmMode === AlgorithmMode.GAUSSIAN_2D ? (
                 <Chart2D

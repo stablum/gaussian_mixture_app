@@ -285,6 +285,10 @@ export default function ParameterPanel({
             )}
           </div>
           
+          {(()=>{
+            console.log('ParameterPanel render - hoverInfo:', hoverInfo, 'mode:', mode, 'isGaussian2D:', isGaussian2D);
+            return null;
+          })()}
           {hoverInfo && (
             <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
               <h4 className="font-medium mb-2 text-gray-900 dark:text-white">
