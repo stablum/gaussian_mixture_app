@@ -202,10 +202,17 @@ export default function Home() {
   }, [algorithmMode, data, components.length, clusters.length, initializeGMM, initializeKMeans, initializeGaussian2D]);
 
   useEffect(() => {
-    const sampleData = generateSimpleSampleData(100);
-    setData(sampleData);
-    initializeGMM(sampleData, 2);
-  }, [initializeGMM]);
+    // Initialize based on current algorithm mode to avoid passing 1D data into 2D charts
+    if (algorithmMode === AlgorithmMode.GAUSSIAN_2D) {
+      const sampleData2D = generateSimpleSampleData2D(100);
+      setData(sampleData2D);
+      initializeGaussian2D(sampleData2D);
+    } else {
+      const sampleData = generateSimpleSampleData(100);
+      setData(sampleData);
+      initializeGMM(sampleData, 2);
+    }
+  }, [algorithmMode, initializeGMM, initializeGaussian2D]);
 
   const handleDataLoad = (newData: number[]) => {
     if (algorithmMode === AlgorithmMode.GAUSSIAN_2D) {
@@ -889,7 +896,7 @@ export default function Home() {
                 Interactive tool for exploring 2D Gaussian fitting, K-means clustering, and 1D Gaussian mixture models
               </p>
               <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                v3.11.4 - DEBUG: Added comprehensive debug logging to trace 2D hover events. Console logs will show mouse events, coordinate calculations, and data flow. Use browser dev tools console to see debug output.
+                v3.11.5 - Fix: Properly initialize 2D mode with 2D data; restore hover query panel in 2D Gaussian mode.
               </div>
             </div>
             <ThemeToggle />
@@ -1025,7 +1032,7 @@ export default function Home() {
               onVisibilityChange={handleVisibilityChange}
             />
             
-            {(algorithmMode === AlgorithmMode.GAUSSIAN_2D ? gaussian2d : (algorithmMode === AlgorithmMode.GMM ? components.length > 0 : clusters.length > 0)) && (
+            {(algorithmMode === AlgorithmMode.GAUSSIAN_2D ? true : (algorithmMode === AlgorithmMode.GMM ? components.length > 0 : clusters.length > 0)) && (
               <ParameterPanel
                 mode={algorithmMode}
                 components={algorithmMode === AlgorithmMode.GMM ? components : undefined}

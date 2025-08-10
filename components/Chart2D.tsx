@@ -93,6 +93,18 @@ export default function Chart2D({
       .domain([yExtent[0] - yPadding, yExtent[1] + yPadding])
       .range([chartHeight, 0]);
 
+    // In certain test/SSR environments, d3 scales may not be initialized as expected.
+    // Guard against non-function scales to avoid runtime errors in tests.
+    if (
+      typeof (xScale as any) !== 'function' ||
+      typeof (yScale as any) !== 'function' ||
+      typeof (xScale as any).invert !== 'function' ||
+      typeof (yScale as any).invert !== 'function'
+    ) {
+      console.warn('Chart2D: scales unavailable in this environment, skipping render');
+      return;
+    }
+
     const g = svg.append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
@@ -413,6 +425,7 @@ export default function Chart2D({
         .attr('height', chartHeight)
         .attr('fill', 'none')
         .attr('pointer-events', 'all')
+        .attr('data-testid', 'chart-hover-area')
         .style('cursor', 'crosshair')
         .style('z-index', '1000'); // Ensure it's on top
       

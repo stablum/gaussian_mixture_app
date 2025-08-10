@@ -80,7 +80,7 @@ export default function ParameterPanel({
       <div className="space-y-4">
         {isGaussian2D ? (
           // 2D Gaussian display
-          gaussian2d && (
+          gaussian2d ? (
                 <div className="border border-gray-200 dark:border-gray-600 rounded p-3 bg-gray-50 dark:bg-gray-800 transition-colors"
                      style={{ borderLeftColor: getComponentColor(0), borderLeftWidth: '4px' }}>
                   <h4 className="font-medium mb-3" style={{ color: getComponentColor(0) }}>
@@ -194,8 +194,19 @@ export default function ParameterPanel({
                     </div>
                   </div>
                 </div>
-              )
-            ) : isKMeans ? (
+              ) : (
+              // No fitted Gaussian yet
+              <div className="border border-gray-200 dark:border-gray-600 rounded p-3 bg-gray-50 dark:bg-gray-800 transition-colors">
+                <h4 className="font-medium mb-3 text-gray-900 dark:text-white">
+                  2D Gaussian Distribution
+                </h4>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  <p>No Gaussian distribution fitted yet.</p>
+                  <p className="mt-2">Generate 2D sample data and click "Fit Gaussian (MLE)" to see parameters.</p>
+                </div>
+              </div>
+            )
+          ) : isKMeans ? (
               // K-means clusters display
               clusters?.map((cluster, index) => (
                 <div 

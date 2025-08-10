@@ -127,11 +127,13 @@ export default function AlgorithmControlsBase({
           <div>
             <span className="font-medium">{metricLabel}:</span>
             <span className="ml-2">{
-              isFinite(metricValue) && metricValue !== -Infinity && metricValue !== Infinity
-                ? metricValue.toFixed(4) 
-                : (metricValue === -Infinity || metricValue === Infinity)
-                  ? '--' 
-                  : metricValue.toString()
+              typeof metricValue === 'number'
+                ? (isFinite(metricValue) && metricValue !== -Infinity && metricValue !== Infinity
+                    ? metricValue.toFixed(4)
+                    : (metricValue === -Infinity || metricValue === Infinity)
+                      ? '--'
+                      : String(metricValue))
+                : '--'
             }</span>
           </div>
         )}
